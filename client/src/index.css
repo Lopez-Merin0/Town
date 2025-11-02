@@ -1,0 +1,118 @@
+@import url('https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;700&family=Mali:wght@400;700&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Importación de fuentes para un estilo más suave y juguetón */
+/* Nuevas variables de color y texturas inspiradas en la imagen */
+:root {
+  --kawaii-bg-light: #FBF0DF; /* Fondo muy claro, casi blanco */
+  --kawaii-bg-medium: #F7E7D4; /* Color de fondo intermedio */
+  --kawaii-bg-dark: #A58B79; /* Marrón oscuro para bordes y fondos de paneles */
+  --kawaii-panel-light: #F7F0E6; /* Fondo de paneles internos */
+  --kawaii-panel-border: #8B7360; /* Borde más oscuro para paneles */
+  --kawaii-text-dark: #4A3C32; /* Texto marrón oscuro */
+  --kawaii-text-medium: #6B574C; /* Texto intermedio */
+  --kawaii-accent-green: #B2D8BB; /* Acento verde para títulos/botones */
+  --kawaii-accent-pink: #FFC0CB; /* Acento rosa */
+  --kawaii-shadow-light: rgba(0, 0, 0, 0.1);
+  --kawaii-shadow-dark: rgba(0, 0, 0, 0.3);
+
+  /* URL de texturas (ejemplos, puedes usar las tuyas) */
+  --texture-wood: url('https://www.transparenttextures.com/patterns/wood.png'); /* Fondo de madera */
+  --texture-paper: url('https://www.transparenttextures.com/patterns/white-paperboard.png'); /* Fondo de papel */
+}
+
+body {
+  font-family: 'Comfortaa', cursive; /* Fuente principal suave */
+  background-color: var(--kawaii-bg-light);
+  color: var(--kawaii-text-dark);
+  /* Textura de fondo global */
+  background-image: var(--texture-paper);
+  background-repeat: repeat;
+}
+
+/* Estilo para el contenedor principal, como el del diseño */
+.kawaii-layout-bg {
+  background-color: var(--kawaii-bg-medium);
+  border: 8px solid var(--kawaii-bg-dark); /* Borde grueso como el de la imagen */
+  border-radius: 40px; /* Esquinas muy redondeadas */
+  padding: 20px;
+  box-shadow: 0 10px 20px var(--kawaii-shadow-dark);
+  background-image: var(--texture-wood); /* Textura de madera para el fondo */
+  background-repeat: repeat;
+  background-size: 200px 200px; /* Ajusta el tamaño de la textura */
+}
+
+/* Estilo para paneles internos (como el panel principal de contenido) */
+.kawaii-panel {
+  background-color: var(--kawaii-panel-light);
+  border: 3px solid var(--kawaii-panel-border);
+  border-radius: 20px;
+  padding: 25px;
+  box-shadow: 0 5px 10px var(--kawaii-shadow-light);
+  background-image: var(--texture-paper);
+  background-repeat: repeat;
+}
+
+/* Estilo para el encabezado/título principal */
+.kawaii-header {
+  font-family: 'Mali', cursive; /* Fuente juguetona para títulos */
+  font-size: 2.8rem;
+  color: var(--kawaii-text-dark);
+  text-shadow: 1px 1px 0 var(--kawaii-panel-light), 
+               -1px -1px 0 var(--kawaii-panel-light),
+               1px -1px 0 var(--kawaii-panel-light),
+               -1px 1px 0 var(--kawaii-panel-light); /* Borde blanco sutil */
+  letter-spacing: 1px;
+}
+
+/* Estilo para sub-encabezados y texto secundario */
+.kawaii-subheader {
+  font-family: 'Mali', cursive;
+  font-size: 1.2rem;
+  color: var(--kawaii-text-medium);
+}
+
+/* Estilo para botones - AJUSTADO */
+.kawaii-button {
+  font-family: 'Mali', cursive;
+  background-color: var(--kawaii-accent-green);
+  color: var(--kawaii-text-dark);
+  border: 4px solid var(--kawaii-panel-border); /* Borde más grueso */
+  border-radius: 20px; /* Más redondeado */
+  padding: 10px 30px; /* Padding más compacto */
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  box-shadow: 5px 5px 0px var(--kawaii-panel-border); /* Sombra más grande y visible */
+  font-size: 1.1rem;
+}
+
+.kawaii-button:hover {
+  transform: translateY(-3px); /* Se levanta un poco */
+  box-shadow: 8px 8px 0px var(--kawaii-panel-border); /* Sombra aún mayor en hover */
+  background-color: var(--kawaii-accent-pink); /* CAMBIA DE COLOR al hacer hover */
+}
+
+.kawaii-button:active {
+  transform: translateY(2px); /* Se hunde al hacer click */
+  box-shadow: 1px 1px 0px var(--kawaii-panel-border); /* Sombra pequeña al hacer click */
+}
+
+/* Estilo para inputs */
+.kawaii-input {
+  background-color: var(--kawaii-panel-light);
+  border: 1px solid var(--kawaii-panel-border);
+  border-radius: 10px;
+  padding: 10px 15px;
+  color: var(--kawaii-text-dark);
+  font-family: 'Comfortaa', cursive;
+  box-shadow: inset 1px 1px 2px var(--kawaii-shadow-light);
+  transition: border-color 0.2s ease-in-out;
+}
+
+.kawaii-input:focus {
+  outline: none;
+  border-color: var(--kawaii-accent-green);
+  box-shadow: inset 1px 1px 2px var(--kawaii-shadow-light), 0 0 0 3px rgba(178, 216, 187, 0.5); /* Resplandor verde */
+}
