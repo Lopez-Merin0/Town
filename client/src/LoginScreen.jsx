@@ -1,15 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from './api'; 
-// Eliminamos la importación del componente 'world' ya que no se usa en el LoginScreen
-// import world from './WorldScreen'; 
 
-// Usaremos api.loginUser, ya que exportaste por default el objeto
 const { loginUser } = api; 
 
-const LOGIN_BACKGROUND_IMAGE = 'https://images.unsplash.com/photo-1620242274955-fc42c75a462b?fit=crop&w=1400&h=800&q=80'; 
-
-// Función para guardar el token en localStorage (o tu método de almacenamiento preferido)
+//para lo del token
 const saveAuthData = (token) => {
     try {
         localStorage.setItem('userToken', token);
@@ -20,114 +15,149 @@ const saveAuthData = (token) => {
 };
 
 const LoginScreen = () => {
-  const navigate = useNavigate();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState('');
+    const navigate = useNavigate();
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [message, setMessage] = useState('');
+    const [errors, setErrors] = useState({}); 
 
-  const handleLogin = async (event) => {
-    event.preventDefault();
-    setLoading(true);
-    setMessage('');
+    const ErrorMessage = ({ error }) =>
+        error ? (
+            <p className="text-red-600 text-xs mt-1 font-semibold text-left mx-auto w-3/4">{error}</p>
+        ) : null;
 
-    try {
-        // Pasamos un objeto con las propiedades { email, password }
-        const credentials = { email, password };
-        const result = await loginUser(credentials);
-        
-        // 🚨 CAMBIO CLAVE: Guardar el token en localStorage ANTES de redirigir.
-        // Asumiendo que 'result' tiene un campo 'token' o que 'result' es el token.
-        // Adaptar esta línea según lo que devuelva tu 'loginUser'
-        const tokenToSave = result.token || result; // Usa 'result.token' si es un objeto, o 'result' si es solo el token.
-        if (tokenToSave) {
-            saveAuthData(tokenToSave);
+    // el dto esta en server
+    const validateForm = () => {
+        let newErrors = {};
+        let isValid = true;
+
+        if (!email.trim()) {
+            newErrors.email = 'El campo de email no puede estar vacío'; // IsNotEmpty
+            isValid = false;
+        } else if (!/\S+@\S+\.\S+/.test(email)) {
+            newErrors.email = 'El campo de email debe ser una dirección de correo válida'; // IsEmail
+            isValid = false;
         }
 
-        // 1. Mostrar mensaje de éxito
-        setMessage('¡Inicio de sesión exitoso! Redirigiendo al pueblo...');
-        
-        setTimeout(() => {
-            // ✅ CORRECCIÓN FINAL: Navegar a la ruta '/world' (cadena de texto)
-          navigate('/world'); 
-        }, 1500);
+        if (!password) {
+            newErrors.password = 'El campo de contraseña no puede estar vacío'; // IsNotEmpty
+            isValid = false;
+        } else if (password.length < 6) {
+            newErrors.password = 'La contraseña debe tener al menos 6 caracteres'; // MinLength(6)
+            isValid = false;
+        }
+        
+        setErrors(newErrors);
+        return isValid;
+    };
 
-    } catch (error) {
-        // Capturamos y mostramos el error (incluyendo mensajes del backend 400/401)
-        setMessage(error.message || 'Error desconocido en el inicio de sesión.');
-    } finally {
-      setLoading(false);
-    }
-  };
+    const handleLogin = async (event) => {
+        event.preventDefault();
+        setMessage('');
+        setErrors({});
 
-  return (
-    <div 
-      className="relative w-full min-h-screen flex items-center justify-center bg-cover bg-center p-4 sm:p-8"
-      style={{ backgroundImage: `url(${LOGIN_BACKGROUND_IMAGE})` }}
-    >
-      <div className="absolute inset-0 bg-black opacity-20"></div>
-      
-      <div className="relative z-10 p-6 md:p-10 max-w-sm md:max-w-md w-full text-center ac-box">
-        
-        <h1 className="ac-title-text mb-8 text-4xl sm:text-5xl">
-          Iniciar Sesión
-        </h1>
-        
-        {message && (
-          <p className={`mb-6 text-base font-semibold p-3 rounded-xl transition duration-300
-            ${message.includes('exitoso') 
-              ? 'bg-ac-blue-light text-green-800 border border-green-800'
-              : 'bg-ac-pink text-red-800 border border-red-800'
-            }`}
-          >
-            {message}
-          </p>
-        )}
+        if (!validateForm()) return; 
 
-        <form onSubmit={handleLogin} className="space-y-4">
-          
-          <div>
-            <input
-              type="email"
-              placeholder="Correo electrónico"
-              className="ac-input w-full"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </div>
-          
-          <div>
-            <input
-              type="password"
-              placeholder="Contraseña"
-              className="ac-input w-full"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </div>
-          
-          <button type="submit" className="ac-button w-full mt-6" disabled={loading}>
-            {loading ? 'Cargando...' : 'Iniciar Sesión'}
-          </button>
-        </form>
+        setLoading(true);
 
-        <button 
-          onClick={() => navigate('/register')} 
-          className="mt-6 text-base font-semibold text-ac-brown hover:text-ac-green-dark hover:underline transition duration-200"
-        >
-          ¿No tienes cuenta? Regístrate aquí 
-        </button>
-        <button 
-          onClick={() => navigate('/')} 
-          className="mt-2 text-sm text-gray-500 hover:underline"
-        >
-          Volver a la Principal
-        </button>
-      </div>
-    </div>
-  );
+        try {
+            const credentials = { email, password };
+            const result = await loginUser(credentials);
+            
+            const tokenToSave = result.token || result; 
+            if (tokenToSave) {
+                saveAuthData(tokenToSave);
+            }
+
+            setMessage('¡Inicio de sesión exitoso! Redirigiendo al pueblo...');
+            
+            setTimeout(() => {
+                navigate('/world'); 
+            }, 1500);
+
+        } catch (error) {
+            const errorMsg = error.message || 'Error desconocido en el inicio de sesión.';
+            setMessage(errorMsg);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <div className="relative w-full min-h-screen flex items-center justify-center p-4 sm:p-8">
+            <div className="relative z-10 w-full max-w-lg mx-auto p-8 kawaii-layout-bg text-center">
+                
+                <div className="mb-8">
+                    <h1 className="kawaii-header text-5xl sm:text-6xl">Iniciar Sesión</h1>
+                </div>
+
+                <div className="kawaii-panel p-6 sm:p-8">
+                    <h2 className="text-xl font-bold mb-6 text-[var(--kawaii-text-dark)]">Bienvenido de vuelta</h2>
+
+                    {message && (
+                        <p className={`mb-6 text-base font-semibold p-3 rounded-xl transition duration-300 border 
+                            ${message.toLowerCase().includes('exitoso') 
+                                ? 'bg-green-100 border-green-600 text-green-800'
+                                : 'bg-red-100 border-red-600 text-red-800'
+                            }`}
+                        >
+                            {message}
+                        </p>
+                    )}
+
+                    <form onSubmit={handleLogin}>
+                        <div className="space-y-4 mb-8">
+                            
+                            <div>
+                                <input
+                                    type="email"
+                                    placeholder="Correo electrónico"
+                                    className="kawaii-input w-3/4 mx-auto"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                />
+                                <ErrorMessage error={errors.email} />
+                            </div>
+                            
+                            <div>
+                                <input
+                                    type="password"
+                                    placeholder="Contraseña"
+                                    className="kawaii-input w-3/4 mx-auto"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                />
+                                <ErrorMessage error={errors.password} />
+                            </div>
+                            
+                        </div>
+                        
+                        <button type="submit" className="kawaii-button w-full text-lg py-3" disabled={loading}>
+                            {loading ? 'Cargando...' : 'Iniciar Sesión'}
+                        </button>
+                    </form>
+
+                    <div className="flex justify-center items-center space-x-4 mt-6">
+                        <button 
+                            onClick={() => navigate('/register')} 
+                            className="kawaii-link-button"
+                        >
+                            ¿No tienes cuenta? <br />
+                            Regístrate aquí
+                        </button>
+                        <button 
+                            onClick={() => navigate('/')} 
+                            className="kawaii-link-button text-sm"
+                        >
+                            Volver a la <br />
+                            Pantalla principal
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
 };
 
 export default LoginScreen;
