@@ -3,13 +3,11 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Importación de fuentes para un estilo más suave y juguetón */
-/* Nuevas variables de color y texturas inspiradas en la imagen */
 :root {
-  --kawaii-bg-light: #FBF0DF; /* Fondo muy claro, casi blanco */
-  --kawaii-bg-medium: #F7E7D4; /* Color de fondo intermedio */
-  --kawaii-bg-dark: #A58B79; /* Marrón oscuro para bordes y fondos de paneles */
-  --kawaii-panel-light: #F7F0E6; /* Fondo de paneles internos */
+  --kawaii-bg-light: #FBF0DF; 
+  --kawaii-bg-medium: #F7E7D4; 
+  --kawaii-bg-dark: #A58B79; 
+  --kawaii-panel-light: #F7F0E6; 
   --kawaii-panel-border: #8B7360; /* Borde más oscuro para paneles */
   --kawaii-text-dark: #4A3C32; /* Texto marrón oscuro */
   --kawaii-text-medium: #6B574C; /* Texto intermedio */

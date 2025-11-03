@@ -1,5 +1,6 @@
-// client/src/main.jsx (CORREGIDO)
-import React, { StrictMode } from 'react' // <--- CORRECCIÓN CLAVE
+//no moverle a nada
+
+import React, { StrictMode } from 'react' 
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.jsx'
