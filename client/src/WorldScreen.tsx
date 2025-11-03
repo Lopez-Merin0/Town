@@ -1,9 +1,13 @@
 // client/src/WorldScreen.tsx
 import React, { useState, useEffect, useCallback } from 'react';
-import Character from './Character';
 import { useNavigate } from 'react-router-dom';
+import Character from './Character';
+import { usePopupTrigger } from './usePopupTrigger';
+import FirstMinigame from './FirstMinigame';
 
 const BACKGROUND_URL = './fondo.jpg';
+const INTRO_IMAGE_URL = 'https://i.pinimg.com/originals/3a/82/56/3a8256b391b0de71639848f2815c2b14.gif'; // Ajusta la ruta a tu imagen
+
 const MAP_WIDTH = 1024;
 const MAP_HEIGHT = 640;
 const SCALE_FACTOR = 2;
@@ -13,7 +17,6 @@ const CHARACTER_SCALE_FACTOR = 5;
 const SCALED_SPRITE_SIZE = BASE_SPRITE_SIZE * CHARACTER_SCALE_FACTOR;
 
 const MOVEMENT_SPEED = 5;
-
 const CUSTOM_MAX_X_POS = 1909;
 const CUSTOM_MAX_Y_POS = 1200;
 
@@ -43,103 +46,118 @@ const LogOutIcon = (props: React.SVGProps<SVGSVGElement>) => (
 const WorldScreen: React.FC = () => {
     const navigate = useNavigate();
 
-    const [viewport] = useState({
-        width: window.innerWidth,
-        height: window.innerHeight
+    const [showIntro, setShowIntro] = useState(true);
+
+    const [viewport, setViewport] = useState({
+        width: typeof window !== 'undefined' ? window.innerWidth : 1024,
+        height: typeof window !== 'undefined' ? window.innerHeight : 768,
     });
+
+    useEffect(() => {
+        const onResize = () => setViewport({ width: window.innerWidth, height: window.innerHeight });
+        window.addEventListener('resize', onResize);
+        return () => window.removeEventListener('resize', onResize);
+    }, []);
 
     const MAX_MAP_WIDTH = MAP_WIDTH * SCALE_FACTOR;
     const MAX_MAP_HEIGHT = MAP_HEIGHT * SCALE_FACTOR;
 
-    const [characterState, setCharacterState] = useState<CharacterState>(() => {
-        const initialX = 1024;
-        const initialY = 545;
+    const [characterState, setCharacterState] = useState<CharacterState>(() => ({
+        mapX: 1024,
+        mapY: 545,
+        direction: 1,
+        frame: 0,
+        isMoving: false,
+    }));
 
-        return {
-            mapX: initialX,
-            mapY: initialY,
-            direction: 1,
-            frame: 0,
-            isMoving: false,
-        };
+    const isPopupTriggered = usePopupTrigger({
+        mapX: characterState.mapX,
+        mapY: characterState.mapY,
     });
+    const [isPopupOpen, setIsPopupOpen] = useState(false);
 
     useEffect(() => {
-        let animationInterval: number | null = null;
+        if (isPopupTriggered) setIsPopupOpen(true);
+    }, [isPopupTriggered]);
 
+    const handleClosePopup = () => setIsPopupOpen(false);
+
+    // aniamcion del monito 
+    useEffect(() => {
+        let interval: number | null = null;
         if (characterState.isMoving) {
-            animationInterval = setInterval(() => {
-                setCharacterState(prev => ({
-                    ...prev,
-                    frame: (prev.frame + 1) % 4,
-                }));
+            interval = window.setInterval(() => {
+                setCharacterState((prev) => ({ ...prev, frame: (prev.frame + 1) % 4 }));
             }, 100);
         } else {
-            setCharacterState(prev => ({ ...prev, frame: 0 }));
+            setCharacterState((prev) => ({ ...prev, frame: 0 }));
         }
-
         return () => {
-            if (animationInterval) clearInterval(animationInterval);
+            if (interval) clearInterval(interval);
         };
     }, [characterState.isMoving]);
 
     const handleKeyDown = useCallback((event: KeyboardEvent) => {
+        if (isPopupOpen) {
+            event.preventDefault();
+            return;
+        }
         const key = event.key.toLowerCase();
         const direction = DIRECTION_MAP[key];
+        if (direction === undefined) return;
 
-        if (direction !== undefined) {
-            event.preventDefault();
+        event.preventDefault();
+        setCharacterState((prev) => {
+            let newX = prev.mapX;
+            let newY = prev.mapY;
 
-            setCharacterState(prev => {
-                let newX = prev.mapX;
-                let newY = prev.mapY;
+            switch (key) {
+                case 'arrowup': case 'w': newY -= MOVEMENT_SPEED; break;
+                case 'arrowdown': case 's': newY += MOVEMENT_SPEED; break;
+                case 'arrowleft': case 'a': newX -= MOVEMENT_SPEED; break;
+                case 'arrowright': case 'd': newX += MOVEMENT_SPEED; break;
+            }
 
-                switch (key) {
-                    case 'arrowup': case 'w': newY -= MOVEMENT_SPEED; break;
-                    case 'arrowdown': case 's': newY += MOVEMENT_SPEED; break;
-                    case 'arrowleft': case 'a': newX -= MOVEMENT_SPEED; break;
-                    case 'arrowright': case 'd': newX += MOVEMENT_SPEED; break;
-                }
+            const HALF_SPRITE = SCALED_SPRITE_SIZE / 2;
+            const MIN_X = HALF_SPRITE;
+            const MAX_X = CUSTOM_MAX_X_POS - HALF_SPRITE;
+            const MIN_Y = HALF_SPRITE;
+            const MAX_Y = CUSTOM_MAX_Y_POS - HALF_SPRITE;
 
-                const HALF_SPRITE = SCALED_SPRITE_SIZE / 2;
-
-                const MIN_X_LIMIT = HALF_SPRITE;
-                const MAX_X_LIMIT = CUSTOM_MAX_X_POS - HALF_SPRITE;
-
-                const MIN_Y_LIMIT = HALF_SPRITE;
-                const MAX_Y_LIMIT = CUSTOM_MAX_Y_POS - HALF_SPRITE;
-
-                newX = Math.max(MIN_X_LIMIT, Math.min(MAX_X_LIMIT, newX));
-                newY = Math.max(MIN_Y_LIMIT, Math.min(MAX_Y_LIMIT, newY));
-
-                return {
-                    ...prev,
-                    mapX: newX,
-                    mapY: newY,
-                    direction,
-                    isMoving: true
-                };
-            });
-        }
-    }, []);
+            return {
+                ...prev,
+                mapX: Math.max(MIN_X, Math.min(MAX_X, newX)),
+                mapY: Math.max(MIN_Y, Math.min(MAX_Y, newY)),
+                direction,
+                isMoving: true,
+            };
+        });
+    }, [isPopupOpen]);
 
     const handleKeyUp = useCallback((event: KeyboardEvent) => {
+        if (isPopupOpen) return;
         const key = event.key.toLowerCase();
         if (DIRECTION_MAP[key] !== undefined) {
-            setCharacterState(prev => ({ ...prev, isMoving: false }));
+            setCharacterState((prev) => ({ ...prev, isMoving: false }));
         }
-    }, []);
+    }, [isPopupOpen]);
 
     useEffect(() => {
         window.addEventListener('keydown', handleKeyDown);
         window.addEventListener('keyup', handleKeyUp);
-
         return () => {
             window.removeEventListener('keydown', handleKeyDown);
             window.removeEventListener('keyup', handleKeyUp);
         };
     }, [handleKeyDown, handleKeyUp]);
 
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            console.log('Intro finished -> mounting world');
+            setShowIntro(false);
+        }, 2000); 
+        return () => clearTimeout(timer);
+    }, []);
 
     const halfScreenW = viewport.width / 2;
     const halfScreenH = viewport.height / 2;
@@ -153,11 +171,19 @@ const WorldScreen: React.FC = () => {
         viewport.height - MAX_MAP_HEIGHT
     );
 
-    const handleLogout = () => {
-        navigate('/');
-    };
+    const handleLogout = () => navigate('/');
 
-    //Diseñito
+    if (showIntro) {
+        return (
+            <div className="w-screen h-screen flex items-center justify-center bg-black">
+                <img
+                    src={INTRO_IMAGE_URL}
+                    alt="Introducción"
+                    className="w-full h-full object-cover"
+                />
+            </div>
+        );
+    }
 
     return (
         <div
@@ -190,18 +216,19 @@ const WorldScreen: React.FC = () => {
                 />
             </div>
 
-            <Character
-                x={characterState.mapX + backgroundTranslateX - SCALED_SPRITE_SIZE / 2}
-                y={characterState.mapY + backgroundTranslateY - SCALED_SPRITE_SIZE / 2}
-                style={{ zIndex: 1, position: 'absolute' }}
-                direction={characterState.direction}
-                frame={characterState.frame}
-            />
+            {/* Personaje */}
+            {!isPopupOpen && (
+                <Character
+                    x={characterState.mapX + backgroundTranslateX - SCALED_SPRITE_SIZE / 2}
+                    y={characterState.mapY + backgroundTranslateY - SCALED_SPRITE_SIZE / 2}
+                    style={{ zIndex: 1, position: 'absolute' }}
+                    direction={characterState.direction}
+                    frame={characterState.frame}
+                />
+            )}
 
-            <h1
-                className="absolute top-3 left-3 kawaii-header text-xl"
-                style={{ zIndex: 10 }}
-            >
+            {/* UI fija */}
+            <h1 className="absolute top-3 left-3 kawaii-header text-xl" style={{ zIndex: 10 }}>
                 Talkie Town!
             </h1>
 
@@ -213,7 +240,7 @@ const WorldScreen: React.FC = () => {
                     backgroundColor: '#ff69b4',
                     color: 'white',
                     border: '3px solid #e04e9e',
-                    fontSize: '0.75rem'
+                    fontSize: '0.75rem',
                 }}
             >
                 <LogOutIcon className="w-3 h-3" />
@@ -227,11 +254,18 @@ const WorldScreen: React.FC = () => {
                     backgroundColor: '#add8e6',
                     color: '#333333',
                     border: '2px solid #6495ed',
-                    boxShadow: '2px 2px 0px #6495ed'
+                    boxShadow: '2px 2px 0px #6495ed',
                 }}
             >
                 Pos: ({Math.round(characterState.mapX)}, {Math.round(characterState.mapY)})
             </div>
+
+            <FirstMinigame
+                isOpen={isPopupOpen}
+                title="Primer Mini-juego"
+                message="Es en donde debe de elegir una opcion"
+                onClose={handleClosePopup}
+            />
         </div>
     );
 };
