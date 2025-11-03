@@ -99,7 +99,6 @@ body {
   box-shadow: 1px 1px 0px var(--kawaii-panel-border);
 }
 
-/* Estilo para inputs */
 .kawaii-input {
   background-color: var(--kawaii-panel-light);
   border: 1px solid var(--kawaii-panel-border);
@@ -115,4 +114,22 @@ body {
   outline: none;
   border-color: var(--kawaii-accent-green);
   box-shadow: inset 1px 1px 2px var(--kawaii-shadow-light), 0 0 0 3px rgba(178, 216, 187, 0.5);
+}
+
+/* enlaces de regresar el registrar */
+.kawaii-link-button {
+font-family: 'Comfortaa', cursive;
+font-weight: 700;
+color: var(--kawaii-text-dark);
+padding: 18px 5px;
+border-radius: 10px;
+background-color: transparent;
+border: 1px solid transparent;
+transition: all 0.2s ease-in-out;
+}
+
+.kawaii-link-button:hover {
+background-color: var(--kawaii-bg-medium);
+border-color: var(--kawaii-panel-border);
+box-shadow: 2px 2px 0px var(--kawaii-shadow-light);
 }

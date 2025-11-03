@@ -2,130 +2,169 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { signupUser } from './api';
 
-const REGISTER_BACKGROUND_IMAGE = 'https://images.unsplash.com/photo-1620242274955-fc42c75a462b?fit=crop&w=1400&h=800&q=80'; 
-
 const RegisterScreen = () => {
   const navigate = useNavigate();
+
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
+
   const [message, setMessage] = useState('');
+  const [errors, setErrors] = useState({});
+
+  const validateForm = () => {
+    let newErrors = {};
+    let isValid = true;
+
+    if (!username.trim()) {
+      newErrors.username = 'El nombre de usuario no puede estar vacío';
+      isValid = false;
+    }
+
+    if (!email.trim()) {
+      newErrors.email = 'El campo de email no puede estar vacío';
+      isValid = false;
+    } else if (!/\S+@\S+\.\S+/.test(email)) {
+      newErrors.email = 'El email debe ser una dirección de correo válida';
+      isValid = false;
+    }
+
+    if (!password) {
+      newErrors.password = 'El campo de contraseña no puede estar vacío';
+      isValid = false;
+    } else if (password.length < 6) {
+      newErrors.password = 'La contraseña debe tener al menos 6 caracteres';
+      isValid = false;
+    }
+
+    if (password !== confirmPassword) {
+      newErrors.confirmPassword = 'Las contraseñas no coinciden.';
+      isValid = false;
+    }
+
+    setErrors(newErrors);
+    return isValid;
+  };
 
   const handleRegister = async (event) => {
     event.preventDefault();
-    setLoading(true);
     setMessage('');
+    setErrors({});
 
-    if (password !== confirmPassword) {
-      setMessage('Las contraseñas no coinciden.');
-      setLoading(false);
-      return;
-    }
-    
-    const result = await signupUser(username, email, password);
+    if (!validateForm()) return;
 
-    if (result.success) {
-      setMessage('¡Registro exitoso! Por favor, inicia sesión.');
-      // Después del registro exitoso, navegamos a la pantalla de login
-      setTimeout(() => {
-        setLoading(false);
-        navigate('/login'); 
-      }, 2000);
-    } else {
-      setMessage(result.message || 'Error en el registro.');
+    setLoading(true);
+    try {
+      // Aquí: enviamos UN objeto con las propiedades esperadas por el backend.
+      const result = await signupUser({ username, email, password });
+
+      if (result && (result.success === true || result.token || result.id)) {
+        setMessage('¡Registro exitoso! Ya puedes iniciar sesión');
+        setTimeout(() => navigate('/login'), 800);
+      } else {
+        const msg = (result && (result.message || result.error)) || (typeof result === 'string' ? result : null);
+        setMessage(msg || 'Error en el registro. Revisa los datos e inténtalo de nuevo.');
+      }
+    } catch (err) {
+      setMessage(err.message || 'Error inesperado al registrar');
+    } finally {
       setLoading(false);
     }
   };
 
+  const ErrorMessage = ({ error }) =>
+    error ? (
+      <p className="text-red-600 text-xs mt-1 font-semibold text-left mx-auto w-3/4">{error}</p>
+    ) : null;
+
   return (
-    <div 
-      className="relative w-full min-h-screen flex items-center justify-center bg-cover bg-center p-4 sm:p-8"
-      style={{ backgroundImage: `url(${REGISTER_BACKGROUND_IMAGE})` }}
-    >
-      <div className="absolute inset-0 bg-black opacity-20"></div>
-      
-      <div className="relative z-10 p-6 md:p-10 max-w-sm md:max-w-md w-full text-center ac-box">
-        
-        <h1 className="ac-title-text mb-8 text-4xl sm:text-5xl">
-          Únete al Pueblo
-        </h1>
-        
-        {message && (
-          <p className={`mb-6 text-base font-semibold p-3 rounded-xl transition duration-300
-            ${message.includes('exitoso') 
-              ? 'bg-ac-blue-light text-green-800 border border-green-800'
-              : 'bg-ac-pink text-red-800 border border-red-800'
-            }`}
-          >
-            {message}
-          </p>
-        )}
+    <div className="relative w-full min-h-screen flex items-center justify-center p-4 sm:p-8">
+      <div className="relative z-10 w-full max-w-lg mx-auto p-8 kawaii-layout-bg text-center">
+        <div className="mb-8">
+          <h1 className="kawaii-header text-5xl sm:text-6xl">Únete al Pueblo</h1>
+        </div>
 
-        <form onSubmit={handleRegister} className="space-y-4">
-          
-          <div>
-            <input
-              type="text"
-              placeholder="Nombre de usuario"
-              className="ac-input w-full"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-            />
-          </div>
+        <div className="kawaii-panel p-6 sm:p-8">
+          <h2 className="text-xl font-bold mb-6 text-[var(--kawaii-text-dark)]">¡Regístrate para aprender!</h2>
 
-          <div>
-            <input
-              type="email"
-              placeholder="Correo electrónico"
-              className="ac-input w-full"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </div>
-          
-          <div>
-            <input
-              type="password"
-              placeholder="Contraseña"
-              className="ac-input w-full"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </div>
-          
-          <div>
-            <input
-              type="password"
-              placeholder="Confirmar contraseña"
-              className="ac-input w-full"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              required
-            />
-          </div>
+          {message && (
+            <p
+              className={`mb-6 text-base font-semibold p-3 rounded-xl transition duration-300 border ${
+                message.toLowerCase().includes('exitoso')
+                  ? 'bg-green-100 border-green-600 text-green-800'
+                  : 'bg-red-100 border-red-600 text-red-800'
+              }`}
+            >
+              {message}
+            </p>
+          )}
 
-          <button type="submit" className="ac-button w-full mt-6" disabled={loading}>
-            {loading ? 'Cargando...' : 'Registrarse'}
-          </button>
-        </form>
+          <form onSubmit={handleRegister}>
+            <div className="space-y-4 mb-8">
+              <div>
+                <input
+                  type="text"
+                  placeholder="Nombre de usuario"
+                  className="kawaii-input w-3/4 mx-auto"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                />
+                <ErrorMessage error={errors.username} />
+              </div>
 
-        <button 
-          onClick={() => navigate('/login')} 
-          className="mt-6 text-base font-semibold text-ac-brown hover:text-ac-green-dark hover:underline transition duration-200"
-        >
-        ¿Ya tienes cuenta? Inicia Sesión
-        </button>
-        <button 
-          onClick={() => navigate('/')} 
-          className="mt-2 text-sm text-gray-500 hover:underline"
-        >
-          Volver a la Principal
-        </button>
+              <div>
+                <input
+                  type="email"
+                  placeholder="Correo electrónico"
+                  className="kawaii-input w-3/4 mx-auto"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+                <ErrorMessage error={errors.email} />
+              </div>
+
+              <div>
+                <input
+                  type="password"
+                  placeholder="Contraseña (Mín. 6 caracteres)"
+                  className="kawaii-input w-3/4 mx-auto"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+                <ErrorMessage error={errors.password} />
+              </div>
+
+              <div>
+                <input
+                  type="password"
+                  placeholder="Confirmar contraseña"
+                  className="kawaii-input w-3/4 mx-auto"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                />
+                <ErrorMessage error={errors.confirmPassword} />
+              </div>
+            </div>
+
+            <button type="submit" className="kawaii-button w-full text-lg py-3" disabled={loading}>
+              {loading ? 'Cargando...' : 'Registrarse'}
+            </button>
+          </form>
+
+          <div className="flex justify-center items-center space-x-4 mt-6">
+            <button onClick={() => navigate('/login')} className="kawaii-link-button">
+              ¿Ya tienes cuenta? <br />
+              Inicia Sesión
+            </button>
+
+            <button onClick={() => navigate('/')} className="kawaii-link-button text-sm">
+              Volver a la <br />
+              Pantalla principal
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );
