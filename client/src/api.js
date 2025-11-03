@@ -1,67 +1,85 @@
-// client/src/api.js
-
-const API_BASE_URL = 'http://localhost:3001/api/auth';
+const BASE_URL = 'http://localhost:3000/api';
 
 /**
- * Registra un nuevo usuario en el backend.
- * @param {string} username - Nombre de usuario.
- * @param {string} email - Correo electrónico.
- * @param {string} password - Contraseña.
- * @returns {Promise<{success: boolean, message?: string}>} Resultado de la operación.
+ * Función genérica para manejar peticiones al backend.
+ * Asegura el envío correcto de JSON y maneja errores de forma robusta.
  */
-export const signupUser = async (username, email, password) => {
+async function request(url, options = {}) {
+  // Configuración estándar para enviar JSON
+  const defaultHeaders = {
+    'Content-Type': 'application/json',
+  };
+
+  const config = {
+    ...options,
+    headers: {
+      ...defaultHeaders,
+      ...options.headers,
+    },
+    // Aseguramos que el cuerpo sea siempre una cadena JSON si existe
+    body: options.body ? JSON.stringify(options.body) : undefined,
+  };
+
   try {
-    const response = await fetch(`${API_BASE_URL}/register`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ username, email, password }),
-    });
+    const response = await fetch(`${BASE_URL}${url}`, config);
 
-    const data = await response.json();
+    // --- MANEJO DE RESPUESTA CRÍTICO ---
 
+    // 1. Si la respuesta es 200-299, intenta devolver el JSON.
     if (response.ok) {
-      // El registro fue exitoso
-      return { success: true, message: data.message };
-    } else {
-      // El registro falló (ej. usuario ya existe)
-      return { success: false, message: data.message || 'Error en el registro.' };
+      try {
+        // Intenta devolver el JSON. Si no hay contenido (204), esto puede lanzar un error.
+        const text = await response.text();
+        return text ? JSON.parse(text) : {};
+      } catch (e) {
+        return {}; // Devuelve un objeto vacío en lugar de fallar
+      }
     }
+
+    // 2. Si la respuesta es de error (4xx, 5xx), intenta leer el cuerpo del error.
+    let errorData = { message: 'Error desconocido del servidor' };
+    const errorBodyText = await response.text();
+    
+    try {
+      // Intenta parsear el cuerpo como JSON (típico de NestJS Validation errors)
+      errorData = JSON.parse(errorBodyText);
+    } catch (e) {
+      // Si falla la lectura de JSON (tu error actual), usamos el texto plano como mensaje.
+      errorData.message = `Error ${response.status}: ${response.statusText}. Respuesta: ${errorBodyText}`;
+      if (response.status === 400) {
+        errorData.message = errorData.message + '. Asegúrate de que los datos enviados cumplan con el formato JSON.';
+      }
+    }
+
+    // Lanza un nuevo error usando el mensaje extraído
+    throw new Error(errorData.message || errorData.error || 'Error en la petición');
+
   } catch (error) {
-    console.error('Error de red durante el registro:', error);
-    return { success: false, message: 'No se pudo conectar con el servidor.' };
+    // Esto atrapa errores de red (ej: Failed to fetch, servidor apagado)
+    console.error('Error de red o desconocido:', error);
+    throw new Error(error.message || 'No se pudo conectar con el servidor. Verifica que el backend esté corriendo.');
   }
+}
+
+// =========================================================================
+// FUNCIONES ESPECÍFICAS DE AUTENTICACIÓN
+// =========================================================================
+
+export const signupUser = async (userData) => {
+  return request('/auth/register', {
+    method: 'POST',
+    body: userData,
+  });
 };
 
-/**
- * Inicia sesión de un usuario existente.
- * @param {string} email - Correo electrónico.
- * @param {string} password - Contraseña.
- * @returns {Promise<{success: boolean, message?: string, token?: string}>} Resultado de la operación.
- */
-export const loginUser = async (email, password) => {
-  try {
-    const response = await fetch(`${API_BASE_URL}/login`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ email, password }),
-    });
-
-    const data = await response.json();
-
-    if (response.ok && data.token) {
-      // Login exitoso. Guardamos el token en el almacenamiento local.
-      localStorage.setItem('authToken', data.token); 
-      return { success: true, token: data.token };
-    } else {
-      // Login fallido
-      return { success: false, message: data.message || 'Credenciales inválidas.' };
-    }
-  } catch (error) {
-    console.error('Error de red durante el inicio de sesión:', error);
-    return { success: false, message: 'No se pudo conectar con el servidor.' };
-  }
+export const loginUser = async (credentials) => {
+  // credentials debería ser { email: '...', password: '...' }
+  return request('/auth/login', {
+    method: 'POST',
+    body: credentials,
+  });
 };
+
+// Exportar solo la función request si la necesitas para otras cosas,
+// pero es mejor usar las funciones específicas como loginUser.
+export default { signupUser, loginUser };

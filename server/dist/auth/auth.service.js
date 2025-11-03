@@ -49,8 +49,8 @@ exports.AuthService = void 0;
 const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
-const bcrypt = __importStar(require("bcryptjs"));
 const user_entity_1 = require("./entities/user.entity");
+const bcrypt = __importStar(require("bcrypt"));
 let AuthService = class AuthService {
     usersRepository;
     constructor(usersRepository) {
@@ -67,7 +67,7 @@ let AuthService = class AuthService {
         const newUser = this.usersRepository.create({
             username,
             email,
-            password: hashedPassword,
+            password: hashedPassword
         });
         await this.usersRepository.save(newUser);
         return {
@@ -78,13 +78,16 @@ let AuthService = class AuthService {
     }
     async login(loginDto) {
         const { email, password } = loginDto;
-        const user = await this.usersRepository.findOne({ where: { email } });
+        const user = await this.usersRepository.findOne({
+            where: { email },
+            select: ['id', 'username', 'email', 'password']
+        });
         if (!user) {
-            throw new common_1.UnauthorizedException('Credenciales inválidas (email)');
+            throw new common_1.UnauthorizedException('Credenciales inválidas');
         }
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
-            throw new common_1.UnauthorizedException('Credenciales inválidas (contraseña)');
+            throw new common_1.UnauthorizedException('Credenciales inválidas');
         }
         return {
             id: user.id,

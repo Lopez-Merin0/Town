@@ -22,7 +22,7 @@ const WorldScreen = () => {
       
       <div className="relative text-white z-10 p-6 bg-black bg-opacity-70 rounded-lg ac-box border-4 border-yellow-300">
         <h1 className="text-4xl font-bold mb-4 ac-title-text">
-          ¡BIENVENIDO AL PUEBLO!
+          ¡BIENVENIDO AL PUEBLO ALVVVV!
         </h1>
         <p className="mb-6 text-lg tracking-wider text-white">
           Esta es la pantalla del juego. ¡Aún no hay nada que hacer!

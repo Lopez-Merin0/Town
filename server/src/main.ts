@@ -1,22 +1,31 @@
-// server/src/main.ts
+// jala NestJS y configura cosas globales como CORS, validación y prefijos de rutas
+
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { ValidationPipe } from '@nestjs/common'; 
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  
-  // 🔑 Habilita CORS
+  app.setGlobalPrefix('api');
+
+  // permite peticiones desde el front
   app.enableCors({
-    // Permite peticiones desde el puerto de desarrollo de Vite/React
     origin: 'http://localhost:5173', 
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    credentials: true,
+    credentials: true, // envia cookies o credenciales si es necesario
   });
 
-  // Establece un prefijo global para todos los endpoints (ej. /api/auth/login)
-  app.setGlobalPrefix('api'); 
-  
-  await app.listen(3000); 
-  console.log(`🚀 Backend corriendo en: http://localhost:3000/api`);
+  // validación global para los DTOs
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true, // borra propiedades que no estén definidas en el DTO
+      forbidNonWhitelisted: true, // error por campos de más
+      transform: true, // convierte los datos recibidos a la clase del DTO
+    }),
+  );
+
+  await app.listen(3000);
+  console.log(`Backend corriendo en: ${await app.getUrl()}/api`);
 }
+
 bootstrap();

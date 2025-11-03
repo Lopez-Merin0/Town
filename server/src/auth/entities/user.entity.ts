@@ -1,20 +1,20 @@
-// server/src/auth/entities/user.entity.ts
 import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 
-@Entity('users')
+//Campos de la base de datos para la entidad del usuarioS
+@Entity()
 export class User {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ unique: true }) // ¡Nuevo campo!
+  @Column({ unique: true })
   username: string;
 
   @Column({ unique: true })
   email: string;
 
-  @Column()
+  @Column({ length: 100 }) 
   password: string;
 
-  @Column({ default: 'player' })
+  @Column({ default: 'user' })
   role: string;
 }

@@ -1,3 +1,5 @@
+// verifica que el AuthService se cree correctamente
+
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthService } from './auth.service';
 
@@ -6,9 +8,8 @@ describe('AuthService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [AuthService],
-    }).compile();
-
+      providers: [AuthService], // Se agrega el servicio al módulo de prueba
+    }).compile(); 
     service = module.get<AuthService>(AuthService);
   });
 

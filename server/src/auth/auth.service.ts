@@ -1,11 +1,11 @@
-// server/src/auth/auth.service.ts
+// manejar el registro y el login de los usuarios
+
 import { Injectable, BadRequestException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import * as bcrypt from 'bcryptjs';
 import { User } from './entities/user.entity';
+import * as bcrypt from 'bcrypt'; // encriptar las contraseñas
 
-// DTOs (Data Transfer Objects) simples para las peticiones
 interface RegisterDto {
   username: string;
   email: string;
@@ -13,7 +13,7 @@ interface RegisterDto {
 }
 
 interface LoginDto {
-  email: string;
+  email: string; 
   password: string;
 }
 
@@ -21,32 +21,29 @@ interface LoginDto {
 export class AuthService {
   constructor(
     @InjectRepository(User)
-    private usersRepository: Repository<User>,
+    private usersRepository: Repository<User>, // se conecta con la tabla 
   ) {}
 
   async register(registerDto: RegisterDto): Promise<any> {
     const { username, email, password } = registerDto;
 
-    // 1. Verificar si el usuario o correo ya existen
     const existingUser = await this.usersRepository.findOne({ where: [{ email }, { username }] });
     if (existingUser) {
       throw new BadRequestException('El email o nombre de usuario ya está registrado.');
     }
 
-    // 2. Hashear la contraseña
+    // contraseña hasheada
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    // 3. Crear y guardar el nuevo usuario
-    const newUser = this.usersRepository.create({
-      username,
-      email,
-      password: hashedPassword,
+    const newUser = this.usersRepository.create({ 
+      username, 
+      email, 
+      password: hashedPassword 
     });
-
+    
     await this.usersRepository.save(newUser);
 
-    // Retorna solo la información segura del usuario
     return { 
       id: newUser.id, 
       username: newUser.username, 
@@ -54,22 +51,25 @@ export class AuthService {
     };
   }
 
+
   async login(loginDto: LoginDto): Promise<any> {
-    const { email, password } = loginDto;
+    const { email, password } = loginDto; 
 
-    // 1. Buscar el usuario por email
-    const user = await this.usersRepository.findOne({ where: { email } });
+    const user = await this.usersRepository.findOne({ 
+      where: { email },
+      select: ['id', 'username', 'email', 'password'] // tiene la contraseña encriptada para comparar
+    });
+
     if (!user) {
-      throw new UnauthorizedException('Credenciales inválidas (email)');
+      throw new UnauthorizedException('Credenciales inválidas');
     }
-
-    // 2. Comparar la contraseña hasheada
+    
     const isMatch = await bcrypt.compare(password, user.password);
+    
     if (!isMatch) {
-      throw new UnauthorizedException('Credenciales inválidas (contraseña)');
+      throw new UnauthorizedException('Credenciales inválidas');
     }
 
-    // ¡Aquí iría la generación de un JWT! Por ahora, solo devolvemos datos seguros.
     return { 
       id: user.id, 
       username: user.username, 
