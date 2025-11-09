@@ -19,7 +19,7 @@ export const COLLISION_AREAS: CollisionArea[] = [
         p2: { x: 1140, y: 755 },
         p3: { x: 1140, y: 625 },
         p4: { x: 1035, y: 650 },
-        debugColor: '#FF0000', // 🔴 Color de debug para la casa (Rojo)
+        debugColor: '#FF0000', 
     },
     // Si tuvieras otra área, podrías darle otro color:
     /*
@@ -28,7 +28,7 @@ export const COLLISION_AREAS: CollisionArea[] = [
         p2: { x: 200, y: 100 },
         p3: { x: 200, y: 200 },
         p4: { x: 100, y: 200 },
-        debugColor: '#0000FF', // 🔵 Un área de colisión azul
+        debugColor: '#FF0000', 
     },
     */
 ];

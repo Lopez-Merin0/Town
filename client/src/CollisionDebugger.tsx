@@ -1,6 +1,6 @@
-// client/src/CollisionDebugger.tsx
+// CollisionDebugger.tsx (Tu código, el cual está correcto)
+
 import React from 'react';
-// Asegúrate de que CollisionAreas exporte Point, CollisionArea, y COLLISION_AREAS
 import { COLLISION_AREAS, CollisionArea, Point } from './CollisionAreas'; 
 
 interface CollisionDebuggerProps {
@@ -8,10 +8,7 @@ interface CollisionDebuggerProps {
     backgroundTranslateY: number;
 }
 
-// Función auxiliar para obtener el rectángulo AABB (Axis-Aligned Bounding Box) 
-// a partir de los 4 puntos de la ColisionArea.
 const getAABBFromFourPoints = (area: CollisionArea) => {
-    // Encuentra los valores mínimos y máximos de X e Y
     const allX = [area.p1.x, area.p2.x, area.p3.x, area.p4.x];
     const allY = [area.p1.y, area.p2.y, area.p3.y, area.p4.y];
 
@@ -33,10 +30,7 @@ const CollisionDebugger: React.FC<CollisionDebuggerProps> = ({ backgroundTransla
         <>
             {COLLISION_AREAS.map((area, index) => {
                 const aabb = getAABBFromFourPoints(area);
-                
-                // Usamos el color de depuración definido en el área de colisión
-                const color = area.debugColor || '#FF0000'; // Usa Rojo por defecto si no se define
-                // La opacidad ('30') se añade al final del código hexadecimal para el color de fondo.
+                const color = area.debugColor || '#FF0000';
 
                 return (
                     <div
@@ -44,9 +38,9 @@ const CollisionDebugger: React.FC<CollisionDebuggerProps> = ({ backgroundTransla
                         style={{
                             position: 'absolute',
                             zIndex: 99, 
-                            pointerEvents: 'none', // IMPORTANTE: No bloquear los eventos del ratón/teclado
+                            pointerEvents: 'none',
                             
-                            // Fondo: color definido + opacidad (30 en hex es aproximadamente 20%)
+                            // Fondo: color definido + opacidad
                             backgroundColor: `${color}30`, 
                             
                             // Borde/Recuadro: el color definido (opaco)

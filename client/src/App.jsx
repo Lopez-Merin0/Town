@@ -6,6 +6,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import WorldScreen from './WorldScreen';
 import AuthScreen from './AuthScreen';
 import LoginScreen from './LoginScreen';
+import FirstMinigame from './FirstMinigame'; 
 import RegisterScreen from './RegisterScreen';
 
 const App = () => {
@@ -21,12 +22,15 @@ const App = () => {
         
         <Route path="/login" element={<LoginScreen />} />
         <Route path="/register" element={<RegisterScreen />} />
-        
+        <Route path="/minigame" element={<FirstMinigame />} />
+
         <Route 
           path="/world" 
           element={
             isAuthenticated() ? <WorldScreen /> : <Navigate to="/" />
           } 
+
+
         />
         
         <Route path="*" element={<Navigate to="/" />} />

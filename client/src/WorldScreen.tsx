@@ -1,13 +1,14 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import Character from './Character'; 
-
+import Character from './Character';
+import CollisionDebugger from './CollisionDebugger';
 import { usePopupTrigger } from './usePopupTrigger';
-import FirstMinigame from './FirstMinigame'; 
-import LoadingScreen from './LoadingScreen'; 
-import './index.css'; 
+import LoadingScreen from './LoadingScreen';
+import './index.css';
 import { COLLISION_AREAS, CollisionArea } from './CollisionAreas';
+
+const DEBUG_MODE = true;
 
 const BACKGROUND_URL = './fondo.jpg';
 
@@ -22,6 +23,8 @@ const SCALED_SPRITE_SIZE = BASE_SPRITE_SIZE * CHARACTER_SCALE_FACTOR;
 const MOVEMENT_SPEED = 5;
 const CUSTOM_MAX_X_POS = 1909;
 const CUSTOM_MAX_Y_POS = 1200;
+
+const MINIGAME_ROUTE = '/minigame';
 
 const DIRECTION_MAP: { [key: string]: number } = {
     'arrowup': 0, 'w': 0,
@@ -52,7 +55,8 @@ const checkCollision = (
     scaledSpriteSize: number,
     areas: CollisionArea[]
 ): boolean => {
-    // El 'hitbox' del personaje es su posición central (nextX, nextY)
+    if (DEBUG_MODE) return false;
+
     const HALF_SPRITE = scaledSpriteSize / 2;
 
     const playerBox = {
@@ -63,7 +67,6 @@ const checkCollision = (
     };
 
     for (const area of areas) {
-
         const allX = [area.p1.x, area.p2.x, area.p3.x, area.p4.x];
         const allY = [area.p1.y, area.p2.y, area.p3.y, area.p4.y];
 
@@ -113,8 +116,8 @@ const WorldScreen: React.FC = () => {
     const MAX_MAP_HEIGHT = MAP_HEIGHT * SCALE_FACTOR;
 
     const [characterState, setCharacterState] = useState<CharacterState>(() => ({
-        mapX: 1070, 
-        mapY: 780,
+        mapX: 1070,
+        mapY: 810,
         direction: 1,
         frame: 0,
         isMoving: false,
@@ -124,15 +127,13 @@ const WorldScreen: React.FC = () => {
         mapX: characterState.mapX,
         mapY: characterState.mapY,
     });
-    const [isPopupOpen, setIsPopupOpen] = useState(false);
 
     useEffect(() => {
-        if (isPopupTriggered) setIsPopupOpen(true);
-    }, [isPopupTriggered]);
+        if (isPopupTriggered) {
+            navigate(MINIGAME_ROUTE);
+        }
+    }, [isPopupTriggered, navigate]);
 
-    const handleClosePopup = () => setIsPopupOpen(false);
-
-    // animación del monito 
     useEffect(() => {
         let interval: number | null = null;
         if (characterState.isMoving) {
@@ -148,7 +149,7 @@ const WorldScreen: React.FC = () => {
     }, [characterState.isMoving]);
 
     const handleKeyDown = useCallback((event: KeyboardEvent) => {
-        if (isPopupOpen || showIntro) {
+        if (showIntro) {
             event.preventDefault();
             return;
         }
@@ -174,11 +175,9 @@ const WorldScreen: React.FC = () => {
             const MIN_Y = HALF_SPRITE;
             const MAX_Y = CUSTOM_MAX_Y_POS - HALF_SPRITE;
 
-            // 1. Aplicar los límites del mapa (Boundary Check)
             const limitedX = Math.max(MIN_X, Math.min(MAX_X, newX));
             const limitedY = Math.max(MIN_Y, Math.min(MAX_Y, newY));
 
-            // 2. Verificar Colisión contra Áreas (Collision Check)
             const hasCollision = checkCollision(
                 limitedX,
                 limitedY,
@@ -190,45 +189,38 @@ const WorldScreen: React.FC = () => {
             let finalY = limitedY;
 
             if (hasCollision) {
-                // Lógica de Deslizamiento (Intenta mover solo en un eje si el movimiento completo falla)
-
-                // Intento solo en X (mantener Y anterior):
                 const tryX = checkCollision(limitedX, prev.mapY, SCALED_SPRITE_SIZE, COLLISION_AREAS);
-                // Intento solo en Y (mantener X anterior):
                 const tryY = checkCollision(prev.mapX, limitedY, SCALED_SPRITE_SIZE, COLLISION_AREAS);
 
                 if (!tryX) {
                     finalX = limitedX;
-                    finalY = prev.mapY; // Deslizamiento horizontal
+                    finalY = prev.mapY;
                 } else if (!tryY) {
                     finalX = prev.mapX;
-                    finalY = limitedY; // Deslizamiento vertical
+                    finalY = limitedY;
                 } else {
-                    // Si choca en ambos, no se mueve
                     finalX = prev.mapX;
                     finalY = prev.mapY;
                 }
             }
-
-            const movementStopped = finalX === prev.mapX && finalY === prev.mapY;
 
             return {
                 ...prev,
                 mapX: finalX,
                 mapY: finalY,
                 direction,
-                isMoving: !movementStopped,
+                isMoving: true,
             };
         });
-    }, [isPopupOpen, showIntro]);
+    }, [showIntro]);
 
     const handleKeyUp = useCallback((event: KeyboardEvent) => {
-        if (isPopupOpen || showIntro) return;
+        if (showIntro) return; // no se mueve su esta en la intro
         const key = event.key.toLowerCase();
         if (DIRECTION_MAP[key] !== undefined) {
             setCharacterState((prev) => ({ ...prev, isMoving: false }));
         }
-    }, [isPopupOpen, showIntro]);
+    }, [showIntro]);
 
     useEffect(() => {
         window.addEventListener('keydown', handleKeyDown);
@@ -239,7 +231,6 @@ const WorldScreen: React.FC = () => {
         };
     }, [handleKeyDown, handleKeyUp]);
 
-    // Lógica para centrar el mapa alrededor del personaje
     const halfScreenW = viewport.width / 2;
     const halfScreenH = viewport.height / 2;
 
@@ -254,7 +245,6 @@ const WorldScreen: React.FC = () => {
 
     const handleLogout = () => navigate('/');
 
-    // 🌟 Renderizado Condicional del LoadingScreen
     if (showIntro) {
         return <LoadingScreen onAnimationEnd={() => setShowIntro(false)} />;
     }
@@ -264,6 +254,11 @@ const WorldScreen: React.FC = () => {
             className="relative w-screen h-screen overflow-hidden"
             style={{ backgroundColor: '#4c965c' }}
         >
+            <CollisionDebugger
+                backgroundTranslateX={backgroundTranslateX}
+                backgroundTranslateY={backgroundTranslateY}
+            />
+
             <div
                 style={{
                     position: 'absolute',
@@ -290,18 +285,14 @@ const WorldScreen: React.FC = () => {
                 />
             </div>
 
-            {/* Personaje */}
-            {!isPopupOpen && (
-                <Character
-                    x={characterState.mapX + backgroundTranslateX - SCALED_SPRITE_SIZE / 2}
-                    y={characterState.mapY + backgroundTranslateY - SCALED_SPRITE_SIZE / 2}
-                    style={{ zIndex: 1, position: 'absolute' }}
-                    direction={characterState.direction}
-                    frame={characterState.frame}
-                />
-            )}
+            <Character
+                x={characterState.mapX + backgroundTranslateX - SCALED_SPRITE_SIZE / 2}
+                y={characterState.mapY + backgroundTranslateY - SCALED_SPRITE_SIZE / 2}
+                style={{ zIndex: 1, position: 'absolute' }}
+                direction={characterState.direction}
+                frame={characterState.frame}
+            />
 
-            {/* UI fija */}
             <h1 className="absolute top-3 left-3 kawaii-header text-xl" style={{ zIndex: 10 }}>
                 Talkie Town!
             </h1>
@@ -334,12 +325,6 @@ const WorldScreen: React.FC = () => {
                 Pos: ({Math.round(characterState.mapX)}, {Math.round(characterState.mapY)})
             </div>
 
-            <FirstMinigame
-                isOpen={isPopupOpen}
-                title="Primer Mini-juego"
-                message="Es en donde debe de elegir una opcion"
-                onClose={handleClosePopup}
-            />
         </div>
     );
 };
