@@ -29,8 +29,6 @@ const App = () => {
           element={
             isAuthenticated() ? <WorldScreen /> : <Navigate to="/" />
           } 
-
-
         />
         
         <Route path="*" element={<Navigate to="/" />} />
