@@ -133,3 +133,49 @@ background-color: var(--kawaii-bg-medium);
 border-color: var(--kawaii-panel-border);
 box-shadow: 2px 2px 0px var(--kawaii-shadow-light);
 }
+
+/* client/src/WorldScreen.css */
+
+.intro-circle {
+    position: absolute;
+    width: 100vmax; /* Suficientemente grande para cubrir la pantalla */
+    height: 100vmax; /* Suficientemente grande para cubrir la pantalla */
+    border-radius: 50%;
+    transform: scale(0); /* Empieza muy pequeño (cerrado) */
+    opacity: 0; /* Aseguramos que no se vea hasta que empiece */
+    transition: transform 1.5s ease-out, opacity 0.5s ease-in; /* Transiciones suaves */
+}
+
+/* Animación de apertura: el círculo se expande y se hace invisible */
+.intro-circle.animate-open {
+    animation: circleOpen 1.5s forwards;
+}
+
+@keyframes circleOpen {
+    0% {
+        transform: scale(0);
+        opacity: 1; /* Aparece al inicio */
+    }
+    100% {
+        transform: scale(2); /* Expande para cubrir la pantalla */
+        opacity: 1;
+    }
+}
+
+/* Animación de cierre: el círculo se encoge hasta desaparecer */
+.intro-circle.animate-close {
+    animation: circleClose 1.5s forwards;
+    /* Sobreescribimos el color de fondo para la animación de cierre */
+    background-color: black !important; /* El color que quieres que tape la pantalla */
+}
+
+@keyframes circleClose {
+    0% {
+        transform: scale(2); /* Empieza grande (cubre la pantalla) */
+        opacity: 1;
+    }
+    100% {
+        transform: scale(0); /* Se encoge y desaparece */
+        opacity: 1;
+    }
+}
