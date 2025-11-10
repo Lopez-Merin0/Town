@@ -389,7 +389,7 @@ const FirstMinigame: React.FC<FirstMinigameProps> = ({ userName }) => {
                 )}
             </p>
             <p style={{ marginTop: '5px', fontSize: '0.75rem', color: KAWAI_COLORS.textDark }}>
-                Presiona **{buttonText}** para seguir la conversación.
+                Presiona {buttonText} para seguir la conversación.
             </p>
         </>
     );
@@ -403,7 +403,7 @@ const FirstMinigame: React.FC<FirstMinigameProps> = ({ userName }) => {
                 {dialogue.questionHeader} <span style={KAWAI_STYLES.word}>{word}</span>
             </h3>
             <p style={{ marginTop: '5px', fontSize: '0.75rem', color: KAWAI_COLORS.textDark }}>
-                ¡Este es tu intento **{attempts + 1} de 2**!
+                ¡Este es tu intento {attempts + 1} de 2!
             </p>
         </>
     );

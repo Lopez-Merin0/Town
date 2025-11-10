@@ -332,7 +332,7 @@ const SecondMinigame: React.FC<SecondMinigameProps> = ({ userName }) => {
                 )}
             </p>
             <p style={{ marginTop: '5px', fontSize: '0.75rem', color: KAWAI_COLORS.textDark }}>
-                Presiona **{buttonText.replace(/\*\*/g, '')}** para seguir la conversación.
+                Presiona {buttonText.replace(/\*\*/g, '')} para seguir la conversación.
             </p>
         </>
     );
@@ -349,7 +349,7 @@ const SecondMinigame: React.FC<SecondMinigameProps> = ({ userName }) => {
                 </span>
             </h3>
             <p style={{ marginTop: '5px', fontSize: '0.75rem', color: KAWAI_COLORS.textDark }}>
-                ¡Este es tu intento **{attempts + 1} de 2**!
+                ¡Este es tu intento {attempts + 1} de 2!
             </p>
         </>
     );
