@@ -35,6 +35,62 @@ interface FirstMinigameProps {
     userName: string; 
 }
 
+const ExitConfirmationPopup: React.FC<{ onConfirm: () => void; onCancel: () => void; }> = ({ onConfirm, onCancel }) => (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+         style={{ fontFamily: KAWAI_FONTS.comfortaa, pointerEvents: 'auto' }}>
+        <div className="p-6 rounded-xl shadow-2xl text-center relative"
+             style={{
+                 backgroundColor: KAWAI_COLORS.panelLight,
+                 border: `5px solid ${KAWAI_COLORS.panelBorder}`,
+                 boxShadow: `0 8px 0 0 ${KAWAI_COLORS.bgDark}`,
+                 maxWidth: '350px',
+                 paddingTop: '2rem',
+             }}>
+
+            <p className="text-xl font-bold mb-5" style={{ color: KAWAI_COLORS.textDark }}>
+                ¿Estás segura de regresar al mapa?
+            </p>
+            <p className="text-sm mb-6" style={{ color: KAWAI_COLORS.textDark }}>
+                Perderás el progreso de tu partida actual.
+            </p>
+            
+            <div className="flex justify-center space-x-4">
+                <button
+                    onClick={onConfirm}
+                    className="py-2 px-4 font-bold transition-transform transform hover:scale-105"
+                    style={{
+                        backgroundColor: KAWAI_COLORS.accentPink,
+                        color: KAWAI_COLORS.textDark,
+                        border: `3px solid ${KAWAI_COLORS.panelBorder}`,
+                        boxShadow: `0 4px 0 0 ${KAWAI_COLORS.bgDark}`,
+                        borderRadius: '10px',
+                        cursor: 'pointer',
+                        fontFamily: KAWAI_FONTS.mali,
+                    }}
+                >
+                    Confirmar
+                </button>
+                <button
+                    onClick={onCancel}
+                    className="py-2 px-4 font-bold transition-transform transform hover:scale-105"
+                    style={{
+                        backgroundColor: KAWAI_COLORS.bgMedium,
+                        color: KAWAI_COLORS.textDark,
+                        border: `3px solid ${KAWAI_COLORS.panelBorder}`,
+                        boxShadow: `0 4px 0 0 ${KAWAI_COLORS.bgDark}`,
+                        borderRadius: '10px',
+                        cursor: 'pointer',
+                        fontFamily: KAWAI_FONTS.mali,
+                    }}
+                >
+                    Cancelar
+                </button>
+            </div>
+        </div>
+    </div>
+);
+
+
 const FirstMinigame: React.FC<FirstMinigameProps> = ({ userName }) => {
     const navigate = useNavigate();
 
@@ -46,6 +102,8 @@ const FirstMinigame: React.FC<FirstMinigameProps> = ({ userName }) => {
     const [attempts, setAttempts] = useState(0);
     const [selectedOptionId, setSelectedOptionId] = useState<number | null>(null);
     const [hoveredOptionId, setHoveredOptionId] = useState<number | null>(null);
+    
+    const [showExitConfirmation, setShowExitConfirmation] = useState(false); 
 
     const isLocked = isAnswered; 
     
@@ -57,56 +115,34 @@ const FirstMinigame: React.FC<FirstMinigameProps> = ({ userName }) => {
     const totalDialogs = isIntroArray ? dialogue.introGreeting.length : 1;
     const isLastDialog = currentDialogIndex >= totalDialogs - 1;
 
-    const headerStyle = {
-        fontFamily: KAWAI_FONTS.mali,
-        color: KAWAI_COLORS.textDark,
-        fontSize: '1.25rem',
-        marginBottom: '5px',
+    const KAWAI_STYLES = {
+        header: { fontFamily: KAWAI_FONTS.mali, color: KAWAI_COLORS.textDark, fontSize: '1.25rem', marginBottom: '5px' },
+        instruction: { color: KAWAI_COLORS.textDark, fontSize: '0.8rem', marginBottom: '5px' },
+        word: { fontSize: '1.2rem', color: KAWAI_COLORS.textGreen },
+        feedbackCorrect: { fontWeight: 'bold' as 'bold', color: KAWAI_COLORS.textGreen, marginTop: '10px' },
+        feedbackIncorrect: { fontWeight: 'bold' as 'bold', color: KAWAI_COLORS.accentRed, marginTop: '10px' },
     };
 
-    const instructionStyle = {
-        color: KAWAI_COLORS.textDark,
-        fontSize: '0.8rem',
-        marginBottom: '5px'
-    };
-
-    const wordStyle = {
-        fontSize: '1.2rem',
-        color: KAWAI_COLORS.textGreen
-    };
-
-    const feedbackCorrectStyle = {
-        fontWeight: 'bold' as 'bold',
-        color: KAWAI_COLORS.textGreen,
-        marginTop: '10px',
-    };
-
-    const feedbackIncorrectStyle = {
-        fontWeight: 'bold' as 'bold',
-        color: KAWAI_COLORS.accentRed,
-        marginTop: '10px',
-    };
-
-    const baseStyle = {
-        position: 'fixed' as 'fixed',
+    const baseStyle: React.CSSProperties = {
+        position: 'fixed',
         top: 0, left: 0,
         width: '100vw', height: '100vh',
         zIndex: 10,
-        overflow: 'hidden' as 'hidden',
+        overflow: 'hidden',
         backgroundImage: `url(${MINIGAME_BACKGROUND}), ${KAWAI_TEXTURES.texturePaper}`,
         backgroundSize: 'cover, auto',
         backgroundPosition: 'center, center',
         backgroundBlendMode: 'overlay',
         fontFamily: KAWAI_FONTS.comfortaa,
         display: 'flex',
-        flexDirection: 'column' as 'column',
+        flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'flex-start',
         color: KAWAI_COLORS.textDark,
     };
 
-    const dialogBoxStyle = {
-        position: 'absolute' as 'absolute',
+    const dialogBoxStyle: React.CSSProperties = {
+        position: 'absolute',
         bottom: '20px',
         left: '50%',
         transform: 'translateX(-50%)',
@@ -120,15 +156,15 @@ const FirstMinigame: React.FC<FirstMinigameProps> = ({ userName }) => {
         boxShadow: `8px 8px 0px ${KAWAI_COLORS.panelBorder}`,
         border: `6px solid ${KAWAI_COLORS.panelBorder}`,
         display: 'flex',
-        flexDirection: 'column' as 'column',
+        flexDirection: 'column',
         justifyContent: 'space-between',
-        textAlign: 'left' as 'left',
+        textAlign: 'left',
         fontSize: '1rem',
         zIndex: 15,
     };
 
-    const nextButtonStyle = {
-        alignSelf: 'flex-end' as 'flex-end',
+    const nextButtonStyle: React.CSSProperties = {
+        alignSelf: 'flex-end',
         marginTop: '10px',
         padding: '10px 30px',
         fontFamily: KAWAI_FONTS.mali,
@@ -138,17 +174,13 @@ const FirstMinigame: React.FC<FirstMinigameProps> = ({ userName }) => {
         borderRadius: '20px',
         cursor: 'pointer',
         boxShadow: `5px 5px 0px ${KAWAI_COLORS.panelBorder}`,
-        fontWeight: 'bold' as 'bold',
-        textTransform: 'uppercase' as 'uppercase',
+        fontWeight: 'bold',
+        textTransform: 'uppercase',
         transition: 'all 0.2s ease-in-out',
-        ':hover': {
-            transform: 'translate(2px, 2px)',
-            boxShadow: `3px 3px 0px ${KAWAI_COLORS.panelBorder}`,
-        }
     };
 
-    const logoutButtonStyle = {
-        position: 'absolute' as 'absolute',
+    const logoutButtonStyle: React.CSSProperties = {
+        position: 'absolute',
         top: '20px',
         left: '20px',
         padding: '10px 20px',
@@ -160,22 +192,18 @@ const FirstMinigame: React.FC<FirstMinigameProps> = ({ userName }) => {
         cursor: 'pointer',
         boxShadow: `5px 5px 0px ${KAWAI_COLORS.panelBorder}`,
         fontSize: '1rem',
-        fontWeight: 'bold' as 'bold',
+        fontWeight: 'bold',
         zIndex: 20,
         transition: 'all 0.2s ease-in-out',
-        ':hover': {
-            transform: 'translate(2px, 2px)',
-            boxShadow: `3px 3px 0px ${KAWAI_COLORS.panelBorder}`,
-        }
     };
 
-    const optionsContainerStyle = {
-        position: 'absolute' as 'absolute',
+    const optionsContainerStyle: React.CSSProperties = {
+        position: 'absolute',
         top: '100px', 
         left: '50%', 
         transform: 'translateX(-50%)', 
         display: 'flex',
-        flexWrap: 'wrap' as 'wrap',
+        flexWrap: 'wrap',
         width: 'fit-content',
         maxWidth: '450px', 
         gap: '10px',
@@ -183,10 +211,10 @@ const FirstMinigame: React.FC<FirstMinigameProps> = ({ userName }) => {
         justifyContent: 'center', 
     };
 
-    const getOptionButtonStyle = (option: Option, isSelected: boolean) => {
+    const getOptionButtonStyle = (option: Option, isSelected: boolean): React.CSSProperties => {
         let borderColor = KAWAI_COLORS.panelBorder;
         let boxShadow = `3px 3px 0px ${KAWAI_COLORS.shadowLight}`;
-        let cursor = isLocked ? 'default' : 'pointer' as 'pointer';
+        let cursor: React.CSSProperties['cursor'] = isLocked ? 'default' : 'pointer';
 
         if (isGameOver && option.isCorrect) {
             borderColor = KAWAI_COLORS.accentGreen;
@@ -197,7 +225,7 @@ const FirstMinigame: React.FC<FirstMinigameProps> = ({ userName }) => {
             boxShadow = `5px 5px 0px ${KAWAI_COLORS.borderRed}`;
         }
         
-        const baseStyle = {
+        const style: React.CSSProperties = {
             padding: '8px',
             backgroundColor: KAWAI_COLORS.panelLight,
             border: `4px solid ${borderColor}`,
@@ -212,10 +240,8 @@ const FirstMinigame: React.FC<FirstMinigameProps> = ({ userName }) => {
             transition: 'all 0.2s ease-in-out',
         };
 
-        return baseStyle;
+        return style;
     };
-    // ------------------------------------
-
 
     const formatFeedback = (text: string, selectedId: number) =>
         text.replace(/{user}/g, userName)
@@ -233,14 +259,13 @@ const FirstMinigame: React.FC<FirstMinigameProps> = ({ userName }) => {
     };
 
     const handleAnswer = (isCorrect: boolean, selectedId: number) => {
-        // Bloquear si ya está respondido para evitar múltiples clics
         if (isAnswered) return; 
 
         setSelectedOptionId(selectedId); 
 
         const newAttempts = attempts + 1;
         setAttempts(newAttempts);
-        setIsAnswered(true); // Marcar como respondido
+        setIsAnswered(true);
 
         if (isCorrect) {
             setFeedback(formatFeedback(dialogue.correctFeedback, selectedId));
@@ -254,38 +279,43 @@ const FirstMinigame: React.FC<FirstMinigameProps> = ({ userName }) => {
     };
 
     const resetAnswerState = () => {
-        setIsAnswered(false); // Reiniciar estado de respuesta
+        setIsAnswered(false);
         setFeedback('');
-        setSelectedOptionId(null); // Borrar opción seleccionada
+        setSelectedOptionId(null);
     }
-
-    const handleClose = () => {
-        navigate(-1); // Volver al mapa
+    
+    const handleExitClick = () => {
+        setShowExitConfirmation(true);
     };
 
+    const handleConfirmExit = () => {
+        setShowExitConfirmation(false);
+        navigate(-1); 
+    };
+
+    const handleCancelExit = () => {
+        setShowExitConfirmation(false);
+    };
+    
     const handleNext = () => {
         if (showStory) {
             if (currentDialogIndex < totalDialogs - 1) {
                 setCurrentDialogIndex(currentDialogIndex + 1);
             } else {
-                setShowStory(false); // Terminar historia, mostrar juego
+                setShowStory(false);
                 setCurrentDialogIndex(0); 
             }
-        } else if (isAnswered) { // Si ya se respondió algo
-            // Comprobamos si la respuesta dada fue correcta usando una parte única del feedback
+        } else if (isAnswered) {
             const isCorrectFeedback = feedback.includes(dialogue.correctFeedback.split(',')[0]); 
 
             if (isCorrectFeedback || attempts >= 2) {
-                // Si acertó o agotó los intentos, se cierra el minijuego
-                handleClose();
+                handleConfirmExit(); 
             } else {
-                // Si falló y le quedan intentos, reinicia para el siguiente intento
                 resetAnswerState();
             }
         }
     };
 
-    // Determinar el texto del botón "Siguiente" o "Cerrar"
     const isCorrectFeedback = feedback.includes(dialogue.correctFeedback.split(',')[0]);
     let buttonText = '...';
 
@@ -300,18 +330,16 @@ const FirstMinigame: React.FC<FirstMinigameProps> = ({ userName }) => {
             buttonText = "Cerrar y Salir";
         }
     } else {
-        buttonText = '...'; // Cuando el juego está activo y esperando respuesta
+        buttonText = '...'; 
     }
 
-    // --- COMPONENTE DE BOTÓN CON LÓGICA DE HOVER ---
     const OptionButton = ({ option }: { option: Option }) => {
         const isSelected = selectedOptionId === option.id;
         const isHovered = hoveredOptionId === option.id;
         const style = getOptionButtonStyle(option, isSelected);
 
         let hoverStyle = {};
-        // Aplicar efecto de hover solo si los botones no están deshabilitados (es decir, el usuario aún no ha respondido)
-        if (!isAnswered) {
+        if (!isAnswered && !showExitConfirmation) {
             if (isHovered) {
                 hoverStyle = {
                     transform: 'scale(1.05)',
@@ -324,12 +352,11 @@ const FirstMinigame: React.FC<FirstMinigameProps> = ({ userName }) => {
             <button
                 key={option.id}
                 onClick={() => handleAnswer(option.isCorrect, option.id)}
-                // Los botones se deshabilitan tan pronto como se da una respuesta
-                disabled={isAnswered} 
+                disabled={isAnswered || showExitConfirmation} 
                 onMouseEnter={() => setHoveredOptionId(option.id)}
                 onMouseLeave={() => setHoveredOptionId(null)}
                 style={{ 
-                    ...style as React.CSSProperties, 
+                    ...style, 
                     ...hoverStyle,
                 }}
             >
@@ -339,20 +366,18 @@ const FirstMinigame: React.FC<FirstMinigameProps> = ({ userName }) => {
                     style={{
                         width: '80px',
                         height: '80px',
-                        objectFit: 'contain' as 'contain',
+                        objectFit: 'contain',
                         imageRendering: 'pixelated',
                     }}
                 />
             </button>
         );
     };
-    // ---------------------------------------------
 
 
-    // Contenido del diálogo de introducción/historia
     const introText = (
         <>
-            <h3 style={headerStyle}>{dialogue.introTitle}</h3>
+            <h3 style={KAWAI_STYLES.header}>{dialogue.introTitle}</h3>
             <p style={{ color: KAWAI_COLORS.textDark, fontSize: '0.9rem' }}>
                 {getCurrentIntroText()}
                 {isLastDialog && (
@@ -369,14 +394,13 @@ const FirstMinigame: React.FC<FirstMinigameProps> = ({ userName }) => {
         </>
     );
 
-    // Contenido del diálogo de la pregunta
     const questionText = (
         <>
-            <p style={instructionStyle}>
+            <p style={KAWAI_STYLES.instruction}>
                 {dialogue.instruction}
             </p>
             <h3 style={{ margin: 0, color: KAWAI_COLORS.textDark }}>
-                {dialogue.questionHeader} <span style={wordStyle}>{word}</span>
+                {dialogue.questionHeader} <span style={KAWAI_STYLES.word}>{word}</span>
             </h3>
             <p style={{ marginTop: '5px', fontSize: '0.75rem', color: KAWAI_COLORS.textDark }}>
                 ¡Este es tu intento **{attempts + 1} de 2**!
@@ -384,61 +408,63 @@ const FirstMinigame: React.FC<FirstMinigameProps> = ({ userName }) => {
         </>
     );
 
-    // Si está mostrando la pantalla de carga inicial
     if (showIntro) {
         return <LoadingScreen onAnimationEnd={() => setShowIntro(false)} />;
     }
 
-    // Renderizado principal del minijuego
     return (
-        <div style={baseStyle}>
+        <> 
+            <div style={{
+                ...baseStyle,
+                pointerEvents: showExitConfirmation ? 'none' : 'auto', 
+            }}>
 
-            {/* Botón de Regresar al Mapa */}
-            <button
-                onClick={handleClose}
-                style={logoutButtonStyle as React.CSSProperties}
-            >
-                Regresar al Mapa
-            </button>
-
-            {/* Contenedor de las opciones, solo se muestra cuando no es la historia */}
-            {!showStory && (
-                <div style={optionsContainerStyle}>
-                    {options.map((option: Option) => (
-                        <OptionButton key={option.id} option={option} />
-                    ))}
-                </div>
-            )}
-
-            {/* Caja de Diálogo principal */}
-            <div style={dialogBoxStyle}>
-                <div>
-                    {/* Muestra historia, feedback o pregunta según el estado */}
-                    {showStory ? introText : (isAnswered ?
-                        <p style={isCorrectFeedback ? feedbackCorrectStyle : feedbackIncorrectStyle}>
-                            {feedback}
-                        </p>
-                        : questionText)}
-                </div>
-
-                {/* Botón de Siguiente/Cerrar */}
                 <button
-                    onClick={handleNext}
-                    // El botón "Siguiente Intento" solo se habilita si ya se ha respondido
-                    // El botón "Continuar" (en historia) siempre está habilitado
-                    // El botón "Cerrar" (al final) siempre está habilitado si ya se respondió y terminó
-                    disabled={!showStory && !isAnswered && attempts < 2} 
-                    style={{
-                        ...nextButtonStyle,
-                        backgroundColor: (!showStory && !isAnswered && attempts < 2) ? KAWAI_COLORS.bgMedium : KAWAI_COLORS.accentGreen,
-                        cursor: (!showStory && !isAnswered && attempts < 2) ? 'default' : 'pointer',
-                    } as React.CSSProperties}
+                    onClick={handleExitClick}
+                    disabled={showExitConfirmation}
+                    style={logoutButtonStyle}
                 >
-                    {buttonText}
+                    Regresar al Mapa
                 </button>
-            </div>
 
-        </div>
+                {!showStory && (
+                    <div style={optionsContainerStyle}>
+                        {options.map((option: Option) => (
+                            <OptionButton key={option.id} option={option} />
+                        ))}
+                    </div>
+                )}
+
+                <div style={dialogBoxStyle}>
+                    <div>
+                        {showStory ? introText : (isAnswered ?
+                            <p style={isCorrectFeedback ? KAWAI_STYLES.feedbackCorrect : KAWAI_STYLES.feedbackIncorrect}>
+                                {feedback}
+                            </p>
+                            : questionText)}
+                    </div>
+
+                    <button
+                        onClick={handleNext}
+                        disabled={(!showStory && !isAnswered && attempts < 2) || showExitConfirmation}
+                        style={{
+                            ...nextButtonStyle,
+                            backgroundColor: ((!showStory && !isAnswered && attempts < 2) || showExitConfirmation) ? KAWAI_COLORS.bgMedium : KAWAI_COLORS.accentGreen,
+                            cursor: ((!showStory && !isAnswered && attempts < 2) || showExitConfirmation) ? 'default' : 'pointer',
+                        } as React.CSSProperties}
+                    >
+                        {buttonText}
+                    </button>
+                </div>
+            </div> 
+
+            {showExitConfirmation && (
+                <ExitConfirmationPopup
+                    onConfirm={handleConfirmExit}
+                    onCancel={handleCancelExit}
+                />
+            )}
+        </>
     );
 };
 
