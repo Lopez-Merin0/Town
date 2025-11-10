@@ -1,9 +1,9 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef } from 'react'; 
 import { useNavigate } from 'react-router-dom';
-import { MINIGAME_QUESTION_AUDIO, Option, MinigameQuestion } from './MiniData-3';
+import { MINIGAME_QUESTION_AUDIO, Option, MinigameQuestion } from './MiniData-3'; 
 import LoadingScreen from './LoadingScreen';
 
-const MINIGAME_QUESTION = MINIGAME_QUESTION_AUDIO;
+const MINIGAME_QUESTION = MINIGAME_QUESTION_AUDIO; 
 
 const KAWAI_COLORS = {
     bgLight: '#FBF0DF',
@@ -96,8 +96,8 @@ const ExitConfirmationPopup: React.FC<{ onConfirm: () => void; onCancel: () => v
 const ThirdMinigame: React.FC<ThirdMinigameProps> = ({ userName }) => {
     const navigate = useNavigate();
 
-    const audioRef = useRef<HTMLAudioElement>(null);
-    const [isPlaying, setIsPlaying] = useState(false);
+    const audioRef = useRef<HTMLAudioElement>(null); 
+    const [isPlaying, setIsPlaying] = useState(false); 
 
     const [showIntro, setShowIntro] = useState(true);
     const [isAnswered, setIsAnswered] = useState(false);
@@ -112,10 +112,10 @@ const ThirdMinigame: React.FC<ThirdMinigameProps> = ({ userName }) => {
 
     const isLocked = isAnswered;
 
-    const isCorrectFeedback = feedback.includes('¡Genial!');
+    const isCorrectFeedback = feedback.includes('¡Genial!'); 
     const isGameOver = isCorrectFeedback || (attempts >= 2);
 
-    const { audioText, audioUrl, options, rules, dialogue } = MINIGAME_QUESTION;
+    const { audioText, audioUrl, options, rules, dialogue } = MINIGAME_QUESTION; 
 
     const isIntroArray = Array.isArray(dialogue.introGreeting);
     const totalDialogs = isIntroArray ? dialogue.introGreeting.length : 1;
@@ -127,11 +127,11 @@ const ThirdMinigame: React.FC<ThirdMinigameProps> = ({ userName }) => {
     const instructionStyle = {
         color: KAWAI_COLORS.textDark, fontSize: '0.8rem', marginBottom: '5px'
     };
-
-    const audioPromptStyle = {
+    
+    const audioPromptStyle = { 
         fontSize: '1.2rem', color: KAWAI_COLORS.textDark, padding: '10px 0',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        marginBottom: '10px',
+        marginBottom: '10px', 
     };
 
     const feedbackCorrectStyle = {
@@ -150,13 +150,13 @@ const ThirdMinigame: React.FC<ThirdMinigameProps> = ({ userName }) => {
     };
 
     const dialogBoxStyle = {
-        position: 'absolute' as 'absolute',
-        bottom: '20px',
-        left: '50%',
+        position: 'absolute' as 'absolute', 
+        bottom: '20px', 
+        left: '50%', 
         transform: 'translateX(-50%)',
-        width: '90%',
-        maxWidth: '550px',
-        minHeight: showStory ? '180px' : '120px',
+        width: '90%', 
+        maxWidth: '550px', 
+        minHeight: showStory ? '180px' : '120px', 
         padding: '15px 25px',
         backgroundColor: 'rgba(247, 240, 230, 0.8)', backgroundImage: KAWAI_TEXTURES.texturePaper,
         borderRadius: '20px', boxShadow: `8px 8px 0px ${KAWAI_COLORS.panelBorder}`,
@@ -179,15 +179,15 @@ const ThirdMinigame: React.FC<ThirdMinigameProps> = ({ userName }) => {
 
     // **MODIFICACIÓN CLAVE: Contenedor de Opciones a 2x2**
     const optionsContainerStyle: React.CSSProperties = {
-        position: 'absolute',
-        top: '120px',
-        left: '50%',
+        position: 'absolute', 
+        top: '120px', 
+        left: '50%', 
         transform: 'translateX(-50%)',
-        display: 'grid',
-        gridTemplateColumns: '1fr 1fr',
-        gap: '15px',
+        display: 'grid', 
+        gridTemplateColumns: '1fr 1fr', 
+        gap: '15px', 
         width: '90%',
-        maxWidth: '450px',
+        maxWidth: '450px', 
         zIndex: 12,
         justifyContent: 'center',
     };
@@ -210,22 +210,22 @@ const ThirdMinigame: React.FC<ThirdMinigameProps> = ({ userName }) => {
         }
 
         const baseStyle: React.CSSProperties = {
-            padding: '10px',
-            backgroundColor: backgroundColor,
+            padding: '10px', 
+            backgroundColor: backgroundColor, 
             border: `4px solid ${borderColor}`,
-            borderRadius: '10px',
-            cursor: cursor,
+            borderRadius: '10px', 
+            cursor: cursor, 
             boxShadow: boxShadow,
-            minWidth: '200px',
-            height: 'auto',
-            textAlign: 'center' as 'center',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
+            minWidth: '200px', 
+            height: 'auto', 
+            textAlign: 'center' as 'center', 
+            display: 'flex', 
+            justifyContent: 'center', 
+            alignItems: 'center', 
             transition: 'all 0.2s ease-in-out',
-            fontWeight: 'bold' as 'bold',
-            fontSize: '0.9rem',
-            whiteSpace: 'normal' as 'normal',
+            fontWeight: 'bold' as 'bold', 
+            fontSize: '0.9rem', 
+            whiteSpace: 'normal' as 'normal', 
         };
 
         let hoverStyle = {};
@@ -244,8 +244,8 @@ const ThirdMinigame: React.FC<ThirdMinigameProps> = ({ userName }) => {
         const correctOptionText = options.find(opt => opt.isCorrect)?.text || '';
 
         return text.replace(/{user}/g, userName)
-            .replace(/{word}/g, correctOptionText)
-            .replace(/{text}/g, selectedOptionText)
+            .replace(/{word}/g, correctOptionText) 
+            .replace(/{text}/g, selectedOptionText) 
             .replace(/{id}/g, String(selectedId));
     };
 
@@ -321,7 +321,7 @@ const ThirdMinigame: React.FC<ThirdMinigameProps> = ({ userName }) => {
 
     const handlePlayAudio = () => {
         if (audioRef.current) {
-            audioRef.current.currentTime = 0;
+            audioRef.current.currentTime = 0; 
             audioRef.current.play();
             setIsPlaying(true);
         }
@@ -330,7 +330,7 @@ const ThirdMinigame: React.FC<ThirdMinigameProps> = ({ userName }) => {
     const handleAudioEnded = () => {
         setIsPlaying(false);
     };
-
+    
     let buttonText = '...';
     if (showStory) {
         buttonText = isLastDialog ? "¡Empecemos el Desafío!" : "Continuar";
@@ -392,7 +392,7 @@ const ThirdMinigame: React.FC<ThirdMinigameProps> = ({ userName }) => {
             <h3 style={{ margin: 0, color: KAWAI_COLORS.textDark, textAlign: 'center' as 'center' }}>
                 {dialogue.questionHeader}
             </h3>
-
+            
             <div style={audioPromptStyle}>
                 <button
                     onClick={handlePlayAudio}
@@ -418,7 +418,7 @@ const ThirdMinigame: React.FC<ThirdMinigameProps> = ({ userName }) => {
                     {isPlaying ? '⏸️' : '🔊'}
                 </button>
             </div>
-
+            
             <p style={{ marginTop: '5px', fontSize: '0.75rem', color: KAWAI_COLORS.textDark }}>
                 ¡Este es tu intento {attempts + 1} de 2!
             </p>
@@ -431,10 +431,10 @@ const ThirdMinigame: React.FC<ThirdMinigameProps> = ({ userName }) => {
 
     return (
         <>
-            <audio
-                ref={audioRef}
-                src={audioUrl}
-                onEnded={handleAudioEnded}
+            <audio 
+                ref={audioRef} 
+                src={audioUrl} 
+                onEnded={handleAudioEnded} 
                 preload="auto"
             />
 

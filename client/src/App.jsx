@@ -65,9 +65,9 @@ const App = () => {
         <Route path="/login" element={<LoginScreen />} />
         <Route path="/register" element={<RegisterScreen />} />
 
-        <Route path="/minigame" element={<FirstMinigame />} />
-        <Route path="/minigame2" element={<SecondMinigame />} />
-        <Route path="/minigame3" element={<ThirdMiniGame />} />
+        <Route path="/primer mini juego" element={<FirstMinigame />} />
+        <Route path="/segundo mini juego" element={<SecondMinigame />} />
+        <Route path="/tercer mini juego" element={<ThirdMiniGame />} />
 
         <Route
           path="/world"

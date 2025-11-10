@@ -24,10 +24,11 @@ const MOVEMENT_SPEED = 5;
 const CUSTOM_MAX_X_POS = 1909;
 const CUSTOM_MAX_Y_POS = 1200;
 
+// Mapeo de nombres de triggers a rutas
 const MINIGAME_ROUTES: { [key: string]: string } = {
-    FirstMinigame: '/minigame',
-    SecondMinigame: '/minigame2',
-    ThirdMinigame: '/minigame3',
+    FirstMinigame: '/primer mini juego',
+    SecondMinigame: '/segundo mini juego',
+    ThirdMinigame: '/tercer mini juego',
 };
 
 const DIRECTION_MAP: { [key: string]: number } = {
@@ -103,14 +104,60 @@ const checkCollision = (
 const ConfirmationPopup: React.FC<{ onConfirm: () => void; onCancel: () => void; }> = ({ onConfirm, onCancel }) => (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <div className="kawaii-popup p-6 rounded-lg shadow-lg text-center"
-             style={{
-                 backgroundColor: '#fefefe',
-                 border: '5px solid #6495ed',
-                 boxShadow: '0 8px 0 0 #add8e6',
-                 maxWidth: '400px',
-             }}>
+            style={{
+                backgroundColor: '#fefefe',
+                border: '5px solid #6495ed',
+                boxShadow: '0 8px 0 0 #add8e6',
+                maxWidth: '400px',
+            }}>
             <p className="text-xl font-bold mb-4" style={{ color: '#333333' }}>
                 ¿Estás seguro de que quieres salir?
+            </p>
+            <div className="flex justify-center space-x-4">
+                <button
+                    onClick={onConfirm}
+                    className="kawaii-button py-2 px-4 font-bold"
+                    style={{
+                        backgroundColor: '#ff69b4',
+                        color: 'white',
+                        border: '3px solid #e04e9e',
+                    }}
+                >
+                    Confirmar
+                </button>
+                <button
+                    onClick={onCancel}
+                    className="kawaii-button py-2 px-4 font-bold"
+                    style={{
+                        backgroundColor: '#add8e6',
+                        color: '#333333',
+                        border: '3px solid #6495ed',
+                    }}
+                >
+                    Cancelar
+                </button>
+            </div>
+        </div>
+    </div>
+);
+
+interface MiniGameConfirmationPopupProps {
+    minigameName: string;
+    onConfirm: () => void;
+    onCancel: () => void;
+}
+
+const MiniGameConfirmationPopup: React.FC<MiniGameConfirmationPopupProps> = ({ minigameName, onConfirm, onCancel }) => (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="kawaii-popup p-6 rounded-lg shadow-lg text-center"
+            style={{
+                backgroundColor: '#fefefe',
+                border: '5px solid #6495ed',
+                boxShadow: '0 8px 0 0 #add8e6',
+                maxWidth: '400px',
+            }}>
+            <p className="text-xl font-bold mb-4" style={{ color: '#333333' }}>
+                ¿Quieres entrar al {minigameName}?
             </p>
             <div className="flex justify-center space-x-4">
                 <button
@@ -145,6 +192,8 @@ const WorldScreen: React.FC = () => {
 
     const [showIntro, setShowIntro] = useState(true);
     const [showLogoutPopup, setShowLogoutPopup] = useState(false);
+    const [miniGamePopupState, setMiniGamePopupState] = useState<{ isVisible: boolean; targetRoute: string; gameName: string; } | null>(null);
+
 
     const [viewport, setViewport] = useState({
         width: typeof window !== 'undefined' ? window.innerWidth : 1024,
@@ -163,7 +212,7 @@ const WorldScreen: React.FC = () => {
     const [characterState, setCharacterState] = useState<CharacterState>(() => ({
         mapX: 1070,
         mapY: 810,
-        direction: 1, 
+        direction: 1,
         frame: 0,
         isMoving: false,
     }));
@@ -174,15 +223,16 @@ const WorldScreen: React.FC = () => {
     });
 
     useEffect(() => {
-        if (isPopupTriggered) {
+        if (isPopupTriggered && !miniGamePopupState && !showLogoutPopup) {
             const targetRoute = MINIGAME_ROUTES[isPopupTriggered];
             if (targetRoute) {
-                navigate(targetRoute);
+                setCharacterState(prev => ({ ...prev, isMoving: false }));
+                const gameName = targetRoute.replace('/', '');
+                setMiniGamePopupState({ isVisible: true, targetRoute, gameName });
             }
         }
-    }, [isPopupTriggered, navigate]);
+    }, [isPopupTriggered, miniGamePopupState, showLogoutPopup]);
 
-    // se mueve el personaje
     useEffect(() => {
         let interval: number | null = null;
         if (characterState.isMoving) {
@@ -198,7 +248,8 @@ const WorldScreen: React.FC = () => {
     }, [characterState.isMoving]);
 
     const handleKeyDown = useCallback((event: KeyboardEvent) => {
-        if (showIntro || showLogoutPopup) {
+        const isAnyPopupOpen = showIntro || showLogoutPopup || !!miniGamePopupState;
+        if (isAnyPopupOpen) {
             event.preventDefault();
             return;
         }
@@ -261,15 +312,16 @@ const WorldScreen: React.FC = () => {
                 isMoving: true,
             };
         });
-    }, [showIntro, showLogoutPopup]); 
+    }, [showIntro, showLogoutPopup, miniGamePopupState]);
 
     const handleKeyUp = useCallback((event: KeyboardEvent) => {
-        if (showIntro || showLogoutPopup) return;
+        const isAnyPopupOpen = showIntro || showLogoutPopup || !!miniGamePopupState;
+        if (isAnyPopupOpen) return;
         const key = event.key.toLowerCase();
         if (DIRECTION_MAP[key] !== undefined) {
             setCharacterState((prev) => ({ ...prev, isMoving: false }));
         }
-    }, [showIntro, showLogoutPopup]); 
+    }, [showIntro, showLogoutPopup, miniGamePopupState]);
 
     useEffect(() => {
         window.addEventListener('keydown', handleKeyDown);
@@ -280,7 +332,7 @@ const WorldScreen: React.FC = () => {
         };
     }, [handleKeyDown, handleKeyUp]);
 
-    // CAMARITA
+    // CAMARITA 
     const halfScreenW = viewport.width / 2;
     const halfScreenH = viewport.height / 2;
 
@@ -299,12 +351,24 @@ const WorldScreen: React.FC = () => {
 
     const handleConfirmLogout = () => {
         setShowLogoutPopup(false);
-        navigate('/'); 
+        navigate('/');
     };
 
     const handleCancelLogout = () => {
         setShowLogoutPopup(false);
     };
+
+    const handleConfirmMinigame = () => {
+        if (miniGamePopupState) {
+            navigate(miniGamePopupState.targetRoute);
+            setMiniGamePopupState(null);
+        }
+    };
+
+    const handleCancelMinigame = () => {
+        setMiniGamePopupState(null);
+    };
+
 
     if (showIntro) {
         return <LoadingScreen onAnimationEnd={() => setShowIntro(false)} />;
@@ -359,7 +423,7 @@ const WorldScreen: React.FC = () => {
             </h1>
 
             <button
-                onClick={handleLogoutClick} 
+                onClick={handleLogoutClick}
                 className="absolute top-3 right-3 kawaii-button py-1 px-2 flex items-center space-x-1"
                 style={{
                     zIndex: 10,
@@ -368,7 +432,7 @@ const WorldScreen: React.FC = () => {
                     border: '3px solid #e04e9e',
                     fontSize: '0.75rem',
                 }}
-                disabled={showLogoutPopup} 
+                disabled={showLogoutPopup || !!miniGamePopupState}
             >
                 <LogOutIcon className="w-3 h-3" />
                 <span className="font-bold">SALIR</span>
@@ -394,6 +458,13 @@ const WorldScreen: React.FC = () => {
                 />
             )}
 
+            {miniGamePopupState?.isVisible && (
+                <MiniGameConfirmationPopup
+                    minigameName={miniGamePopupState.gameName}
+                    onConfirm={handleConfirmMinigame}
+                    onCancel={handleCancelMinigame}
+                />
+            )}
         </div>
     );
 };

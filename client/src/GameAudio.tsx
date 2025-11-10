@@ -15,7 +15,7 @@ interface GameAudioProps {
 
 const GameAudio: React.FC<GameAudioProps> = ({
     isMusicEnabled,
-    musicVolume = 0.3,
+    musicVolume = 0.1,
     sfxVolume = 0.7,
 }) => {
     const bgmRef = useRef<HTMLAudioElement>(null);

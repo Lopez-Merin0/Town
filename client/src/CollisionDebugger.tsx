@@ -1,7 +1,7 @@
 // CollisionDebugger.tsx (Tu código, el cual está correcto)
 
 import React from 'react';
-import { COLLISION_AREAS, CollisionArea, Point } from './CollisionAreas'; 
+import { COLLISION_AREAS, CollisionArea, Point } from './CollisionAreas';
 
 interface CollisionDebuggerProps {
     backgroundTranslateX: number;
@@ -37,18 +37,18 @@ const CollisionDebugger: React.FC<CollisionDebuggerProps> = ({ backgroundTransla
                         key={index}
                         style={{
                             position: 'absolute',
-                            zIndex: 99, 
+                            zIndex: 99,
                             pointerEvents: 'none',
-                            
+
                             // Fondo: color definido + opacidad
-                            backgroundColor: `${color}30`, 
-                            
+                            backgroundColor: `${color}30`,
+
                             // Borde/Recuadro: el color definido (opaco)
-                            border: `3px solid ${color}`,  
-                            
+                            border: `3px solid ${color}`,
+
                             // Posición ajustada por el desplazamiento del mapa (cámara)
                             transform: `translate(${backgroundTranslateX + aabb.x}px, ${backgroundTranslateY + aabb.y}px)`,
-                            
+
                             width: aabb.width,
                             height: aabb.height,
                         }}
