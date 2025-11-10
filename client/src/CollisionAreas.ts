@@ -8,7 +8,6 @@ export interface CollisionArea {
     p2: Point;
     p3: Point;
     p4: Point;
-    // 🌟 Nueva propiedad para el color de visualización 🌟
     debugColor: string; 
 }
 
@@ -21,8 +20,7 @@ export const COLLISION_AREAS: CollisionArea[] = [
         p4: { x: 1035, y: 650 },
         debugColor: '#FF0000', 
     },
-    // Si tuvieras otra área, podrías darle otro color:
-    /*
+    
     {
         p1: { x: 100, y: 100 },
         p2: { x: 200, y: 100 },
@@ -30,5 +28,4 @@ export const COLLISION_AREAS: CollisionArea[] = [
         p4: { x: 100, y: 200 },
         debugColor: '#FF0000', 
     },
-    */
 ];

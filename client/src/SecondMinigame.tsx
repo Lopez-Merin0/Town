@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MINIGAME_QUESTION, Option } from './MiniData-1'; 
+// Asegúrate de que MiniData-2.tsx exporte Option y MINIGAME_QUESTION
+import { MINIGAME_QUESTION, Option } from './MiniData-2'; 
 import LoadingScreen from './LoadingScreen';
 
+// --- CONSTANTES DE ESTILO (AÑADIDO ACCENT RED Y BORDER RED) ---
 const KAWAI_COLORS = {
     bgLight: '#FBF0DF',
     bgMedium: '#f7e7d4', 
@@ -16,8 +18,8 @@ const KAWAI_COLORS = {
     accentPink: '#FFC0CB', 
     shadowLight: 'rgba(0, 0, 0, 0.1)',
     shadowDark: 'rgba(0, 0, 0, 0.3)',
-    accentRed: '#FF6347', 
-    borderRed: '#CC0000', 
+    accentRed: '#FF6347', // Añadido para feedback
+    borderRed: '#CC0000', // Añadido para borde incorrecto
 };
 
 const KAWAI_FONTS = {
@@ -29,13 +31,13 @@ const KAWAI_TEXTURES = {
     texturePaper: 'url("https://www.transparenttextures.com/patterns/white-paperboard.png")',
 };
 
-const MINIGAME_BACKGROUND = './firstGame.jpg';
+const MINIGAME_BACKGROUND = 'https://i.pinimg.com/1200x/d7/75/e9/d775e94f2bebf2853b8caf70da1a786a.jpg';
 
-interface FirstMinigameProps {
+interface SecondMinigameProps {
     userName: string; 
 }
 
-const FirstMinigame: React.FC<FirstMinigameProps> = ({ userName }) => {
+const SecondMinigame: React.FC<SecondMinigameProps> = ({ userName }) => {
     const navigate = useNavigate();
 
     const [showIntro, setShowIntro] = useState(true);
@@ -44,19 +46,24 @@ const FirstMinigame: React.FC<FirstMinigameProps> = ({ userName }) => {
     const [showStory, setShowStory] = useState(true);
     const [currentDialogIndex, setCurrentDialogIndex] = useState(0); 
     const [attempts, setAttempts] = useState(0);
-    const [selectedOptionId, setSelectedOptionId] = useState<number | null>(null);
-    const [hoveredOptionId, setHoveredOptionId] = useState<number | null>(null);
+    // NUEVOS ESTADOS para manejar la interacción de los botones
+    const [selectedOptionId, setSelectedOptionId] = useState<number | null>(null); 
+    const [hoveredOptionId, setHoveredOptionId] = useState<number | null>(null); 
 
-    const isLocked = isAnswered; 
-    
-    const isGameOver = (isAnswered && feedback.includes(MINIGAME_QUESTION.dialogue.correctFeedback.split(',')[0])) || (attempts >= 2);
+    // isLocked: Se usa para deshabilitar los botones después de responder
+    const isLocked = isAnswered;
 
-    const { word, options, rules, dialogue } = MINIGAME_QUESTION;
+    // isGameOver: TRUE si ACERTÓ O AGOTÓ INTENTOS (determina cuándo mostrar el verde)
+    // El feedback de correcto en tu código es: '¡Perfecto,'
+    const isGameOver = (isAnswered && feedback.includes('¡Perfecto,')) || (attempts >= 2);
+
+    const { sentence, options, rules, dialogue } = MINIGAME_QUESTION; 
 
     const isIntroArray = Array.isArray(dialogue.introGreeting);
     const totalDialogs = isIntroArray ? dialogue.introGreeting.length : 1;
     const isLastDialog = currentDialogIndex >= totalDialogs - 1;
 
+    // --- ESTILOS ---
     const headerStyle = {
         fontFamily: KAWAI_FONTS.mali,
         color: KAWAI_COLORS.textDark,
@@ -83,7 +90,7 @@ const FirstMinigame: React.FC<FirstMinigameProps> = ({ userName }) => {
 
     const feedbackIncorrectStyle = {
         fontWeight: 'bold' as 'bold',
-        color: KAWAI_COLORS.accentRed,
+        color: KAWAI_COLORS.accentRed, // Usar KAWAI_COLORS.accentRed
         marginTop: '10px',
     };
 
@@ -115,7 +122,7 @@ const FirstMinigame: React.FC<FirstMinigameProps> = ({ userName }) => {
         minHeight: '70px',
         padding: '15px 25px',
         backgroundColor: 'rgba(247, 240, 230, 0.8)',
-        backgroundImage: KAWAI_TEXTURES.texturePaper, 
+        backgroundImage: KAWAI_TEXTURES.texturePaper,
         borderRadius: '20px',
         boxShadow: `8px 8px 0px ${KAWAI_COLORS.panelBorder}`,
         border: `6px solid ${KAWAI_COLORS.panelBorder}`,
@@ -141,10 +148,6 @@ const FirstMinigame: React.FC<FirstMinigameProps> = ({ userName }) => {
         fontWeight: 'bold' as 'bold',
         textTransform: 'uppercase' as 'uppercase',
         transition: 'all 0.2s ease-in-out',
-        ':hover': {
-            transform: 'translate(2px, 2px)',
-            boxShadow: `3px 3px 0px ${KAWAI_COLORS.panelBorder}`,
-        }
     };
 
     const logoutButtonStyle = {
@@ -163,15 +166,11 @@ const FirstMinigame: React.FC<FirstMinigameProps> = ({ userName }) => {
         fontWeight: 'bold' as 'bold',
         zIndex: 20,
         transition: 'all 0.2s ease-in-out',
-        ':hover': {
-            transform: 'translate(2px, 2px)',
-            boxShadow: `3px 3px 0px ${KAWAI_COLORS.panelBorder}`,
-        }
     };
 
     const optionsContainerStyle = {
         position: 'absolute' as 'absolute',
-        top: '100px', 
+        top: '100px',
         left: '50%', 
         transform: 'translateX(-50%)', 
         display: 'flex',
@@ -183,44 +182,67 @@ const FirstMinigame: React.FC<FirstMinigameProps> = ({ userName }) => {
         justifyContent: 'center', 
     };
 
-    const getOptionButtonStyle = (option: Option, isSelected: boolean) => {
+    // --- FUNCIÓN DE ESTILO CORREGIDA PARA BOTONES DE TEXTO ---
+    const getOptionButtonStyle = (option: Option, isSelected: boolean, isHovered: boolean) => {
         let borderColor = KAWAI_COLORS.panelBorder;
         let boxShadow = `3px 3px 0px ${KAWAI_COLORS.shadowLight}`;
         let cursor = isLocked ? 'default' : 'pointer' as 'pointer';
-
+        let backgroundColor = KAWAI_COLORS.panelLight;
+        
+        // 1. Mostrar color VERDE solo si el juego terminó (Acertó o Perdió totalmente)
         if (isGameOver && option.isCorrect) {
             borderColor = KAWAI_COLORS.accentGreen;
             boxShadow = `5px 5px 0px ${KAWAI_COLORS.accentGreen}`;
+            // Mantener el fondo si es correcto y terminado, a menos que quieras que cambie
+            backgroundColor = KAWAI_COLORS.panelLight; 
         } 
+        // 2. Mostrar color ROJO si se respondió, fue la seleccionada, Y es incorrecta.
         else if (isAnswered && isSelected && !option.isCorrect) {
             borderColor = KAWAI_COLORS.borderRed;
             boxShadow = `5px 5px 0px ${KAWAI_COLORS.borderRed}`;
+            backgroundColor = KAWAI_COLORS.accentPink; // Fondo rosa/rojo para lo incorrecto seleccionado
         }
-        
+
+        // Estilos base
         const baseStyle = {
-            padding: '8px',
-            backgroundColor: KAWAI_COLORS.panelLight,
+            padding: '15px 20px', 
+            backgroundColor: backgroundColor,
             border: `4px solid ${borderColor}`,
             borderRadius: '10px',
             cursor: cursor,
             boxShadow: boxShadow,
-            width: '100px',
-            height: '100px',
+            width: '120px', 
+            height: '60px', 
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
             transition: 'all 0.2s ease-in-out',
+            fontWeight: 'bold' as 'bold',
+            fontSize: '1rem',
         };
 
-        return baseStyle;
+        let hoverStyle = {};
+        // Aplicar hover solo si no está bloqueado (isAnswered = false)
+        if (!isAnswered && isHovered) {
+             hoverStyle = {
+                transform: 'scale(1.05)',
+                boxShadow: `5px 5px 0px ${KAWAI_COLORS.panelBorder}`,
+            };
+        }
+        
+        return { ...baseStyle, ...hoverStyle };
     };
     // ------------------------------------
 
+    const formatFeedback = (text: string, selectedId: number) => {
+        const selectedOptionText = options.find(opt => opt.id === selectedId)?.text || '';
+        const correctOptionText = options.find(opt => opt.isCorrect)?.text || '';
 
-    const formatFeedback = (text: string, selectedId: number) =>
-        text.replace(/{user}/g, userName)
-            .replace(/{word}/g, word)
-            .replace(/{id}/g, String(selectedId));
+        return text.replace(/{user}/g, userName)
+                    .replace(/{word}/g, correctOptionText) // Reemplaza {word} con la correcta (para el feedback de error)
+                    .replace(/{text}/g, selectedOptionText) // Reemplaza {text} con la seleccionada
+                    .replace(/{id}/g, String(selectedId));
+    };
 
     const getCurrentIntroText = () => {
         let text = '';
@@ -233,34 +255,32 @@ const FirstMinigame: React.FC<FirstMinigameProps> = ({ userName }) => {
     };
 
     const handleAnswer = (isCorrect: boolean, selectedId: number) => {
-        // Bloquear si ya está respondido para evitar múltiples clics
-        if (isAnswered) return; 
+        if (isAnswered) return;
 
-        setSelectedOptionId(selectedId); 
+        setSelectedOptionId(selectedId); // Guardar la opción seleccionada
 
         const newAttempts = attempts + 1;
         setAttempts(newAttempts);
-        setIsAnswered(true); // Marcar como respondido
-
+        setIsAnswered(true);
+        
         if (isCorrect) {
             setFeedback(formatFeedback(dialogue.correctFeedback, selectedId));
         } else {
-            if (newAttempts < 2) {
-                setFeedback(formatFeedback(dialogue.wrongAttempt1, selectedId));
-            } else {
-                setFeedback(formatFeedback(dialogue.wrongAttempt2, selectedId));
-            }
+            const feedbackText = newAttempts < 2 ? dialogue.wrongAttempt1 : dialogue.wrongAttempt2;
+
+            // El formateo ahora se hace en la función formatFeedback, ya que necesita el ID
+            setFeedback(formatFeedback(feedbackText, selectedId));
         }
     };
 
     const resetAnswerState = () => {
-        setIsAnswered(false); // Reiniciar estado de respuesta
+        setIsAnswered(false);
         setFeedback('');
-        setSelectedOptionId(null); // Borrar opción seleccionada
+        setSelectedOptionId(null);
     }
 
     const handleClose = () => {
-        navigate(-1); // Volver al mapa
+        navigate(-1);
     };
 
     const handleNext = () => {
@@ -268,25 +288,21 @@ const FirstMinigame: React.FC<FirstMinigameProps> = ({ userName }) => {
             if (currentDialogIndex < totalDialogs - 1) {
                 setCurrentDialogIndex(currentDialogIndex + 1);
             } else {
-                setShowStory(false); // Terminar historia, mostrar juego
+                setShowStory(false);
                 setCurrentDialogIndex(0); 
             }
-        } else if (isAnswered) { // Si ya se respondió algo
-            // Comprobamos si la respuesta dada fue correcta usando una parte única del feedback
-            const isCorrectFeedback = feedback.includes(dialogue.correctFeedback.split(',')[0]); 
+        } else if (isAnswered) {
+            const isCorrectFeedback = feedback.includes('¡Perfecto,'); 
 
             if (isCorrectFeedback || attempts >= 2) {
-                // Si acertó o agotó los intentos, se cierra el minijuego
                 handleClose();
             } else {
-                // Si falló y le quedan intentos, reinicia para el siguiente intento
                 resetAnswerState();
             }
         }
     };
 
-    // Determinar el texto del botón "Siguiente" o "Cerrar"
-    const isCorrectFeedback = feedback.includes(dialogue.correctFeedback.split(',')[0]);
+    const isCorrectFeedback = feedback.includes('¡Perfecto,');
     let buttonText = '...';
 
     if (showStory) {
@@ -300,56 +316,31 @@ const FirstMinigame: React.FC<FirstMinigameProps> = ({ userName }) => {
             buttonText = "Cerrar y Salir";
         }
     } else {
-        buttonText = '...'; // Cuando el juego está activo y esperando respuesta
+        buttonText = '...';
     }
 
     // --- COMPONENTE DE BOTÓN CON LÓGICA DE HOVER ---
     const OptionButton = ({ option }: { option: Option }) => {
         const isSelected = selectedOptionId === option.id;
         const isHovered = hoveredOptionId === option.id;
-        const style = getOptionButtonStyle(option, isSelected);
-
-        let hoverStyle = {};
-        // Aplicar efecto de hover solo si los botones no están deshabilitados (es decir, el usuario aún no ha respondido)
-        if (!isAnswered) {
-            if (isHovered) {
-                hoverStyle = {
-                    transform: 'scale(1.05)',
-                    boxShadow: `5px 5px 0px ${KAWAI_COLORS.panelBorder}`,
-                };
-            }
-        }
+        // Usar la función de estilo corregida
+        const style = getOptionButtonStyle(option, isSelected, isHovered); 
 
         return (
             <button
                 key={option.id}
                 onClick={() => handleAnswer(option.isCorrect, option.id)}
-                // Los botones se deshabilitan tan pronto como se da una respuesta
-                disabled={isAnswered} 
+                disabled={isAnswered}
                 onMouseEnter={() => setHoveredOptionId(option.id)}
                 onMouseLeave={() => setHoveredOptionId(null)}
-                style={{ 
-                    ...style as React.CSSProperties, 
-                    ...hoverStyle,
-                }}
+                style={style as React.CSSProperties}
             >
-                <img
-                    src={option.imagePath}
-                    alt={`Opción ${option.id}`}
-                    style={{
-                        width: '80px',
-                        height: '80px',
-                        objectFit: 'contain' as 'contain',
-                        imageRendering: 'pixelated',
-                    }}
-                />
+                {option.text}
             </button>
         );
     };
     // ---------------------------------------------
 
-
-    // Contenido del diálogo de introducción/historia
     const introText = (
         <>
             <h3 style={headerStyle}>{dialogue.introTitle}</h3>
@@ -369,14 +360,16 @@ const FirstMinigame: React.FC<FirstMinigameProps> = ({ userName }) => {
         </>
     );
 
-    // Contenido del diálogo de la pregunta
     const questionText = (
         <>
             <p style={instructionStyle}>
                 {dialogue.instruction}
             </p>
-            <h3 style={{ margin: 0, color: KAWAI_COLORS.textDark }}>
-                {dialogue.questionHeader} <span style={wordStyle}>{word}</span>
+            <h3 style={{ margin: 0, color: KAWAI_COLORS.textDark, textAlign: 'center' as 'center' }}>
+                {dialogue.questionHeader} 
+                <span style={wordStyle}>
+                    {sentence.replace('{gap}', '____')} 
+                </span>
             </h3>
             <p style={{ marginTop: '5px', fontSize: '0.75rem', color: KAWAI_COLORS.textDark }}>
                 ¡Este es tu intento **{attempts + 1} de 2**!
@@ -384,16 +377,13 @@ const FirstMinigame: React.FC<FirstMinigameProps> = ({ userName }) => {
         </>
     );
 
-    // Si está mostrando la pantalla de carga inicial
     if (showIntro) {
         return <LoadingScreen onAnimationEnd={() => setShowIntro(false)} />;
     }
 
-    // Renderizado principal del minijuego
     return (
         <div style={baseStyle}>
 
-            {/* Botón de Regresar al Mapa */}
             <button
                 onClick={handleClose}
                 style={logoutButtonStyle as React.CSSProperties}
@@ -401,7 +391,6 @@ const FirstMinigame: React.FC<FirstMinigameProps> = ({ userName }) => {
                 Regresar al Mapa
             </button>
 
-            {/* Contenedor de las opciones, solo se muestra cuando no es la historia */}
             {!showStory && (
                 <div style={optionsContainerStyle}>
                     {options.map((option: Option) => (
@@ -410,10 +399,8 @@ const FirstMinigame: React.FC<FirstMinigameProps> = ({ userName }) => {
                 </div>
             )}
 
-            {/* Caja de Diálogo principal */}
             <div style={dialogBoxStyle}>
                 <div>
-                    {/* Muestra historia, feedback o pregunta según el estado */}
                     {showStory ? introText : (isAnswered ?
                         <p style={isCorrectFeedback ? feedbackCorrectStyle : feedbackIncorrectStyle}>
                             {feedback}
@@ -421,13 +408,9 @@ const FirstMinigame: React.FC<FirstMinigameProps> = ({ userName }) => {
                         : questionText)}
                 </div>
 
-                {/* Botón de Siguiente/Cerrar */}
                 <button
                     onClick={handleNext}
-                    // El botón "Siguiente Intento" solo se habilita si ya se ha respondido
-                    // El botón "Continuar" (en historia) siempre está habilitado
-                    // El botón "Cerrar" (al final) siempre está habilitado si ya se respondió y terminó
-                    disabled={!showStory && !isAnswered && attempts < 2} 
+                    disabled={!showStory && !isAnswered && attempts < 2}
                     style={{
                         ...nextButtonStyle,
                         backgroundColor: (!showStory && !isAnswered && attempts < 2) ? KAWAI_COLORS.bgMedium : KAWAI_COLORS.accentGreen,
@@ -442,4 +425,4 @@ const FirstMinigame: React.FC<FirstMinigameProps> = ({ userName }) => {
     );
 };
 
-export default FirstMinigame;
+export default SecondMinigame;
