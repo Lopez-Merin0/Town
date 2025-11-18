@@ -1,6 +1,6 @@
 export interface Option {
     id: number;
-    text: string; 
+    text: string;
     isCorrect: boolean;
 }
 
@@ -18,7 +18,7 @@ export interface MinigameDialogue {
 
 export interface MinigameQuestion {
     id: number;
-    sentence: string; 
+    sentence: string;
     options: Option[];
     rules: string;
     dialogue: MinigameDialogue;
@@ -26,28 +26,28 @@ export interface MinigameQuestion {
 
 export const MINIGAME_QUESTION: MinigameQuestion = {
     id: 1,
-    sentence: 'They {gap} playing football.',
-    rules: 'Completa la frase seleccionando la forma correcta del verbo "To Be" (ser/estar).',
-    
+    sentence: 'Ella {gap} jugando fútbol.',
+    rules: 'Completa la frase seleccionando la forma correcta del verbo "estar".',
+
     options: [
         {
             id: 1,
-            text: 'is', 
-            isCorrect: false,
-        },
-        {
-            id: 2,
-            text: 'are', 
+            text: 'está',
             isCorrect: true,
         },
         {
+            id: 2,
+            text: 'están',
+            isCorrect: false,
+        },
+        {
             id: 3,
-            text: 'am',
+            text: 'estoy',
             isCorrect: false,
         },
         {
             id: 4,
-            text: 'be', 
+            text: 'estar',
             isCorrect: false,
         },
     ],
@@ -56,17 +56,17 @@ export const MINIGAME_QUESTION: MinigameQuestion = {
         introTitle: '🎁 ¡Bienvenido al Rincón Gramatical!',
 
         introGreeting: [
-            '¡Hola qué alegría verte en nuestra tienda!',
-            'Soy Cristi. Un cliente nos acaba de dejar esta nota con una pequeña tarea de inglés:',
-            'Quieren que les demostremos que sabemos cómo conjugar los verbos. ¡Este es tu desafío!',
-            'Tu misión: Rellena el hueco de la frase con la forma correcta del verbo "To Be". ¡Mucha suerte!',
+            '¡Hola! Qué bueno verte por aquí.',
+            'Soy Cristi. Un cliente dejó una nota con una pequeña misión:',
+            'Quiere comprobar si dominamos las formas del verbo "estar". ¿Aceptas el desafío?',
+            'Tu misión: Completa correctamente la frase seleccionando la forma adecuada de "estar". ¡Vamos a darle!',
         ],
 
-        correctFeedback: '¡Perfecto! ¡La forma correcta es "{text}"! "They are playing football" es correcto. ¡Has demostrado un excelente nivel gramatical!',
-        wrongAttempt1: '¡Ups! Recuerda que el sujeto es plural ("They"). ¿Qué forma del verbo "To Be" usas con "They"? Te queda una oportunidad más.',
-        wrongAttempt2: 'No te preocupes. La palabra correcta era "{text}". Recuerda: con "They" usamos "are". ¡El verdadero regalo es el aprendizaje!',
+        correctFeedback: '¡Perfecto! La forma correcta es "{text}". "Ella está jugando fútbol" suena impecable. ¡Buen trabajo!',
+        wrongAttempt1: 'Casi, casi. Recuerda que "Ella" es singular. ¿Qué forma del verbo "estar" corresponde? Te queda un intento.',
+        wrongAttempt2: 'No pasa nada. La palabra correcta era "{text}". Con "Ella" usamos "está". ¡A seguir sumando experiencia!',
 
-        instruction: 'Selecciona la forma correcta del verbo "To Be" para completar la frase.',
-        questionHeader: 'El Desafío es: ',
+        instruction: 'Selecciona la forma correcta del verbo "estar" para completar la frase.',
+        questionHeader: 'El desafío es: ',
     }
 };
