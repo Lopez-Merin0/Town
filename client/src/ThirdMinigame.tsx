@@ -1,9 +1,8 @@
-import React, { useState, useRef } from 'react'; 
+import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MINIGAME_QUESTION_AUDIO, Option, MinigameQuestion } from './MiniData-3'; 
+import { MINIGAME_3_QUESTIONS, Option } from './MiniData-3';
 import LoadingScreen from './LoadingScreen';
-
-const MINIGAME_QUESTION = MINIGAME_QUESTION_AUDIO; 
+import { useMinigame3Progress } from './contexts/Minigame3ProgressContext';
 
 const KAWAI_COLORS = {
     bgLight: '#FBF0DF',
@@ -95,9 +94,10 @@ const ExitConfirmationPopup: React.FC<{ onConfirm: () => void; onCancel: () => v
 
 const ThirdMinigame: React.FC<ThirdMinigameProps> = ({ userName }) => {
     const navigate = useNavigate();
+    const { progress, markQuestionCompleted, moveToNextQuestion, getCurrentQuestionIndex, resetQuestionIndex } = useMinigame3Progress();
 
-    const audioRef = useRef<HTMLAudioElement>(null); 
-    const [isPlaying, setIsPlaying] = useState(false); 
+    const audioRef = useRef<HTMLAudioElement>(null);
+    const [isPlaying, setIsPlaying] = useState(false);
 
     const [showIntro, setShowIntro] = useState(true);
     const [isAnswered, setIsAnswered] = useState(false);
@@ -109,13 +109,34 @@ const ThirdMinigame: React.FC<ThirdMinigameProps> = ({ userName }) => {
     const [hoveredOptionId, setHoveredOptionId] = useState<number | null>(null);
 
     const [showExitConfirmation, setShowExitConfirmation] = useState(false);
+    const [showCompletionMessage, setShowCompletionMessage] = useState(false);
+
+    const currentQuestionIndex = getCurrentQuestionIndex();
+    const currentQuestion = MINIGAME_3_QUESTIONS[currentQuestionIndex];
+
+    console.log('Minijuego 3 renderizado - Índice:', currentQuestionIndex, 'Pregunta:', currentQuestion?.id);
+    console.log('Progreso al iniciar:', progress);
+
+    const allQuestionsCompleted = progress.totalCompleted >= MINIGAME_3_QUESTIONS.length;
+
+    React.useEffect(() => {
+        if (allQuestionsCompleted && !showCompletionMessage) {
+            console.log('Ya completó todos los minijuegos 3 anteriormente');
+            setShowIntro(false);
+            setShowCompletionMessage(true);
+        }
+    }, [allQuestionsCompleted, showCompletionMessage]);
+
+    if (!currentQuestion && !showCompletionMessage && !allQuestionsCompleted) {
+        setShowCompletionMessage(true);
+    }
 
     const isLocked = isAnswered;
 
-    const isCorrectFeedback = feedback.includes('¡Genial!'); 
-    const isGameOver = isCorrectFeedback || (attempts >= 2);
+    const isCorrectFeedback = feedback.includes('¡Excelente oído!') || feedback.includes('¡Esoooo!');
+    const isGameOver = (isAnswered && currentQuestion && feedback.includes(currentQuestion.dialogue.correctFeedback.split('.')[0])) || (attempts >= 2);
 
-    const { audioText, audioUrl, options, rules, dialogue } = MINIGAME_QUESTION; 
+    const { audioText, audioUrl, options, rules, dialogue } = currentQuestion || MINIGAME_3_QUESTIONS[0];
 
     const isIntroArray = Array.isArray(dialogue.introGreeting);
     const totalDialogs = isIntroArray ? dialogue.introGreeting.length : 1;
@@ -127,11 +148,11 @@ const ThirdMinigame: React.FC<ThirdMinigameProps> = ({ userName }) => {
     const instructionStyle = {
         color: KAWAI_COLORS.textDark, fontSize: '0.8rem', marginBottom: '5px'
     };
-    
-    const audioPromptStyle = { 
+
+    const audioPromptStyle = {
         fontSize: '1.2rem', color: KAWAI_COLORS.textDark, padding: '10px 0',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        marginBottom: '10px', 
+        marginBottom: '10px',
     };
 
     const feedbackCorrectStyle = {
@@ -150,13 +171,13 @@ const ThirdMinigame: React.FC<ThirdMinigameProps> = ({ userName }) => {
     };
 
     const dialogBoxStyle = {
-        position: 'absolute' as 'absolute', 
-        bottom: '20px', 
-        left: '50%', 
+        position: 'absolute' as 'absolute',
+        bottom: '20px',
+        left: '50%',
         transform: 'translateX(-50%)',
-        width: '90%', 
-        maxWidth: '550px', 
-        minHeight: showStory ? '180px' : '120px', 
+        width: '90%',
+        maxWidth: '550px',
+        minHeight: showStory ? '180px' : '120px',
         padding: '15px 25px',
         backgroundColor: 'rgba(247, 240, 230, 0.8)', backgroundImage: KAWAI_TEXTURES.texturePaper,
         borderRadius: '20px', boxShadow: `8px 8px 0px ${KAWAI_COLORS.panelBorder}`,
@@ -177,17 +198,16 @@ const ThirdMinigame: React.FC<ThirdMinigameProps> = ({ userName }) => {
         fontSize: '1rem', fontWeight: 'bold' as 'bold', zIndex: 20, transition: 'all 0.2s ease-in-out',
     };
 
-    // **MODIFICACIÓN CLAVE: Contenedor de Opciones a 2x2**
     const optionsContainerStyle: React.CSSProperties = {
-        position: 'absolute', 
-        top: '120px', 
-        left: '50%', 
+        position: 'absolute',
+        top: '120px',
+        left: '50%',
         transform: 'translateX(-50%)',
-        display: 'grid', 
-        gridTemplateColumns: '1fr 1fr', 
-        gap: '15px', 
+        display: 'grid',
+        gridTemplateColumns: '1fr 1fr',
+        gap: '15px',
         width: '90%',
-        maxWidth: '450px', 
+        maxWidth: '450px',
         zIndex: 12,
         justifyContent: 'center',
     };
@@ -210,22 +230,22 @@ const ThirdMinigame: React.FC<ThirdMinigameProps> = ({ userName }) => {
         }
 
         const baseStyle: React.CSSProperties = {
-            padding: '10px', 
-            backgroundColor: backgroundColor, 
+            padding: '10px',
+            backgroundColor: backgroundColor,
             border: `4px solid ${borderColor}`,
-            borderRadius: '10px', 
-            cursor: cursor, 
+            borderRadius: '10px',
+            cursor: cursor,
             boxShadow: boxShadow,
-            minWidth: '200px', 
-            height: 'auto', 
-            textAlign: 'center' as 'center', 
-            display: 'flex', 
-            justifyContent: 'center', 
-            alignItems: 'center', 
+            minWidth: '200px',
+            height: 'auto',
+            textAlign: 'center' as 'center',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
             transition: 'all 0.2s ease-in-out',
-            fontWeight: 'bold' as 'bold', 
-            fontSize: '0.9rem', 
-            whiteSpace: 'normal' as 'normal', 
+            fontWeight: 'bold' as 'bold',
+            fontSize: '0.9rem',
+            whiteSpace: 'normal' as 'normal',
         };
 
         let hoverStyle = {};
@@ -244,8 +264,8 @@ const ThirdMinigame: React.FC<ThirdMinigameProps> = ({ userName }) => {
         const correctOptionText = options.find(opt => opt.isCorrect)?.text || '';
 
         return text.replace(/{user}/g, userName)
-            .replace(/{word}/g, correctOptionText) 
-            .replace(/{text}/g, selectedOptionText) 
+            .replace(/{word}/g, correctOptionText)
+            .replace(/{text}/g, selectedOptionText)
             .replace(/{id}/g, String(selectedId));
     };
 
@@ -270,9 +290,12 @@ const ThirdMinigame: React.FC<ThirdMinigameProps> = ({ userName }) => {
 
         if (isCorrect) {
             setFeedback(formatFeedback(dialogue.correctFeedback, selectedId));
+            console.log('Respuesta correcta! Pregunta ID:', currentQuestion.id, 'Intentos:', newAttempts);
+            markQuestionCompleted(currentQuestion.id, newAttempts);
         } else {
             const feedbackText = newAttempts < 2 ? dialogue.wrongAttempt1 : dialogue.wrongAttempt2;
             setFeedback(formatFeedback(feedbackText, selectedId));
+            console.log(newAttempts < 2 ? 'Respuesta incorrecta' : '💔 Falló después de 2 intentos');
         }
     };
 
@@ -292,6 +315,8 @@ const ThirdMinigame: React.FC<ThirdMinigameProps> = ({ userName }) => {
             audioRef.current.currentTime = 0;
             setIsPlaying(false);
         }
+        console.log('Saliendo del minijuego 3, reseteando índice');
+        resetQuestionIndex();
         setShowExitConfirmation(false);
         navigate(-1);
     };
@@ -311,9 +336,26 @@ const ThirdMinigame: React.FC<ThirdMinigameProps> = ({ userName }) => {
                 setCurrentDialogIndex(0);
             }
         } else if (isAnswered) {
-            if (isCorrectFeedback || attempts >= 2) {
+            if (isCorrectFeedback) {
+                console.log('Pregunta correcta confirmada');
+                console.log('Estado actual - Índice:', currentQuestionIndex, 'Total preguntas:', MINIGAME_3_QUESTIONS.length);
+
+                if (currentQuestionIndex < MINIGAME_3_QUESTIONS.length - 1) {
+                    console.log('⏭Hay más preguntas, avanzando...');
+                    moveToNextQuestion();
+                    setShowStory(true);
+                    setCurrentDialogIndex(0);
+                    resetAnswerState();
+                    setAttempts(0);
+                } else {
+                    console.log('¡Todas las preguntas completadas!');
+                    setShowCompletionMessage(true);
+                }
+            } else if (attempts >= 2) {
+                console.log('Saliendo por fallos');
                 handleConfirmExit();
             } else {
+                console.log('Reintentar');
                 resetAnswerState();
             }
         }
@@ -321,7 +363,7 @@ const ThirdMinigame: React.FC<ThirdMinigameProps> = ({ userName }) => {
 
     const handlePlayAudio = () => {
         if (audioRef.current) {
-            audioRef.current.currentTime = 0; 
+            audioRef.current.currentTime = 0;
             audioRef.current.play();
             setIsPlaying(true);
         }
@@ -330,7 +372,7 @@ const ThirdMinigame: React.FC<ThirdMinigameProps> = ({ userName }) => {
     const handleAudioEnded = () => {
         setIsPlaying(false);
     };
-    
+
     let buttonText = '...';
     if (showStory) {
         buttonText = isLastDialog ? "¡Empecemos el Desafío!" : "Continuar";
@@ -392,7 +434,7 @@ const ThirdMinigame: React.FC<ThirdMinigameProps> = ({ userName }) => {
             <h3 style={{ margin: 0, color: KAWAI_COLORS.textDark, textAlign: 'center' as 'center' }}>
                 {dialogue.questionHeader}
             </h3>
-            
+
             <div style={audioPromptStyle}>
                 <button
                     onClick={handlePlayAudio}
@@ -418,23 +460,60 @@ const ThirdMinigame: React.FC<ThirdMinigameProps> = ({ userName }) => {
                     {isPlaying ? '⏸️' : '🔊'}
                 </button>
             </div>
-            
+
             <p style={{ marginTop: '5px', fontSize: '0.75rem', color: KAWAI_COLORS.textDark }}>
                 ¡Este es tu intento {attempts + 1} de 2!
             </p>
         </>
     );
 
-    if (showIntro) {
+    if (showIntro && !allQuestionsCompleted) {
         return <LoadingScreen onAnimationEnd={() => setShowIntro(false)} />;
+    }
+
+    if (showCompletionMessage || allQuestionsCompleted) {
+        console.log('Pantalla de completado - Progreso:', progress);
+
+        return (
+            <div style={baseStyle}>
+                <div style={{
+                    ...dialogBoxStyle,
+                    top: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    textAlign: 'center',
+                }}>
+                    <h2 style={{ ...headerStyle, fontSize: '1.5rem', marginBottom: '15px' }}>
+                        🎉 ¡Felicidades! 🎉
+                    </h2>
+                    <p style={{ color: KAWAI_COLORS.textDark, fontSize: '1rem', marginBottom: '10px' }}>
+                        {allQuestionsCompleted && !showCompletionMessage
+                            ? 'Ya has completado todos los desafíos del Rincón del Caramelo anteriormente.'
+                            : 'Has completado todos los desafíos del Rincón del Caramelo.'}
+                    </p>
+                    <p style={{ color: KAWAI_COLORS.textGreen, fontSize: '0.9rem', marginBottom: '20px' }}>
+                        Preguntas completadas: {progress.totalCompleted} de {MINIGAME_3_QUESTIONS.length}
+                    </p>
+                    <button
+                        onClick={() => {
+                            console.log('Volviendo al mapa sin resetear progreso');
+                            resetQuestionIndex();
+                            navigate(-1);
+                        }}
+                        style={nextButtonStyle as React.CSSProperties}
+                    >
+                        Volver al Mapa
+                    </button>
+                </div>
+            </div>
+        );
     }
 
     return (
         <>
-            <audio 
-                ref={audioRef} 
-                src={audioUrl} 
-                onEnded={handleAudioEnded} 
+            <audio
+                ref={audioRef}
+                src={audioUrl}
+                onEnded={handleAudioEnded}
                 preload="auto"
             />
 
@@ -450,6 +529,21 @@ const ThirdMinigame: React.FC<ThirdMinigameProps> = ({ userName }) => {
                 >
                     Regresar al Mapa
                 </button>
+
+                <div style={{
+                    position: 'absolute',
+                    top: '20px',
+                    right: '20px',
+                    padding: '10px 15px',
+                    backgroundColor: KAWAI_COLORS.panelLight,
+                    border: `3px solid ${KAWAI_COLORS.panelBorder}`,
+                    borderRadius: '15px',
+                    fontFamily: KAWAI_FONTS.mali,
+                    fontSize: '0.9rem',
+                    zIndex: 20,
+                }}>
+                    Pregunta {currentQuestionIndex + 1} de {MINIGAME_3_QUESTIONS.length}
+                </div>
 
                 {!showStory && (
                     <div style={optionsContainerStyle}>
