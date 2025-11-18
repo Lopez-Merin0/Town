@@ -5,6 +5,9 @@ import Character from './Character';
 import CollisionDebugger from './CollisionDebugger';
 import { usePopupTrigger } from './MiniGameTrigger';
 import LoadingScreen from './LoadingScreen';
+import NPC from './NPC';
+import NPCDialoguePopup from './NPCDialoguePopup';
+import { NPC_LIST, NPCDialogue } from './NPCConfig';
 import './index.css';
 import { COLLISION_AREAS, CollisionArea } from './CollisionAreas';
 
@@ -193,6 +196,7 @@ const WorldScreen: React.FC = () => {
     const [showIntro, setShowIntro] = useState(true);
     const [showLogoutPopup, setShowLogoutPopup] = useState(false);
     const [miniGamePopupState, setMiniGamePopupState] = useState<{ isVisible: boolean; targetRoute: string; gameName: string; } | null>(null);
+    const [npcDialogue, setNpcDialogue] = useState<{ npcName: string; dialogue: NPCDialogue } | null>(null);
 
 
     const [viewport, setViewport] = useState({
@@ -247,8 +251,25 @@ const WorldScreen: React.FC = () => {
         };
     }, [characterState.isMoving]);
 
+    const handleNPCClick = useCallback((npcId: string) => {
+        const npc = NPC_LIST.find(n => n.id === npcId);
+        if (!npc) return;
+
+        // Seleccionar un diálogo aleatorio
+        const randomDialogue = npc.dialogues[Math.floor(Math.random() * npc.dialogues.length)];
+
+        setNpcDialogue({
+            npcName: npc.name,
+            dialogue: randomDialogue
+        });
+    }, []);
+
+    const handleCloseNPCDialogue = () => {
+        setNpcDialogue(null);
+    };
+
     const handleKeyDown = useCallback((event: KeyboardEvent) => {
-        const isAnyPopupOpen = showIntro || showLogoutPopup || !!miniGamePopupState;
+        const isAnyPopupOpen = showIntro || showLogoutPopup || !!miniGamePopupState || !!npcDialogue;
         if (isAnyPopupOpen) {
             event.preventDefault();
             return;
@@ -312,16 +333,16 @@ const WorldScreen: React.FC = () => {
                 isMoving: true,
             };
         });
-    }, [showIntro, showLogoutPopup, miniGamePopupState]);
+    }, [showIntro, showLogoutPopup, miniGamePopupState, npcDialogue]);
 
     const handleKeyUp = useCallback((event: KeyboardEvent) => {
-        const isAnyPopupOpen = showIntro || showLogoutPopup || !!miniGamePopupState;
+        const isAnyPopupOpen = showIntro || showLogoutPopup || !!miniGamePopupState || !!npcDialogue;
         if (isAnyPopupOpen) return;
         const key = event.key.toLowerCase();
         if (DIRECTION_MAP[key] !== undefined) {
             setCharacterState((prev) => ({ ...prev, isMoving: false }));
         }
-    }, [showIntro, showLogoutPopup, miniGamePopupState]);
+    }, [showIntro, showLogoutPopup, miniGamePopupState, npcDialogue]);
 
     useEffect(() => {
         window.addEventListener('keydown', handleKeyDown);
@@ -410,6 +431,16 @@ const WorldScreen: React.FC = () => {
                 />
             </div>
 
+            {NPC_LIST.map((npc) => (
+                <NPC
+                    key={npc.id}
+                    x={npc.x + backgroundTranslateX - 40}
+                    y={npc.y + backgroundTranslateY - 40}
+                    spriteUrl={npc.spriteUrl}
+                    onClick={() => handleNPCClick(npc.id)}
+                />
+            ))}
+
             <Character
                 x={characterState.mapX + backgroundTranslateX - SCALED_SPRITE_SIZE / 2}
                 y={characterState.mapY + backgroundTranslateY - SCALED_SPRITE_SIZE / 2}
@@ -463,6 +494,15 @@ const WorldScreen: React.FC = () => {
                     minigameName={miniGamePopupState.gameName}
                     onConfirm={handleConfirmMinigame}
                     onCancel={handleCancelMinigame}
+                />
+            )}
+
+            {npcDialogue && (
+                <NPCDialoguePopup
+                    npcName={npcDialogue.npcName}
+                    text={npcDialogue.dialogue.text}
+                    image={npcDialogue.dialogue.image}
+                    onClose={handleCloseNPCDialogue}
                 />
             )}
         </div>
