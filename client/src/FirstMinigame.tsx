@@ -495,9 +495,6 @@ const FirstMinigame: React.FC<FirstMinigameProps> = ({ userName }) => {
                     <p style={{ color: KAWAI_COLORS.textGreen, fontSize: '0.9rem', marginBottom: '20px' }}>
                         Preguntas completadas: {progress.totalCompleted} de {MINIGAME_QUESTIONS.length}
                     </p>
-                    <p style={{ color: KAWAI_COLORS.textDark, fontSize: '0.8rem', marginBottom: '20px' }}>
-                        IDs completados: {progress.completedQuestions.map(q => q.questionId).join(', ')}
-                    </p>
                     <button
                         onClick={() => {
                             console.log('Volviendo al mapa sin resetear progreso');

@@ -7,14 +7,14 @@ interface QuestionProgress {
     timestamp: string;
 }
 
-interface MinigameProgress {
+interface Minigame2Progress {
     completedQuestions: QuestionProgress[];
     currentQuestionIndex: number;
     totalCompleted: number;
 }
 
-interface MinigameProgressContextType {
-    progress: MinigameProgress;
+interface Minigame2ProgressContextType {
+    progress: Minigame2Progress;
     markQuestionCompleted: (questionId: number, attempts: number) => void;
     resetProgress: () => void;
     getCurrentQuestionIndex: () => number;
@@ -22,28 +22,26 @@ interface MinigameProgressContextType {
     resetQuestionIndex: () => void;
 }
 
-const MinigameProgressContext = createContext<MinigameProgressContextType | undefined>(undefined);
+const Minigame2ProgressContext = createContext<Minigame2ProgressContextType | undefined>(undefined);
 
-const STORAGE_KEY = 'talkie_town_minigame_progress';
+const STORAGE_KEY = 'talkie_town_minigame2_progress';
 const SESSION_KEY = 'talkie_town_session_id';
 
-const getInitialProgress = (): MinigameProgress => {
+const getInitialProgress = (): Minigame2Progress => {
     const currentSessionId = sessionStorage.getItem(SESSION_KEY);
 
     if (!currentSessionId) {
-        //limpiar progreso
         const newSessionId = Date.now().toString();
         sessionStorage.setItem(SESSION_KEY, newSessionId);
         localStorage.removeItem(STORAGE_KEY);
-        console.log('Nueva sesión detectada, progreso reseteado');
+        console.log('Nueva sesión detectada (Minijuego 2), progreso reseteado');
         return { completedQuestions: [], currentQuestionIndex: 0, totalCompleted: 0 };
     }
 
-    // en progreso
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
         try {
-            console.log('Cargando progreso de sesión existente');
+            console.log('Cargando progreso de sesión existente (Minijuego 2)');
             return JSON.parse(stored);
         } catch {
             return { completedQuestions: [], currentQuestionIndex: 0, totalCompleted: 0 };
@@ -52,16 +50,16 @@ const getInitialProgress = (): MinigameProgress => {
     return { completedQuestions: [], currentQuestionIndex: 0, totalCompleted: 0 };
 };
 
-export const MinigameProgressProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-    const [progress, setProgress] = useState<MinigameProgress>(getInitialProgress);
+export const Minigame2ProgressProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+    const [progress, setProgress] = useState<Minigame2Progress>(getInitialProgress);
 
     useEffect(() => {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
-        console.log('Progreso guardado (temporal):', progress);
+        console.log('Progreso guardado (temporal) - Minijuego 2:', progress);
     }, [progress]);
 
     const markQuestionCompleted = (questionId: number, attempts: number) => {
-        console.log('Marcando pregunta completada:', questionId, 'con intentos:', attempts);
+        console.log('Marcando pregunta completada (Minijuego 2):', questionId, 'con intentos:', attempts);
 
         setProgress(prev => {
             const existingIndex = prev.completedQuestions.findIndex(q => q.questionId === questionId);
@@ -85,13 +83,13 @@ export const MinigameProgressProvider: React.FC<{ children: ReactNode }> = ({ ch
                 totalCompleted: updatedQuestions.length,
             };
 
-            console.log('Nuevo progreso:', newProgress);
+            console.log('Nuevo progreso (Minijuego 2):', newProgress);
             return newProgress;
         });
     };
 
     const moveToNextQuestion = () => {
-        console.log('Moviendo a siguiente pregunta');
+        console.log('Moviendo a siguiente pregunta (Minijuego 2)');
         setProgress(prev => ({
             ...prev,
             currentQuestionIndex: prev.currentQuestionIndex + 1,
@@ -101,7 +99,7 @@ export const MinigameProgressProvider: React.FC<{ children: ReactNode }> = ({ ch
     const getCurrentQuestionIndex = () => progress.currentQuestionIndex;
 
     const resetProgress = () => {
-        console.log('Reseteando progreso completamente');
+        console.log('Reseteando progreso completamente (Minijuego 2)');
         const emptyProgress = { completedQuestions: [], currentQuestionIndex: 0, totalCompleted: 0 };
         setProgress(emptyProgress);
         localStorage.removeItem(STORAGE_KEY);
@@ -109,7 +107,7 @@ export const MinigameProgressProvider: React.FC<{ children: ReactNode }> = ({ ch
     };
 
     const resetQuestionIndex = () => {
-        console.log('Reseteando índice de pregunta a 0');
+        console.log('Reseteando índice de pregunta a 0 (Minijuego 2)');
         setProgress(prev => ({
             ...prev,
             currentQuestionIndex: 0,
@@ -117,7 +115,7 @@ export const MinigameProgressProvider: React.FC<{ children: ReactNode }> = ({ ch
     };
 
     return (
-        <MinigameProgressContext.Provider
+        <Minigame2ProgressContext.Provider
             value={{
                 progress,
                 markQuestionCompleted,
@@ -128,14 +126,14 @@ export const MinigameProgressProvider: React.FC<{ children: ReactNode }> = ({ ch
             }}
         >
             {children}
-        </MinigameProgressContext.Provider>
+        </Minigame2ProgressContext.Provider>
     );
 };
 
-export const useMinigameProgress = () => {
-    const context = useContext(MinigameProgressContext);
+export const useMinigame2Progress = () => {
+    const context = useContext(Minigame2ProgressContext);
     if (!context) {
-        throw new Error('useMinigameProgress must be used within MinigameProgressProvider');
+        throw new Error('useMinigame2Progress must be used within Minigame2ProgressProvider');
     }
     return context;
 };

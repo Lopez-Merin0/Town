@@ -13,6 +13,7 @@ import ThirdMiniGame from './ThirdMinigame';
 import RegisterScreen from './RegisterScreen';
 
 import { MinigameProgressProvider } from './contexts/MinigameProgressContext';
+import { Minigame2ProgressProvider } from './contexts/Minigame2ProgressContext';
 
 const App = () => {
   const [isMusicEnabled, setIsMusicEnabled] = useState(
@@ -50,51 +51,53 @@ const App = () => {
 
   return (
     <MinigameProgressProvider>
-      <Router>
-        <GameAudio
-          isMusicEnabled={isMusicEnabled}
-          musicVolume={0.3}
-        />
-
-        <button
-          onClick={toggleMusic}
-          style={{
-            position: 'fixed',
-            top: 10,
-            right: 10,
-            zIndex: 9999,
-            backgroundColor: 'rgba(255, 255, 255, 0.5)',
-            borderRadius: '50%',
-            padding: '10px',
-            border: 'none',
-            cursor: 'pointer',
-            fontSize: '1.2rem'
-          }}
-          title={isMusicEnabled ? "Silenciar Música" : "Activar Música"}
-        >
-          {isMusicEnabled ? '🔊' : '🔇'}
-        </button>
-
-        <Routes>
-          <Route path="/" element={<AuthScreen />} />
-
-          <Route path="/login" element={<LoginScreen />} />
-          <Route path="/register" element={<RegisterScreen />} />
-
-          <Route path="/primer mini juego" element={<FirstMinigame userName={getUserName()} />} />
-          <Route path="/segundo mini juego" element={<SecondMinigame />} />
-          <Route path="/tercer mini juego" element={<ThirdMiniGame />} />
-
-          <Route
-            path="/world"
-            element={
-              isAuthenticated() ? <WorldScreen /> : <Navigate to="/" />
-            }
+      <Minigame2ProgressProvider>
+        <Router>
+          <GameAudio
+            isMusicEnabled={isMusicEnabled}
+            musicVolume={0.3}
           />
 
-          <Route path="*" element={<Navigate to="/" />} />
-        </Routes>
-      </Router>
+          <button
+            onClick={toggleMusic}
+            style={{
+              position: 'fixed',
+              top: 10,
+              right: 10,
+              zIndex: 9999,
+              backgroundColor: 'rgba(255, 255, 255, 0.5)',
+              borderRadius: '50%',
+              padding: '10px',
+              border: 'none',
+              cursor: 'pointer',
+              fontSize: '1.2rem'
+            }}
+            title={isMusicEnabled ? "Silenciar Música" : "Activar Música"}
+          >
+            {isMusicEnabled ? '🔊' : '🔇'}
+          </button>
+
+          <Routes>
+            <Route path="/" element={<AuthScreen />} />
+
+            <Route path="/login" element={<LoginScreen />} />
+            <Route path="/register" element={<RegisterScreen />} />
+
+            <Route path="/primer mini juego" element={<FirstMinigame userName={getUserName()} />} />
+            <Route path="/segundo mini juego" element={<SecondMinigame userName={getUserName()} />} />
+            <Route path="/tercer mini juego" element={<ThirdMiniGame />} />
+
+            <Route
+              path="/world"
+              element={
+                isAuthenticated() ? <WorldScreen /> : <Navigate to="/" />
+              }
+            />
+
+            <Route path="*" element={<Navigate to="/" />} />
+          </Routes>
+        </Router>
+      </Minigame2ProgressProvider>
     </MinigameProgressProvider>
   );
 };
