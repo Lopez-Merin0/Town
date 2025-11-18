@@ -31,11 +31,12 @@ const getInitialProgress = (): MinigameProgress => {
     const currentSessionId = sessionStorage.getItem(SESSION_KEY);
 
     if (!currentSessionId) {
-        //limpiar progreso
         const newSessionId = Date.now().toString();
         sessionStorage.setItem(SESSION_KEY, newSessionId);
         localStorage.removeItem(STORAGE_KEY);
-        console.log('Nueva sesión detectada, progreso reseteado');
+        localStorage.removeItem('talkie_town_minigame2_progress'); // Limpiar minijuego 2
+        localStorage.removeItem('talkie_town_minigame3_progress'); // Limpiar minijuego 3
+        console.log('Nueva sesión detectada, todos los progresos reseteados');
         return { completedQuestions: [], currentQuestionIndex: 0, totalCompleted: 0 };
     }
 

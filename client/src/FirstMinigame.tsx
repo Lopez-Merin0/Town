@@ -104,6 +104,7 @@ const FirstMinigame: React.FC<FirstMinigameProps> = ({ userName }) => {
     const [attempts, setAttempts] = useState(0);
     const [selectedOptionId, setSelectedOptionId] = useState<number | null>(null);
     const [hoveredOptionId, setHoveredOptionId] = useState<number | null>(null);
+    const [isCorrectAnswer, setIsCorrectAnswer] = useState(false); // Nueva variable para rastrear si la respuesta fue correcta
 
     const [showExitConfirmation, setShowExitConfirmation] = useState(false);
     const [showCompletionMessage, setShowCompletionMessage] = useState(false);
@@ -112,7 +113,17 @@ const FirstMinigame: React.FC<FirstMinigameProps> = ({ userName }) => {
     const currentQuestion = MINIGAME_QUESTIONS[currentQuestionIndex];
 
     console.log('Componente renderizado - Índice:', currentQuestionIndex, 'Pregunta:', currentQuestion?.id);
-    console.log('Progreso al iniciar:', progress);
+
+    // Verificar si la pregunta actual ya fue completada
+    const isCurrentQuestionCompleted = currentQuestion && progress.completedQuestions.some(q => q.questionId === currentQuestion.id);
+
+    // Si la pregunta actual ya está completada, avanzar automáticamente
+    React.useEffect(() => {
+        if (isCurrentQuestionCompleted && currentQuestionIndex < MINIGAME_QUESTIONS.length - 1 && !isAnswered) {
+            console.log('Pregunta ya completada, avanzando automáticamente...');
+            moveToNextQuestion();
+        }
+    }, [isCurrentQuestionCompleted, currentQuestionIndex, isAnswered]);
 
     // Verificar si ya completó todos los minijuegos
     const allQuestionsCompleted = progress.totalCompleted >= MINIGAME_QUESTIONS.length;
@@ -241,7 +252,7 @@ const FirstMinigame: React.FC<FirstMinigameProps> = ({ userName }) => {
         let boxShadow = `3px 3px 0px ${KAWAI_COLORS.shadowLight}`;
         let cursor: React.CSSProperties['cursor'] = isLocked ? 'default' : 'pointer';
 
-        if (isGameOver && option.isCorrect) {
+        if (isAnswered && option.isCorrect && isCorrectAnswer) {
             borderColor = KAWAI_COLORS.accentGreen;
             boxShadow = `5px 5px 0px ${KAWAI_COLORS.accentGreen}`;
         }
@@ -291,6 +302,7 @@ const FirstMinigame: React.FC<FirstMinigameProps> = ({ userName }) => {
         const newAttempts = attempts + 1;
         setAttempts(newAttempts);
         setIsAnswered(true);
+        setIsCorrectAnswer(isCorrect);
 
         if (isCorrect) {
             setFeedback(formatFeedback(dialogue.correctFeedback, selectedId));
@@ -312,6 +324,7 @@ const FirstMinigame: React.FC<FirstMinigameProps> = ({ userName }) => {
         setIsAnswered(false);
         setFeedback('');
         setSelectedOptionId(null);
+        setIsCorrectAnswer(false); // Resetear también esto
     }
 
     const handleExitClick = () => {
@@ -320,7 +333,10 @@ const FirstMinigame: React.FC<FirstMinigameProps> = ({ userName }) => {
 
     const handleConfirmExit = () => {
         console.log('Saliendo del minijuego, reseteando índice');
-        resetQuestionIndex();
+        // NO resetear el índice si hay preguntas completadas
+        if (progress.totalCompleted === 0) {
+            resetQuestionIndex();
+        }
         setShowExitConfirmation(false);
         navigate(-1);
     };
@@ -338,15 +354,13 @@ const FirstMinigame: React.FC<FirstMinigameProps> = ({ userName }) => {
                 setCurrentDialogIndex(0);
             }
         } else if (isAnswered) {
-            const isCorrectFeedback = feedback.includes(dialogue.correctFeedback.split(',')[0]);
-
-            if (isCorrectFeedback) {
+            if (isCorrectAnswer) { // Usar la variable en lugar de verificar el texto
                 console.log('Pregunta correcta confirmada');
                 console.log('Estado actual - Índice:', currentQuestionIndex, 'Total preguntas:', MINIGAME_QUESTIONS.length);
                 console.log('Progreso guardado:', progress);
 
                 if (currentQuestionIndex < MINIGAME_QUESTIONS.length - 1) {
-                    console.log('⏭Hay más preguntas, avanzando...');
+                    console.log('Hay más preguntas, avanzando...');
                     moveToNextQuestion();
                     setShowStory(true);
                     setCurrentDialogIndex(0);
@@ -370,13 +384,12 @@ const FirstMinigame: React.FC<FirstMinigameProps> = ({ userName }) => {
         }
     };
 
-    const isCorrectFeedback = feedback.includes(dialogue.correctFeedback.split(',')[0]);
     let buttonText = '...';
 
     if (showStory) {
         buttonText = isLastDialog ? "¡Empecemos el Desafío!" : "Continuar";
     } else if (isAnswered) {
-        if (isCorrectFeedback) {
+        if (isCorrectAnswer) { // Usar la variable en lugar de verificar el texto
             if (currentQuestionIndex < MINIGAME_QUESTIONS.length - 1) {
                 buttonText = "Siguiente Pregunta";
             } else {
@@ -485,7 +498,7 @@ const FirstMinigame: React.FC<FirstMinigameProps> = ({ userName }) => {
                     textAlign: 'center',
                 }}>
                     <h2 style={{ ...KAWAI_STYLES.header, fontSize: '1.5rem', marginBottom: '15px' }}>
-                        🎉 ¡Felicidades {userName}! 🎉
+                        🎉 ¡Felicidades! 🎉
                     </h2>
                     <p style={{ color: KAWAI_COLORS.textDark, fontSize: '1rem', marginBottom: '10px' }}>
                         {allQuestionsCompleted && !showCompletionMessage
@@ -551,7 +564,7 @@ const FirstMinigame: React.FC<FirstMinigameProps> = ({ userName }) => {
                 <div style={dialogBoxStyle}>
                     <div>
                         {showStory ? introText : (isAnswered ?
-                            <p style={isCorrectFeedback ? KAWAI_STYLES.feedbackCorrect : KAWAI_STYLES.feedbackIncorrect}>
+                            <p style={isCorrectAnswer ? KAWAI_STYLES.feedbackCorrect : KAWAI_STYLES.feedbackIncorrect}>
                                 {feedback}
                             </p>
                             : questionText)}

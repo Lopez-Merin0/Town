@@ -64,7 +64,7 @@ export const MINIGAME_QUESTIONS: MinigameQuestion[] = [
 
             correctFeedback: '¡Felicidades, esa es la actitud de un verdadero explorador! ¡La palabra "{word}" es tuya! ¡Continúa con tu dulce aventura!',
             wrongAttempt1: '¡Ups! Parece que esa no era la imagen correcta, pero no te preocupes, el café se disfruta hasta el último sorbo Te queda una oportunidad más para conseguir la palabra "{word}". ¡Tú puedes!',
-            wrongAttempt2: 'No te rindas, a veces el aroma nos distrae. La respuesta correcta era: "{word}". ¡No pasa nada! El verdadero premio es la experiencia. Cierra esta ventana y sigue disfrutando del Rincón.',
+            wrongAttempt2: 'No te rindas, a veces el aroma nos distrae.". ¡No pasa nada! El verdadero premio es la experiencia. Cierra esta ventana y sigue disfrutando del Rincón.',
 
             instruction: 'Tu misión es clara: Demuéstranos que sabes reconocer los tesoros de nuestra cafetería. Selecciona la imagen que corresponde a la palabra de arriba.',
             questionHeader: 'Encuentra el tesoro: ',
@@ -101,7 +101,7 @@ export const MINIGAME_QUESTIONS: MinigameQuestion[] = [
             introGreeting: '¡Excelente! Ahora vamos con el segundo tesoro. ¿Puedes identificar la manzana?',
             correctFeedback: '¡Perfecto! Has completado todos los desafíos. ¡Eres un verdadero conocedor de manzanas!',
             wrongAttempt1: '¡Casi! El color de la manzana es inconfundible. Tienes una oportunidad más para encontrar "{word}".',
-            wrongAttempt2: 'No importa, lo importante es aprender. La respuesta era "{word}". ¡Inténtalo de nuevo!',
+            wrongAttempt2: 'No importa, lo importante es aprender.". ¡Inténtalo de nuevo!',
             instruction: 'Segundo desafío: Selecciona la imagen que corresponde a la palabra de arriba.',
             questionHeader: 'Encuentra el tesoro: ',
         }

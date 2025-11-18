@@ -104,6 +104,7 @@ const SecondMinigame: React.FC<SecondMinigameProps> = ({ userName }) => {
     const [attempts, setAttempts] = useState(0);
     const [selectedOptionId, setSelectedOptionId] = useState<number | null>(null);
     const [hoveredOptionId, setHoveredOptionId] = useState<number | null>(null);
+    const [isCorrectAnswer, setIsCorrectAnswer] = useState(false); // Nueva variable
 
     const [showExitConfirmation, setShowExitConfirmation] = useState(false);
     const [showCompletionMessage, setShowCompletionMessage] = useState(false);
@@ -113,6 +114,17 @@ const SecondMinigame: React.FC<SecondMinigameProps> = ({ userName }) => {
 
     console.log('Minijuego 2 renderizado - Índice:', currentQuestionIndex, 'Pregunta:', currentQuestion?.id);
     console.log('Progreso al iniciar:', progress);
+
+    // Verificar si la pregunta actual ya fue completada
+    const isCurrentQuestionCompleted = currentQuestion && progress.completedQuestions.some(q => q.questionId === currentQuestion.id);
+
+    // Si la pregunta actual ya está completada, avanzar automáticamente
+    React.useEffect(() => {
+        if (isCurrentQuestionCompleted && currentQuestionIndex < MINIGAME_2_QUESTIONS.length - 1 && !isAnswered) {
+            console.log('Pregunta ya completada, avanzando automáticamente...');
+            moveToNextQuestion();
+        }
+    }, [isCurrentQuestionCompleted, currentQuestionIndex, isAnswered]);
 
     // Verificar si ya completó todos los minijuegos
     const allQuestionsCompleted = progress.totalCompleted >= MINIGAME_2_QUESTIONS.length;
@@ -202,7 +214,7 @@ const SecondMinigame: React.FC<SecondMinigameProps> = ({ userName }) => {
         let cursor = (isLocked || showExitConfirmation) ? 'default' : 'pointer' as 'pointer';
         let backgroundColor = KAWAI_COLORS.panelLight;
 
-        if (isGameOver && option.isCorrect) {
+        if (isAnswered && option.isCorrect && isCorrectAnswer) {
             borderColor = KAWAI_COLORS.textGreen;
             boxShadow = `5px 5px 0px ${KAWAI_COLORS.textGreen}`;
             backgroundColor = KAWAI_COLORS.panelLight;
@@ -261,6 +273,7 @@ const SecondMinigame: React.FC<SecondMinigameProps> = ({ userName }) => {
         const newAttempts = attempts + 1;
         setAttempts(newAttempts);
         setIsAnswered(true);
+        setIsCorrectAnswer(isCorrect);
 
         if (isCorrect) {
             setFeedback(formatFeedback(dialogue.correctFeedback, selectedId));
@@ -269,7 +282,7 @@ const SecondMinigame: React.FC<SecondMinigameProps> = ({ userName }) => {
         } else {
             const feedbackText = newAttempts < 2 ? dialogue.wrongAttempt1 : dialogue.wrongAttempt2;
             setFeedback(formatFeedback(feedbackText, selectedId));
-            console.log(newAttempts < 2 ? 'Respuesta incorrecta' : '💔 Falló después de 2 intentos');
+            console.log(newAttempts < 2 ? 'Respuesta incorrecta' : 'Falló después de 2 intentos');
         }
     };
 
@@ -277,6 +290,7 @@ const SecondMinigame: React.FC<SecondMinigameProps> = ({ userName }) => {
         setIsAnswered(false);
         setFeedback('');
         setSelectedOptionId(null);
+        setIsCorrectAnswer(false);
     }
 
     const handleExitClick = () => {
@@ -284,8 +298,10 @@ const SecondMinigame: React.FC<SecondMinigameProps> = ({ userName }) => {
     };
 
     const handleConfirmExit = () => {
-        console.log('🔙 Saliendo del minijuego 2, reseteando índice');
-        resetQuestionIndex();
+        console.log('Saliendo del minijuego 2');
+        if (progress.totalCompleted === 0) {
+            resetQuestionIndex();
+        }
         setShowExitConfirmation(false);
         navigate(-1);
     };
@@ -305,12 +321,12 @@ const SecondMinigame: React.FC<SecondMinigameProps> = ({ userName }) => {
                 setCurrentDialogIndex(0);
             }
         } else if (isAnswered) {
-            if (isCorrectFeedback) {
+            if (isCorrectAnswer) { // Usar la variable
                 console.log('Pregunta correcta confirmada');
                 console.log('Estado actual - Índice:', currentQuestionIndex, 'Total preguntas:', MINIGAME_2_QUESTIONS.length);
 
                 if (currentQuestionIndex < MINIGAME_2_QUESTIONS.length - 1) {
-                    console.log('⏭Hay más preguntas, avanzando...');
+                    console.log('Hay más preguntas, avanzando...');
                     moveToNextQuestion();
                     setShowStory(true);
                     setCurrentDialogIndex(0);
@@ -335,7 +351,7 @@ const SecondMinigame: React.FC<SecondMinigameProps> = ({ userName }) => {
     if (showStory) {
         buttonText = isLastDialog ? "¡Empecemos el Desafío!" : "Continuar";
     } else if (isAnswered) {
-        if (isCorrectFeedback) {
+        if (isCorrectAnswer) {
             if (currentQuestionIndex < MINIGAME_2_QUESTIONS.length - 1) {
                 buttonText = "Siguiente Pregunta";
             } else {
@@ -347,7 +363,7 @@ const SecondMinigame: React.FC<SecondMinigameProps> = ({ userName }) => {
             buttonText = "Cerrar y Salir";
         }
     } else {
-        buttonText = 'Responder';
+        buttonText = '...';
     }
 
     const OptionButton = ({ option }: { option: Option }) => {
@@ -434,8 +450,8 @@ const SecondMinigame: React.FC<SecondMinigameProps> = ({ userName }) => {
                     </p>
                     <button
                         onClick={() => {
-                            console.log('Volviendo al mapa sin resetear progreso');
-                            resetQuestionIndex();
+                            console.log('Completado, reseteando índice y volviendo al mapa');
+                            resetQuestionIndex(); // Solo resetear cuando termina todo
                             navigate(-1);
                         }}
                         style={nextButtonStyle as React.CSSProperties}

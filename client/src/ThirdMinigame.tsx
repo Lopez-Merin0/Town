@@ -107,6 +107,7 @@ const ThirdMinigame: React.FC<ThirdMinigameProps> = ({ userName }) => {
     const [attempts, setAttempts] = useState(0);
     const [selectedOptionId, setSelectedOptionId] = useState<number | null>(null);
     const [hoveredOptionId, setHoveredOptionId] = useState<number | null>(null);
+    const [isCorrectAnswer, setIsCorrectAnswer] = useState(false); // Nueva variable
 
     const [showExitConfirmation, setShowExitConfirmation] = useState(false);
     const [showCompletionMessage, setShowCompletionMessage] = useState(false);
@@ -116,6 +117,17 @@ const ThirdMinigame: React.FC<ThirdMinigameProps> = ({ userName }) => {
 
     console.log('Minijuego 3 renderizado - Índice:', currentQuestionIndex, 'Pregunta:', currentQuestion?.id);
     console.log('Progreso al iniciar:', progress);
+
+    // Verificar si la pregunta actual ya fue completada
+    const isCurrentQuestionCompleted = currentQuestion && progress.completedQuestions.some(q => q.questionId === currentQuestion.id);
+
+    // Si la pregunta actual ya está completada, avanzar automáticamente
+    React.useEffect(() => {
+        if (isCurrentQuestionCompleted && currentQuestionIndex < MINIGAME_3_QUESTIONS.length - 1 && !isAnswered) {
+            console.log('Pregunta ya completada, avanzando automáticamente...');
+            moveToNextQuestion();
+        }
+    }, [isCurrentQuestionCompleted, currentQuestionIndex, isAnswered]);
 
     const allQuestionsCompleted = progress.totalCompleted >= MINIGAME_3_QUESTIONS.length;
 
@@ -218,7 +230,7 @@ const ThirdMinigame: React.FC<ThirdMinigameProps> = ({ userName }) => {
         let cursor = (isLocked || showExitConfirmation) ? 'default' : 'pointer' as 'pointer';
         let backgroundColor = KAWAI_COLORS.panelLight;
 
-        if (isGameOver && option.isCorrect) {
+        if (isAnswered && option.isCorrect && isCorrectAnswer) {
             borderColor = KAWAI_COLORS.textGreen;
             boxShadow = `5px 5px 0px ${KAWAI_COLORS.textGreen}`;
             backgroundColor = KAWAI_COLORS.accentGreen;
@@ -287,6 +299,7 @@ const ThirdMinigame: React.FC<ThirdMinigameProps> = ({ userName }) => {
         const newAttempts = attempts + 1;
         setAttempts(newAttempts);
         setIsAnswered(true);
+        setIsCorrectAnswer(isCorrect);
 
         if (isCorrect) {
             setFeedback(formatFeedback(dialogue.correctFeedback, selectedId));
@@ -295,7 +308,7 @@ const ThirdMinigame: React.FC<ThirdMinigameProps> = ({ userName }) => {
         } else {
             const feedbackText = newAttempts < 2 ? dialogue.wrongAttempt1 : dialogue.wrongAttempt2;
             setFeedback(formatFeedback(feedbackText, selectedId));
-            console.log(newAttempts < 2 ? 'Respuesta incorrecta' : '💔 Falló después de 2 intentos');
+            console.log(newAttempts < 2 ? 'Respuesta incorrecta' : 'Falló después de 2 intentos');
         }
     };
 
@@ -303,6 +316,7 @@ const ThirdMinigame: React.FC<ThirdMinigameProps> = ({ userName }) => {
         setIsAnswered(false);
         setFeedback('');
         setSelectedOptionId(null);
+        setIsCorrectAnswer(false); // Resetear también esto
     }
 
     const handleExitClick = () => {
@@ -315,8 +329,11 @@ const ThirdMinigame: React.FC<ThirdMinigameProps> = ({ userName }) => {
             audioRef.current.currentTime = 0;
             setIsPlaying(false);
         }
-        console.log('Saliendo del minijuego 3, reseteando índice');
-        resetQuestionIndex();
+        console.log('Saliendo del minijuego 3');
+        // NO resetear el índice si hay preguntas completadas
+        if (progress.totalCompleted === 0) {
+            resetQuestionIndex();
+        }
         setShowExitConfirmation(false);
         navigate(-1);
     };
@@ -336,12 +353,12 @@ const ThirdMinigame: React.FC<ThirdMinigameProps> = ({ userName }) => {
                 setCurrentDialogIndex(0);
             }
         } else if (isAnswered) {
-            if (isCorrectFeedback) {
+            if (isCorrectAnswer) { // Usar la variable
                 console.log('Pregunta correcta confirmada');
                 console.log('Estado actual - Índice:', currentQuestionIndex, 'Total preguntas:', MINIGAME_3_QUESTIONS.length);
 
                 if (currentQuestionIndex < MINIGAME_3_QUESTIONS.length - 1) {
-                    console.log('⏭Hay más preguntas, avanzando...');
+                    console.log('Hay más preguntas, avanzando...');
                     moveToNextQuestion();
                     setShowStory(true);
                     setCurrentDialogIndex(0);
@@ -377,15 +394,19 @@ const ThirdMinigame: React.FC<ThirdMinigameProps> = ({ userName }) => {
     if (showStory) {
         buttonText = isLastDialog ? "¡Empecemos el Desafío!" : "Continuar";
     } else if (isAnswered) {
-        if (isCorrectFeedback) {
-            buttonText = "¡Logrado! Cerrar";
+        if (isCorrectAnswer) { // Usar la variable
+            if (currentQuestionIndex < MINIGAME_3_QUESTIONS.length - 1) {
+                buttonText = "Siguiente Pregunta";
+            } else {
+                buttonText = "¡Completado! Cerrar";
+            }
         } else if (attempts < 2) {
             buttonText = "Siguiente Intento";
         } else {
             buttonText = "Cerrar y Salir";
         }
     } else {
-        buttonText = 'Responder';
+        buttonText = '...';
     }
 
     const OptionButton = ({ option }: { option: Option }) => {
@@ -495,8 +516,8 @@ const ThirdMinigame: React.FC<ThirdMinigameProps> = ({ userName }) => {
                     </p>
                     <button
                         onClick={() => {
-                            console.log('Volviendo al mapa sin resetear progreso');
-                            resetQuestionIndex();
+                            console.log('Completado, reseteando índice y volviendo al mapa');
+                            resetQuestionIndex(); // Solo resetear cuando termina todo
                             navigate(-1);
                         }}
                         style={nextButtonStyle as React.CSSProperties}
@@ -556,7 +577,7 @@ const ThirdMinigame: React.FC<ThirdMinigameProps> = ({ userName }) => {
                 <div style={dialogBoxStyle}>
                     <div>
                         {showStory ? introText : (isAnswered ?
-                            <p style={isCorrectFeedback ? feedbackCorrectStyle : feedbackIncorrectStyle}>
+                            <p style={isCorrectAnswer ? feedbackCorrectStyle : feedbackIncorrectStyle}>
                                 {feedback}
                             </p>
                             : questionText)}

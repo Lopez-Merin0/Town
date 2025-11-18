@@ -67,7 +67,7 @@ export const MINIGAME_3_QUESTIONS: MinigameQuestion[] = [
 
             correctFeedback: "¡Excelente oído! La frase era \"{text}\". ¡Te ganaste un dulce imaginario pero bien merecido!",
             wrongAttempt1: "Mmm… casi. Vuelve a escuchar con atención, como cuando abres un dulce sin que te oigan. Te queda un intento.",
-            wrongAttempt2: "No pasa nada. La frase correcta era \"{text}\". Errar es de humanos, mejorar es de campeones.",
+            wrongAttempt2: "No pasa nada. Equivocarse es normal.",
 
             instruction: "Presiona el botón para reproducir el audio y elige la frase correcta.",
             questionHeader: "¿Qué dice el cliente?"
@@ -113,7 +113,7 @@ export const MINIGAME_3_QUESTIONS: MinigameQuestion[] = [
 
             correctFeedback: "¡Esoooo! \"{text}\" era la frase exacta. Tu oído anda fino como hilo dental. 🔥",
             wrongAttempt1: "Mmm… estuvo cerca, vuélvelo a escuchar con calma. Aún tienes un intento.",
-            wrongAttempt2: "Todo bien. La frase correcta era \"{text}\". ¡Vamos por el siguiente!",
+            wrongAttempt2: "Todo bien. ¡Regresa e intenta de nuevo!",
 
             instruction: "Pulsa el botón para reproducir el audio y elige el saludo correcto.",
             questionHeader: "¿Qué escuchaste?"
