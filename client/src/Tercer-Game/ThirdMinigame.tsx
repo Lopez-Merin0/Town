@@ -1,9 +1,9 @@
 import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MINIGAME_3_QUESTIONS, Option } from './MiniData-3';
-import LoadingScreen from './LoadingScreen';
-import { useMinigame3Progress } from './contexts/Minigame3ProgressContext';
-import background from './assets/Tercer-Game/thirdGame.jpg';
+import LoadingScreen from '../LogIn/LoadingScreen';
+import { useMinigame3Progress } from '../contexts/Minigame3ProgressContext';
+import background from '../assets/Tercer-Game/thirdGame.jpg';
 
 const KAWAI_COLORS = {
     bgLight: '#FBF0DF',

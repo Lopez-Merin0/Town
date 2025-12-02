@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useCallback } from 'react';
-import background from './assets/mundo/bg.mp3';
-import click from './assets/mundo/click.mp3';
+import background from '../assets/mundo/bg.mp3';
+import click from '../assets/mundo/click.mp3';
 
 const BG = background;
 const CLICK = click;

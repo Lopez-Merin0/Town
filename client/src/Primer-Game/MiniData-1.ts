@@ -1,7 +1,7 @@
-import lapiz from './assets/Primer-Game/lapiz.png';
-import llave from './assets/Primer-Game/llave.png';
-import manzana from './assets/Primer-Game/manzana.png';
-import taza from './assets/Primer-Game/taza.png';
+import lapiz from '../assets/Primer-Game/lapiz.png';
+import llave from '../assets/Primer-Game/llave.png';
+import manzana from '../assets/Primer-Game/manzana.png';
+import taza from '../assets/Primer-Game/taza.png';
 
 const LAPIZ = lapiz;
 const LLAVE = llave;

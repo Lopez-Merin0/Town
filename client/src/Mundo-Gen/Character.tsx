@@ -1,5 +1,5 @@
 import React from 'react';
-import spritesheet from './assets/mundo/Spritesheet.png';
+import spritesheet from '../assets/mundo/Spritesheet.png';
 
 const SPRITESHEET_URL = spritesheet;
 

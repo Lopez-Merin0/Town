@@ -2,15 +2,15 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import Character from './Character';
-import CollisionDebugger from './CollisionDebugger';
-import { usePopupTrigger } from './MiniGameTrigger';
-import LoadingScreen from './LoadingScreen';
-import NPC from './NPC';
-import NPCDialoguePopup from './NPCDialoguePopup';
-import { NPC_LIST, NPCDialogue } from './NPCConfig';
-import './index.css';
-import { COLLISION_AREAS, CollisionArea } from './CollisionAreas';
-import background from './assets/mundo/fondo.jpg';
+import CollisionDebugger from '../Colisiones/CollisionDebugger';
+import { usePopupTrigger } from '../Colisiones/MiniGameTrigger';
+import LoadingScreen from '../LogIn/LoadingScreen';
+import NPC from '../NPC/NPC';
+import NPCDialoguePopup from '../NPC/NPCDialoguePopup';
+import { NPC_LIST, NPCDialogue } from '../NPC/NPCConfig';
+import '../index.css';
+import { COLLISION_AREAS, CollisionArea } from '../Colisiones/CollisionAreas';
+import background from '../assets/mundo/fondo.jpg';
 
 const DEBUG_MODE = true;
 

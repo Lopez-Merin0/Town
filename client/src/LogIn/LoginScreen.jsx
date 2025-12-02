@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from './api'; 
+import api from '../Mundo-Gen/api'; 
 
 const { loginUser } = api; 
 

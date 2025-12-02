@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { signupUser } from './api';
+import { signupUser } from '../Mundo-Gen/api';
 
 const RegisterScreen = () => {
   const navigate = useNavigate();

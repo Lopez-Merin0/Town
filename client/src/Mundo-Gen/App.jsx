@@ -4,16 +4,16 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 
 import GameAudio from './GameAudio';
 import WorldScreen from './WorldScreen';
-import AuthScreen from './AuthScreen';
-import LoginScreen from './LoginScreen';
-import FirstMinigame from './FirstMinigame';
-import SecondMinigame from './SecondMinigame';
-import ThirdMiniGame from './ThirdMinigame';
-import RegisterScreen from './RegisterScreen';
+import AuthScreen from '../LogIn/AuthScreen';
+import LoginScreen from '../LogIn/LoginScreen';
+import FirstMinigame from '../Primer-Game/FirstMinigame';
+import SecondMinigame from '../Segundo-Game/SecondMinigame';
+import ThirdMiniGame from '../Tercer-Game/ThirdMinigame';
+import RegisterScreen from '../LogIn/RegisterScreen';
 
-import { MinigameProgressProvider } from './contexts/MinigameProgressContext';
-import { Minigame2ProgressProvider } from './contexts/Minigame2ProgressContext';
-import { Minigame3ProgressProvider } from './contexts/Minigame3ProgressContext';
+import { MinigameProgressProvider } from '../contexts/MinigameProgressContext';
+import { Minigame2ProgressProvider } from '../contexts/Minigame2ProgressContext';
+import { Minigame3ProgressProvider } from '../contexts/Minigame3ProgressContext';
 
 const App = () => {
   const [isMusicEnabled, setIsMusicEnabled] = useState(

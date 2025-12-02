@@ -1,5 +1,5 @@
-import audio1 from './assets/Tercer-Game/como-te-llamas.mp3';
-import audio2 from './assets/Tercer-Game/hola-como-estas.mp3';
+import audio1 from '../assets/Tercer-Game/como-te-llamas.mp3';
+import audio2 from '../assets/Tercer-Game/hola-como-estas.mp3';
 
 const AUDIO1 = audio1;
 const AUDIO2 = audio2;
