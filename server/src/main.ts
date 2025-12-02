@@ -6,26 +6,21 @@ import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.setGlobalPrefix('api');
-
-  // permite peticiones desde el front
+  
+  // Habilitar CORS
   app.enableCors({
-    origin: 'http://localhost:5173', 
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    credentials: true, // envia cookies o credenciales si es necesario
+    origin: 'http://localhost:5173', // Puerto del cliente Vite
+    credentials: true,
   });
 
-  // validación global para los DTOs
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true, // borra propiedades que no estén definidas en el DTO
-      forbidNonWhitelisted: true, // error por campos de más
-      transform: true, // convierte los datos recibidos a la clase del DTO
-    }),
-  );
+  // Habilitar validación global
+  app.useGlobalPipes(new ValidationPipe({
+    whitelist: true,
+    transform: true,
+  }));
 
-  await app.listen(3000);
-  console.log(`Backend corriendo en: ${await app.getUrl()}/api`);
+  await app.listen(5000);
+  console.log('🚀 Servidor corriendo en http://localhost:5000');
 }
 
 bootstrap();

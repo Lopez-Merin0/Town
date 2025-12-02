@@ -2,15 +2,17 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import Character from './Character';
+import LoadingScreen from '../LogIn/LoadingScreen';
+import { useGlobalProgress } from '../contexts/GlobalProgressContext';
 import '../index.css';
 import roomBackground from '../assets/mundo/cuarto.jpg';
 
-const ROOM_WIDTH = 1024;
-const ROOM_HEIGHT = 640;
-const SCALE_FACTOR = 2;
+const ROOM_WIDTH = 500;  
+const ROOM_HEIGHT = 300; 
+const SCALE_FACTOR = 1.5;
 
 const BASE_SPRITE_SIZE = 16;
-const CHARACTER_SCALE_FACTOR = 5;
+const CHARACTER_SCALE_FACTOR = 8;
 const SCALED_SPRITE_SIZE = BASE_SPRITE_SIZE * CHARACTER_SCALE_FACTOR;
 
 const MOVEMENT_SPEED = 5;
@@ -32,7 +34,11 @@ interface CharacterState {
 
 const Room: React.FC = () => {
     const navigate = useNavigate();
+    const { saveProgressToServer } = useGlobalProgress();
     const [showLogoutPopup, setShowLogoutPopup] = useState(false);
+    const [showSavePopup, setShowSavePopup] = useState(false);
+    const [hasShownSavePopup, setHasShownSavePopup] = useState(false);
+    const [showIntro, setShowIntro] = useState(true);
 
     const [viewport, setViewport] = useState({
         width: typeof window !== 'undefined' ? window.innerWidth : 1024,
@@ -122,33 +128,60 @@ const Room: React.FC = () => {
         };
     }, [handleKeyDown, handleKeyUp]);
 
-    const halfScreenW = viewport.width / 2;
-    const halfScreenH = viewport.height / 2;
+    // Detectar cuando el personaje llega a la zona de guardado
+    useEffect(() => {
+        const { mapX, mapY } = characterState;
+        const isInSaveZone = mapX >= 425 && mapX <= 530 && mapY >= 220 && mapY <= 240;
+        
+        if (isInSaveZone && !showSavePopup && !hasShownSavePopup) {
+            setShowSavePopup(true);
+            setHasShownSavePopup(true);
+        } else if (!isInSaveZone && hasShownSavePopup) {
+            setHasShownSavePopup(false);
+        }
+    }, [characterState.mapX, characterState.mapY, showSavePopup, hasShownSavePopup]);
 
-    const backgroundTranslateX = Math.max(
-        Math.min(halfScreenW - characterState.mapX, 0),
-        viewport.width - MAX_MAP_WIDTH
-    );
-    const backgroundTranslateY = Math.max(
-        Math.min(halfScreenH - characterState.mapY, 0),
-        viewport.height - MAX_MAP_HEIGHT
-    );
+    // Detectar cuando el personaje llega a la zona de salida al mundo
+    useEffect(() => {
+        const { mapX, mapY } = characterState;
+        const isInExitZone = mapX >= 601 && mapX <= 686 && mapY >= 336 && mapY <= 356;
+        
+        if (isInExitZone) {
+            navigate('/world');
+        }
+    }, [characterState.mapX, characterState.mapY, navigate]);
+
+    const handleSaveProgress = async () => {
+        console.log('=== Iniciando guardado de progreso ===');
+        
+        const success = await saveProgressToServer();
+        
+        if (success) {
+            alert('¡Progreso guardado exitosamente en la base de datos!');
+            setShowSavePopup(false);
+        } else {
+            alert('No se pudo guardar el progreso. Asegúrate de haber completado al menos un nivel.');
+            setShowSavePopup(false);
+        }
+    };
+
+    if (showIntro) {
+        return <LoadingScreen onAnimationEnd={() => setShowIntro(false)} />;
+    }
 
     return (
         <div
-            className="relative w-screen h-screen overflow-hidden"
-            style={{ backgroundColor: '#4c965c' }}
+            className="relative w-screen h-screen overflow-hidden flex items-center justify-center"
+            style={{ backgroundColor: '#FBF0DF' }}
         >
             <div
                 style={{
-                    position: 'absolute',
+                    position: 'relative',
                     zIndex: 0,
                     border: '5px solid #ffffff',
                     borderRadius: '20px',
                     boxShadow: '0 8px 0 0 #ff69b4',
                     overflow: 'hidden',
-                    transform: `translate(${backgroundTranslateX}px, ${backgroundTranslateY}px)`,
-                    transition: 'transform 0.1s linear',
                     width: `${MAX_MAP_WIDTH}px`,
                     height: `${MAX_MAP_HEIGHT}px`,
                 }}
@@ -163,33 +196,50 @@ const Room: React.FC = () => {
                         imageRendering: 'pixelated',
                     }}
                 />
+
+                <Character
+                    x={characterState.mapX - SCALED_SPRITE_SIZE / 2}
+                    y={characterState.mapY - SCALED_SPRITE_SIZE / 2}
+                    style={{ zIndex: 1, position: 'absolute' }}
+                    direction={characterState.direction}
+                    frame={characterState.frame}
+                />
             </div>
 
-            <Character
-                x={characterState.mapX + backgroundTranslateX - SCALED_SPRITE_SIZE / 2}
-                y={characterState.mapY + backgroundTranslateY - SCALED_SPRITE_SIZE / 2}
-                style={{ zIndex: 1, position: 'absolute' }}
-                direction={characterState.direction}
-                frame={characterState.frame}
-            />
-
-            <h1 className="absolute top-3 left-3 kawaii-header text-xl" style={{ zIndex: 10 }}>
-                Mi Cuarto
-            </h1>
-
-            <button
-                onClick={() => setShowLogoutPopup(true)}
-                className="absolute top-3 right-3 kawaii-button py-1 px-2 flex items-center space-x-1"
+            <div 
                 style={{
+                    position: 'fixed',
+                    top: '20px',
+                    left: '20px',
                     zIndex: 10,
-                    backgroundColor: '#ff69b4',
-                    color: 'white',
-                    border: '3px solid #e04e9e',
-                    fontSize: '0.75rem',
                 }}
             >
-                <span className="font-bold">IR AL MUNDO</span>
-            </button>
+                <h1 className="kawaii-header text-xl" style={{ margin: 0 }}>
+                    Mi Cuartito
+                </h1>
+            </div>
+
+            <div 
+                style={{
+                    position: 'fixed',
+                    top: '20px',
+                    right: '20px',
+                    zIndex: 10,
+                }}
+            >
+                <button
+                    onClick={() => setShowLogoutPopup(true)}
+                    className="kawaii-button py-1 px-2 flex items-center space-x-1"
+                    style={{
+                        backgroundColor: '#ff69b4',
+                        color: 'white',
+                        border: '3px solid #e04e9e',
+                        fontSize: '0.75rem',
+                    }}
+                >
+                    <span className="font-bold">SALIR</span>
+                </button>
+            </div>
 
             {showLogoutPopup && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -201,13 +251,15 @@ const Room: React.FC = () => {
                             maxWidth: '400px',
                         }}>
                         <p className="text-xl font-bold mb-4" style={{ color: '#333333' }}>
-                            ¿Quieres salir al mundo?
+                            ¿Quieres salir?
                         </p>
                         <div className="flex justify-center space-x-4">
                             <button
                                 onClick={() => {
                                     setShowLogoutPopup(false);
-                                    navigate('/world');
+                                    localStorage.removeItem('authToken');
+                                    localStorage.removeItem('userData');
+                                    navigate('/', { replace: true });
                                 }}
                                 className="kawaii-button py-2 px-4 font-bold"
                                 style={{
@@ -220,6 +272,46 @@ const Room: React.FC = () => {
                             </button>
                             <button
                                 onClick={() => setShowLogoutPopup(false)}
+                                className="kawaii-button py-2 px-4 font-bold"
+                                style={{
+                                    backgroundColor: '#add8e6',
+                                    color: '#333333',
+                                    border: '3px solid #6495ed',
+                                }}
+                            >
+                                Cancelar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {showSavePopup && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="kawaii-popup p-6 rounded-lg shadow-lg text-center"
+                        style={{
+                            backgroundColor: '#fefefe',
+                            border: '5px solid #6495ed',
+                            boxShadow: '0 8px 0 0 #add8e6',
+                            maxWidth: '400px',
+                        }}>
+                        <p className="text-xl font-bold mb-4" style={{ color: '#333333' }}>
+                            ¿Quieres guardar tu progreso?
+                        </p>
+                        <div className="flex justify-center space-x-4">
+                            <button
+                                onClick={handleSaveProgress}
+                                className="kawaii-button py-2 px-4 font-bold"
+                                style={{
+                                    backgroundColor: '#90EE90',
+                                    color: '#333333',
+                                    border: '3px solid #32CD32',
+                                }}
+                            >
+                                Guardar
+                            </button>
+                            <button
+                                onClick={() => setShowSavePopup(false)}
                                 className="kawaii-button py-2 px-4 font-bold"
                                 style={{
                                     backgroundColor: '#add8e6',

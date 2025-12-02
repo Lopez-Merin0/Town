@@ -91,11 +91,10 @@ const RegisterScreen = () => {
 
           {message && (
             <p
-              className={`mb-6 text-base font-semibold p-3 rounded-xl transition duration-300 border ${
-                message.toLowerCase().includes('exitoso')
+              className={`mb-6 text-base font-semibold p-3 rounded-xl transition duration-300 border ${message.toLowerCase().includes('exitoso')
                   ? 'bg-green-100 border-green-600 text-green-800'
                   : 'bg-red-100 border-red-600 text-red-800'
-              }`}
+                }`}
             >
               {message}
             </p>

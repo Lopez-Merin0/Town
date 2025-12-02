@@ -11,7 +11,9 @@ const common_1 = require("@nestjs/common");
 const config_1 = require("@nestjs/config");
 const typeorm_1 = require("@nestjs/typeorm");
 const auth_module_1 = require("./auth/auth.module");
+const users_module_1 = require("./users/users.module");
 const user_entity_1 = require("./auth/entities/user.entity");
+const user_progress_entity_1 = require("./users/entities/user-progress.entity");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -23,17 +25,18 @@ exports.AppModule = AppModule = __decorate([
                 imports: [config_1.ConfigModule],
                 useFactory: (configService) => ({
                     type: 'postgres',
-                    host: configService.get('POSTGRES_HOST'),
-                    port: parseInt(configService.get('POSTGRES_PORT'), 10),
+                    host: configService.get('POSTGRES_HOST') || 'localhost',
+                    port: parseInt(configService.get('POSTGRES_PORT') || '5432', 10),
                     username: configService.get('POSTGRES_USER'),
                     password: configService.get('POSTGRES_PASSWORD'),
                     database: configService.get('POSTGRES_DATABASE'),
-                    entities: [user_entity_1.User],
+                    entities: [user_entity_1.User, user_progress_entity_1.UserProgress],
                     synchronize: true,
                 }),
                 inject: [config_1.ConfigService],
             }),
             auth_module_1.AuthModule,
+            users_module_1.UsersModule,
         ],
     })
 ], AppModule);

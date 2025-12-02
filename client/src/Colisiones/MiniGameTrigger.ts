@@ -18,6 +18,12 @@ const TRIGGER_AREAS = {
         yMin: 760,
         yMax: 760, 
     },
+    RoomMinigame: {
+        xMin: 1055,
+        xMax: 1090,
+        yMin: 770,
+        yMax: 770,
+    },
 };
 
 interface UsePopupTriggerProps {

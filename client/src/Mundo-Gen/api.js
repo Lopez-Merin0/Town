@@ -1,5 +1,4 @@
-// NO MOVERLE NADA PORQUE LUEGO NO GUARDAA
-const BASE_URL = 'http://localhost:3000/api';
+const API_BASE_URL = 'http://localhost:5000/api'; // Asegúrate de que sea 5000
 
 async function request(url, options = {}) {
   const defaultHeaders = {
@@ -20,7 +19,7 @@ async function request(url, options = {}) {
   };
 
   try {
-    const response = await fetch(`${BASE_URL}${url}`, config);
+    const response = await fetch(`${API_BASE_URL}${url}`, config);
     const rawText = await response.text();
     const contentType = response.headers.get('content-type') || '';
 

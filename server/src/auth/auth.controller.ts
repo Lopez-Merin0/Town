@@ -1,11 +1,11 @@
 // maneja las rutas de autenticación (login y registro)
 
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto'; 
 import { RegisterDto } from './dto/register.dto'; 
 
-@Controller('auth')
+@Controller('api/auth')
 export class AuthController {
   // Se inyecta el servicio de autenticación para poder usarlo
   constructor(private readonly authService: AuthService) {}
@@ -16,6 +16,7 @@ export class AuthController {
   }
 
   @Post('login')
+  @HttpCode(HttpStatus.OK)
   async login(@Body() loginDto: LoginDto) { 
     return this.authService.login(loginDto);
   }

@@ -33,6 +33,7 @@ const MINIGAME_ROUTES: { [key: string]: string } = {
     FirstMinigame: '/primer mini juego',
     SecondMinigame: '/segundo mini juego',
     ThirdMinigame: '/tercer mini juego',
+    RoomMinigame: '/room',
 };
 
 const DIRECTION_MAP: { [key: string]: number } = {
@@ -450,13 +451,13 @@ const WorldScreen: React.FC = () => {
                 frame={characterState.frame}
             />
 
-            <h1 className="absolute top-3 left-3 kawaii-header text-xl" style={{ zIndex: 10 }}>
+            <h1 className="fixed top-4 left-4 kawaii-header text-xl" style={{ zIndex: 10 }}>
                 Talkie Town!
             </h1>
 
             <button
                 onClick={handleLogoutClick}
-                className="absolute top-3 right-3 kawaii-button py-1 px-2 flex items-center space-x-1"
+                className="fixed top-4 right-4 kawaii-button py-1 px-2 flex items-center space-x-1"
                 style={{
                     zIndex: 10,
                     backgroundColor: '#ff69b4',
@@ -470,18 +471,20 @@ const WorldScreen: React.FC = () => {
                 <span className="font-bold">SALIR</span>
             </button>
 
-            <div
-                className="absolute top-1 left-1 p-2 text-xs font-bold rounded"
-                style={{
-                    zIndex: 10,
-                    backgroundColor: '#add8e6',
-                    color: '#333333',
-                    border: '2px solid #6495ed',
-                    boxShadow: '2px 2px 0px #6495ed',
-                }}
-            >
-                Pos: ({Math.round(characterState.mapX)}, {Math.round(characterState.mapY)})
-            </div>
+            {DEBUG_MODE && (
+                <div
+                    className="fixed bottom-4 left-4 p-2 text-xs font-bold rounded"
+                    style={{
+                        zIndex: 10,
+                        backgroundColor: '#add8e6',
+                        color: '#333333',
+                        border: '2px solid #6495ed',
+                        boxShadow: '2px 2px 0px #6495ed',
+                    }}
+                >
+                    Pos: ({Math.round(characterState.mapX)}, {Math.round(characterState.mapY)})
+                </div>
+            )}
 
             {showLogoutPopup && (
                 <ConfirmationPopup

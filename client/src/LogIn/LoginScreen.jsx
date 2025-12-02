@@ -5,12 +5,19 @@ import api from '../Mundo-Gen/api';
 const { loginUser } = api; 
 
 //para lo del token
-const saveAuthData = (token) => {
+const saveAuthData = (token, userData) => {
     try {
         localStorage.setItem('userToken', token);
-        console.log('Token guardado exitosamente.');
+        localStorage.setItem('authToken', token);
+        if (userData) {
+            localStorage.setItem('userData', JSON.stringify(userData));
+            console.log('Datos de usuario guardados:', userData);
+        } else {
+            console.warn('No se recibieron datos de usuario para guardar');
+        }
+        console.log('Token guardado exitosamente:', token);
     } catch (e) {
-        console.error('Error al guardar el token en localStorage:', e);
+        console.error('Error al guardar en localStorage:', e);
     }
 };
 
@@ -63,20 +70,50 @@ const LoginScreen = () => {
 
         try {
             const credentials = { email, password };
-            const result = await loginUser(credentials);
+            console.log('Enviando credenciales:', credentials);
             
-            const tokenToSave = result.token || result; 
-            if (tokenToSave) {
-                saveAuthData(tokenToSave);
+            const result = await loginUser(credentials);
+            console.log('Resultado completo del login:', result);
+            
+            // Manejar diferentes estructuras de respuesta
+            const responseData = result.data || result;
+            const tokenToSave = responseData.access_token || responseData.token || result.access_token || result.token;
+            console.log('Token extraído:', tokenToSave);
+            
+            // Extraer datos de usuario
+            const userData = responseData.user || responseData.data || result.user || {
+                id: responseData.userId || responseData.id,
+                email: responseData.email || email,
+                username: responseData.username
+            };
+            console.log('Datos de usuario extraídos:', userData);
+            
+            if (tokenToSave && userData && (userData.id || userData._id)) {
+                saveAuthData(tokenToSave, userData);
+                
+                // Verificar que se guardó correctamente
+                const savedToken = localStorage.getItem('authToken');
+                const savedUserData = localStorage.getItem('userData');
+                console.log('Token verificado en localStorage:', savedToken);
+                console.log('UserData verificado en localStorage:', savedUserData);
+                
+                if (!savedToken || !savedUserData) {
+                    throw new Error('Error al guardar los datos de autenticación');
+                }
+                
+                setMessage('¡Inicio de sesión exitoso! Redirigiendo...');
+                
+                setTimeout(() => {
+                    navigate('/world');
+                }, 500);
+                
+            } else {
+                console.error('Datos incompletos del servidor:', { tokenToSave, userData });
+                throw new Error('No se recibieron datos completos del servidor');
             }
 
-            setMessage('¡Inicio de sesión exitoso! Redirigiendo al pueblo...');
-            
-            setTimeout(() => {
-                navigate('/world'); 
-            }, 1500);
-
         } catch (error) {
+            console.error('Error completo en login:', error);
             const errorMsg = error.message || 'Error desconocido en el inicio de sesión.';
             setMessage(errorMsg);
         } finally {

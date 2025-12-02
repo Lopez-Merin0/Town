@@ -27,38 +27,33 @@ const MinigameProgressContext = createContext<MinigameProgressContextType | unde
 const STORAGE_KEY = 'talkie_town_minigame_progress';
 const SESSION_KEY = 'talkie_town_session_id';
 
-const getInitialProgress = (): MinigameProgress => {
-    const currentSessionId = sessionStorage.getItem(SESSION_KEY);
-
-    if (!currentSessionId) {
-        const newSessionId = Date.now().toString();
-        sessionStorage.setItem(SESSION_KEY, newSessionId);
-        localStorage.removeItem(STORAGE_KEY);
-        localStorage.removeItem('talkie_town_minigame2_progress'); // Limpiar minijuego 2
-        localStorage.removeItem('talkie_town_minigame3_progress'); // Limpiar minijuego 3
-        console.log('Nueva sesión detectada, todos los progresos reseteados');
-        return { completedQuestions: [], currentQuestionIndex: 0, totalCompleted: 0 };
-    }
-
-    // en progreso
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-        try {
-            console.log('Cargando progreso de sesión existente');
-            return JSON.parse(stored);
-        } catch {
-            return { completedQuestions: [], currentQuestionIndex: 0, totalCompleted: 0 };
-        }
-    }
-    return { completedQuestions: [], currentQuestionIndex: 0, totalCompleted: 0 };
-};
-
 export const MinigameProgressProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-    const [progress, setProgress] = useState<MinigameProgress>(getInitialProgress);
+    const loadInitialProgress = (): MinigameProgress => {
+        const savedProgress = localStorage.getItem('minigameProgress');
+
+        if (savedProgress) {
+            try {
+                const parsed = JSON.parse(savedProgress);
+                console.log('Cargando progreso guardado del minijuego 1:', parsed);
+                return parsed;
+            } catch (error) {
+                console.error('Error al parsear el progreso guardado', error);
+            }
+        }
+
+        console.log('No hay progreso guardado, iniciando desde cero');
+        return {
+            completedQuestions: [],
+            currentQuestionIndex: 0,
+            totalCompleted: 0,
+        };
+    };
+
+    const [progress, setProgress] = useState<MinigameProgress>(loadInitialProgress);
 
     useEffect(() => {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
         console.log('Progreso guardado (temporal):', progress);
+        localStorage.setItem('minigameProgress', JSON.stringify(progress));
     }, [progress]);
 
     const markQuestionCompleted = (questionId: number, attempts: number) => {

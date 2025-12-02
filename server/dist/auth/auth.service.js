@@ -49,12 +49,15 @@ exports.AuthService = void 0;
 const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
+const jwt_1 = require("@nestjs/jwt");
 const user_entity_1 = require("./entities/user.entity");
 const bcrypt = __importStar(require("bcrypt"));
 let AuthService = class AuthService {
     usersRepository;
-    constructor(usersRepository) {
+    jwtService;
+    constructor(usersRepository, jwtService) {
         this.usersRepository = usersRepository;
+        this.jwtService = jwtService;
     }
     async register(registerDto) {
         const { username, email, password } = registerDto;
@@ -70,10 +73,15 @@ let AuthService = class AuthService {
             password: hashedPassword
         });
         await this.usersRepository.save(newUser);
+        const payload = { sub: newUser.id, email: newUser.email, username: newUser.username };
+        const access_token = this.jwtService.sign(payload);
         return {
-            id: newUser.id,
-            username: newUser.username,
-            email: newUser.email
+            access_token,
+            user: {
+                id: newUser.id,
+                username: newUser.username,
+                email: newUser.email
+            }
         };
     }
     async login(loginDto) {
@@ -89,10 +97,15 @@ let AuthService = class AuthService {
         if (!isMatch) {
             throw new common_1.UnauthorizedException('Credenciales inválidas');
         }
+        const payload = { sub: user.id, email: user.email, username: user.username };
+        const access_token = this.jwtService.sign(payload);
         return {
-            id: user.id,
-            username: user.username,
-            email: user.email
+            access_token,
+            user: {
+                id: user.id,
+                username: user.username,
+                email: user.email
+            }
         };
     }
 };
@@ -100,6 +113,7 @@ exports.AuthService = AuthService;
 exports.AuthService = AuthService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(user_entity_1.User)),
-    __metadata("design:paramtypes", [typeorm_2.Repository])
+    __metadata("design:paramtypes", [typeorm_2.Repository,
+        jwt_1.JwtService])
 ], AuthService);
 //# sourceMappingURL=auth.service.js.map

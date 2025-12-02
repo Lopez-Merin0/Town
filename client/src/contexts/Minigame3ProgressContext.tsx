@@ -53,11 +53,32 @@ const getInitialProgress = (): Minigame3Progress => {
 };
 
 export const Minigame3ProgressProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-    const [progress, setProgress] = useState<Minigame3Progress>(getInitialProgress);
+    const loadInitialProgress = (): Minigame3Progress => {
+        const savedProgress = localStorage.getItem('minigame3Progress');
+
+        if (savedProgress) {
+            try {
+                const parsed = JSON.parse(savedProgress);
+                console.log('Cargando progreso guardado del minijuego 3:', parsed);
+                return parsed;
+            } catch (error) {
+                console.error('Error al parsear el progreso guardado', error);
+            }
+        }
+
+        console.log('No hay progreso guardado, iniciando desde cero');
+        return {
+            completedQuestions: [],
+            currentQuestionIndex: 0,
+            totalCompleted: 0,
+        };
+    };
+
+    const [progress, setProgress] = useState<Minigame3Progress>(loadInitialProgress);
 
     useEffect(() => {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
         console.log('Progreso guardado (temporal) - Minijuego 3:', progress);
+        localStorage.setItem('minigame3Progress', JSON.stringify(progress));
     }, [progress]);
 
     const markQuestionCompleted = (questionId: number, attempts: number) => {

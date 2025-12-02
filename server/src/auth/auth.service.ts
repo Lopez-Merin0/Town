@@ -3,6 +3,7 @@
 import { Injectable, BadRequestException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { JwtService } from '@nestjs/jwt';
 import { User } from './entities/user.entity';
 import * as bcrypt from 'bcrypt'; // encriptar las contraseñas
 
@@ -21,7 +22,8 @@ interface LoginDto {
 export class AuthService {
   constructor(
     @InjectRepository(User)
-    private usersRepository: Repository<User>, // se conecta con la tabla 
+    private usersRepository: Repository<User>,
+    private jwtService: JwtService,
   ) {}
 
   async register(registerDto: RegisterDto): Promise<any> {
@@ -44,10 +46,17 @@ export class AuthService {
     
     await this.usersRepository.save(newUser);
 
+    // Generar token JWT
+    const payload = { sub: newUser.id, email: newUser.email, username: newUser.username };
+    const access_token = this.jwtService.sign(payload);
+
     return { 
-      id: newUser.id, 
-      username: newUser.username, 
-      email: newUser.email 
+      access_token,
+      user: {
+        id: newUser.id, 
+        username: newUser.username, 
+        email: newUser.email 
+      }
     };
   }
 
@@ -70,10 +79,17 @@ export class AuthService {
       throw new UnauthorizedException('Credenciales inválidas');
     }
 
+    // Generar token JWT
+    const payload = { sub: user.id, email: user.email, username: user.username };
+    const access_token = this.jwtService.sign(payload);
+
     return { 
-      id: user.id, 
-      username: user.username, 
-      email: user.email 
+      access_token,
+      user: {
+        id: user.id, 
+        username: user.username, 
+        email: user.email 
+      }
     };
   }
 }

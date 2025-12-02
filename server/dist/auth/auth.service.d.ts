@@ -1,4 +1,5 @@
 import { Repository } from 'typeorm';
+import { JwtService } from '@nestjs/jwt';
 import { User } from './entities/user.entity';
 interface RegisterDto {
     username: string;
@@ -11,7 +12,8 @@ interface LoginDto {
 }
 export declare class AuthService {
     private usersRepository;
-    constructor(usersRepository: Repository<User>);
+    private jwtService;
+    constructor(usersRepository: Repository<User>, jwtService: JwtService);
     register(registerDto: RegisterDto): Promise<any>;
     login(loginDto: LoginDto): Promise<any>;
 }
