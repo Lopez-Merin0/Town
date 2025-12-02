@@ -26,6 +26,15 @@ body {
   color: var(--kawaii-text-dark);
   background-image: var(--texture-paper);
   background-repeat: repeat;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+}
+
+html {
+  overflow: hidden;
+  height: 100vh;
 }
 
 /* El fondo */
@@ -38,15 +47,31 @@ body {
   background-image: var(--principal-gif);
   background-repeat: no-repeat;
   background-position: center center;
-  background-size: 1150px 700px;
+  background-size: cover;
+  max-height: 95vh;
+  overflow-y: auto;
+}
+
+.kawaii-layout-bg::-webkit-scrollbar {
+  width: 8px;
+}
+
+.kawaii-layout-bg::-webkit-scrollbar-track {
+  background: var(--kawaii-bg-medium);
+  border-radius: 10px;
+}
+
+.kawaii-layout-bg::-webkit-scrollbar-thumb {
+  background: var(--kawaii-bg-dark);
+  border-radius: 10px;
 }
 
 /* el cuadro crema que tiene los botones */
 .kawaii-panel {
-  background-color: rgba(247, 231, 212, 0.478);
+  background-color: rgba(214, 199, 179, 0.914);
   border: 3px solid var(--kawaii-panel-border);
   border-radius: 20px;
-  padding: 25px;
+  padding: 20px;
   max-width: 380px;
   margin-left: auto;
   margin-right: auto;
@@ -58,13 +83,14 @@ body {
 /* Estilo para el encabezado/título principal */
 .kawaii-header {
   font-family: 'Mali', cursive;
-  font-size: 2.8rem;
+  font-size: 2.5rem;
   color: var(--kawaii-text-dark);
   text-shadow: 1px 1px 0 var(--kawaii-panel-light),
     -1px -1px 0 var(--kawaii-panel-light),
     1px -1px 0 var(--kawaii-panel-light),
     -1px 1px 0 var(--kawaii-panel-light);
   letter-spacing: 1px;
+  margin-bottom: 0.5rem;
 }
 
 /* Estilo para sub-encabezados y texto secundario */

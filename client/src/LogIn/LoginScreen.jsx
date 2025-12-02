@@ -3,8 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import api from '../Mundo-Gen/api'; 
 
 const { loginUser } = api; 
-
-//para lo del token
 const saveAuthData = (token, userData) => {
     try {
         localStorage.setItem('userToken', token);
@@ -21,7 +19,6 @@ const saveAuthData = (token, userData) => {
     }
 };
 
-// Función para cargar el progreso del usuario desde el servidor
 const loadUserProgress = async (userId, token) => {
     try {
         console.log('Cargando progreso del usuario:', userId);
@@ -37,12 +34,10 @@ const loadUserProgress = async (userId, token) => {
             const result = await response.json();
             console.log('Progreso recibido del servidor:', result);
 
-            // Limpiar progreso anterior
             localStorage.removeItem('minigameProgress');
             localStorage.removeItem('minigame2Progress');
             localStorage.removeItem('minigame3Progress');
 
-            // Cargar progreso del usuario actual
             if (result.data) {
                 if (result.data.minigame1Progress) {
                     localStorage.setItem('minigameProgress', JSON.stringify(result.data.minigame1Progress));
@@ -53,7 +48,7 @@ const loadUserProgress = async (userId, token) => {
                 if (result.data.minigame3Progress) {
                     localStorage.setItem('minigame3Progress', JSON.stringify(result.data.minigame3Progress));
                 }
-                console.log('✅ Progreso del usuario cargado exitosamente');
+                console.log('Progreso del usuario cargado exitosamente');
             } else {
                 console.log('Usuario sin progreso guardado, comenzando desde cero');
             }
@@ -79,7 +74,6 @@ const LoginScreen = () => {
             <p className="text-red-600 text-xs mt-1 font-semibold text-left mx-auto w-3/4">{error}</p>
         ) : null;
 
-    // el dto esta en server
     const validateForm = () => {
         let newErrors = {};
         let isValid = true;
@@ -141,13 +135,9 @@ const LoginScreen = () => {
                     throw new Error('Error al guardar los datos de autenticación');
                 }
 
-                // Cargar progreso del usuario desde el servidor
                 await loadUserProgress(userData.id || userData._id, tokenToSave);
-                
-                // Limpiar la marca de progreso cargado para forzar recarga
                 sessionStorage.removeItem('progressLoaded');
-                
-                setMessage('¡Inicio de sesión exitoso! Redirigiendo...');
+                setMessage('¡Inicio de sesión exitoso! Es hora de explorar el Pueblo...');
                 
                 setTimeout(() => {
                     navigate('/world');
@@ -161,7 +151,6 @@ const LoginScreen = () => {
         } catch (error) {
             console.error('Error completo en login:', error);
             
-            // Verificar si es un error de conexión
             if (error.message.includes('Failed to fetch') || error.message.includes('ERR_CONNECTION_REFUSED')) {
                 setMessage('No se puede conectar al servidor. Asegúrate de que el backend esté corriendo en http://localhost:5000');
             } else {
@@ -174,18 +163,18 @@ const LoginScreen = () => {
     };
 
     return (
-        <div className="relative w-full min-h-screen flex items-center justify-center p-4 sm:p-8">
-            <div className="relative z-10 w-full max-w-lg mx-auto p-8 kawaii-layout-bg text-center">
+        <div className="relative w-full h-screen flex items-center justify-center p-2 sm:p-4">
+            <div className="relative z-10 w-full max-w-lg mx-auto p-4 sm:p-6 kawaii-layout-bg text-center">
                 
-                <div className="mb-8">
-                    <h1 className="kawaii-header text-5xl sm:text-6xl">Iniciar Sesión</h1>
+                <div className="mb-4">
+                    <h1 className="kawaii-header text-4xl sm:text-5xl">Iniciar Sesión</h1>
                 </div>
 
-                <div className="kawaii-panel p-6 sm:p-8">
-                    <h2 className="text-xl font-bold mb-6 text-[var(--kawaii-text-dark)]">Bienvenido de vuelta</h2>
+                <div className="kawaii-panel p-4 sm:p-6">
+                    <h2 className="text-lg font-bold mb-4 text-[var(--kawaii-text-dark)]">Bienvenido de vuelta</h2>
 
                     {message && (
-                        <p className={`mb-6 text-base font-semibold p-3 rounded-xl transition duration-300 border 
+                        <p className={`mb-4 text-sm font-semibold p-2 rounded-xl transition duration-300 border 
                             ${message.toLowerCase().includes('exitoso') 
                                 ? 'bg-green-100 border-green-600 text-green-800'
                                 : 'bg-red-100 border-red-600 text-red-800'
@@ -196,7 +185,7 @@ const LoginScreen = () => {
                     )}
 
                     <form onSubmit={handleLogin}>
-                        <div className="space-y-4 mb-8">
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '2rem' }}>
                             
                             <div>
                                 <input
@@ -222,15 +211,15 @@ const LoginScreen = () => {
                             
                         </div>
                         
-                        <button type="submit" className="kawaii-button w-full text-lg py-3" disabled={loading}>
+                        <button type="submit" className="kawaii-button w-full text-base py-2" disabled={loading}>
                             {loading ? 'Cargando...' : 'Iniciar Sesión'}
                         </button>
                     </form>
 
-                    <div className="flex justify-center items-center space-x-4 mt-6">
+                    <div className="flex justify-center items-center space-x-4 mt-4">
                         <button 
                             onClick={() => navigate('/register')} 
-                            className="kawaii-link-button"
+                            className="kawaii-link-button text-sm"
                         >
                             ¿No tienes cuenta? <br />
                             Regístrate aquí

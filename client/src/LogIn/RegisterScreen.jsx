@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../Mundo-Gen/api';
 
-const { registerUser } = api; // Cambiado de signupUser a registerUser
+const { registerUser } = api; 
 
 const RegisterScreen = () => {
   const navigate = useNavigate();
@@ -62,7 +62,7 @@ const RegisterScreen = () => {
       const userData = { email, username, password };
       console.log('Enviando datos de registro:', userData);
       
-      const result = await registerUser(userData); // Usando registerUser
+      const result = await registerUser(userData); 
       console.log('Resultado del registro:', result);
       
       setMessage('¡Registro exitoso! Redirigiendo al inicio de sesión...');
@@ -74,7 +74,6 @@ const RegisterScreen = () => {
     } catch (error) {
       console.error('Error completo en registro:', error);
       
-      // Verificar si es un error de conexión
       if (error.message.includes('Failed to fetch') || error.message.includes('ERR_CONNECTION_REFUSED')) {
         setMessage('No se puede conectar al servidor. Asegúrate de que el backend esté corriendo en http://localhost:5000');
       } else {
@@ -92,18 +91,18 @@ const RegisterScreen = () => {
     ) : null;
 
   return (
-    <div className="relative w-full min-h-screen flex items-center justify-center p-4 sm:p-8">
-      <div className="relative z-10 w-full max-w-lg mx-auto p-8 kawaii-layout-bg text-center">
-        <div className="mb-8">
-          <h1 className="kawaii-header text-5xl sm:text-6xl">Únete al Pueblo</h1>
+    <div className="relative w-full h-screen flex items-center justify-center p-2 sm:p-4">
+      <div className="relative z-10 w-full max-w-lg mx-auto p-4 sm:p-6 kawaii-layout-bg text-center">
+        <div className="mb-4">
+          <h1 className="kawaii-header text-4xl sm:text-5xl">Únete al Pueblo</h1>
         </div>
 
-        <div className="kawaii-panel p-6 sm:p-8">
-          <h2 className="text-xl font-bold mb-6 text-[var(--kawaii-text-dark)]">¡Regístrate para aprender!</h2>
+        <div className="kawaii-panel p-4 sm:p-6">
+          <h2 className="text-lg font-bold mb-4 text-[var(--kawaii-text-dark)]">¡Regístrate para aprender!</h2>
 
           {message && (
             <p
-              className={`mb-6 text-base font-semibold p-3 rounded-xl transition duration-300 border ${message.toLowerCase().includes('exitoso')
+              className={`mb-4 text-sm font-semibold p-2 rounded-xl transition duration-300 border ${message.toLowerCase().includes('exitoso')
                   ? 'bg-green-100 border-green-600 text-green-800'
                   : 'bg-red-100 border-red-600 text-red-800'
                 }`}
@@ -113,7 +112,7 @@ const RegisterScreen = () => {
           )}
 
           <form onSubmit={handleRegister}>
-            <div className="space-y-4 mb-8">
+            <div className="space-y-3 mb-6">
               <div>
                 <input
                   type="text"
@@ -159,13 +158,13 @@ const RegisterScreen = () => {
               </div>
             </div>
 
-            <button type="submit" className="kawaii-button w-full text-lg py-3" disabled={loading}>
+            <button type="submit" className="kawaii-button w-full text-base py-2" disabled={loading}>
               {loading ? 'Cargando...' : 'Registrarse'}
             </button>
           </form>
 
-          <div className="flex justify-center items-center space-x-4 mt-6">
-            <button onClick={() => navigate('/login')} className="kawaii-link-button">
+          <div className="flex justify-center items-center space-x-4 mt-4">
+            <button onClick={() => navigate('/login')} className="kawaii-link-button text-sm">
               ¿Ya tienes cuenta? <br />
               Inicia Sesión
             </button>
