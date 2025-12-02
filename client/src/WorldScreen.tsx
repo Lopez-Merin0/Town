@@ -10,10 +10,11 @@ import NPCDialoguePopup from './NPCDialoguePopup';
 import { NPC_LIST, NPCDialogue } from './NPCConfig';
 import './index.css';
 import { COLLISION_AREAS, CollisionArea } from './CollisionAreas';
+import background from './assets/mundo/fondo.jpg';
 
 const DEBUG_MODE = true;
 
-const BACKGROUND_URL = './fondo.jpg';
+const BACKGROUND_URL = background;
 
 const MAP_WIDTH = 1024;
 const MAP_HEIGHT = 640;

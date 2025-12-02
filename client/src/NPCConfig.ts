@@ -1,3 +1,11 @@
+import npc1 from './assets/mundo/npc1.png';
+import npc2 from './assets/mundo/npc2.png';
+import npc3 from './assets/mundo/npc3.png';
+
+const NPC1 = npc1;
+const NPC2 = npc2;
+const NPC3 = npc3;
+
 export interface NPCDialogue {
     text: string;
     image: string;
@@ -16,7 +24,7 @@ export const NPC_LIST: NPCData[] = [
     {
         id: 'npc1',
         name: 'Roberto',
-        spriteUrl: './npc1.png',
+        spriteUrl: NPC1,
         x: 465,
         y: 585,
         dialogues: [
@@ -37,7 +45,7 @@ export const NPC_LIST: NPCData[] = [
     {
         id: 'npc2',
         name: 'María',
-        spriteUrl: './npc2.png',
+        spriteUrl: NPC2,
         x: 810,
         y: 350,
         dialogues: [
@@ -54,7 +62,7 @@ export const NPC_LIST: NPCData[] = [
     {
         id: 'npc3',
         name: 'Carlos',
-        spriteUrl: './npc3.png',
+        spriteUrl: NPC3,
         x: 730,
         y: 930,
         dialogues: [

@@ -1,3 +1,9 @@
+import audio1 from './assets/Tercer-Game/como-te-llamas.mp3';
+import audio2 from './assets/Tercer-Game/hola-como-estas.mp3';
+
+const AUDIO1 = audio1;
+const AUDIO2 = audio2;
+
 export interface Option {
     id: number;
     text: string;
@@ -28,7 +34,7 @@ export interface MinigameQuestion {
 export const MINIGAME_3_QUESTIONS: MinigameQuestion[] = [
     {
         id: 1,
-        audioUrl: './como-te-llamas.mp3',
+        audioUrl: AUDIO1,
         audioText: '¿Cómo te llamas?',
         rules: 'Escucha el audio con atención y selecciona la frase correcta en español.',
 
@@ -75,7 +81,7 @@ export const MINIGAME_3_QUESTIONS: MinigameQuestion[] = [
     },
     {
         id: 2,
-        audioUrl: './hola-como-estas.mp3',
+        audioUrl: AUDIO2,
         audioText: 'Hola, ¿cómo estás?',
         rules: 'Escucha con atención el saludo y selecciona la frase que coincide con el audio.',
 

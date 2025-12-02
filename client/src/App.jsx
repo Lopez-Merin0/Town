@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
 import GameAudio from './GameAudio';
-
 import WorldScreen from './WorldScreen';
 import AuthScreen from './AuthScreen';
 import LoginScreen from './LoginScreen';

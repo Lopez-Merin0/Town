@@ -1,6 +1,7 @@
 import React from 'react';
+import spritesheet from './assets/mundo/Spritesheet.png';
 
-const SPRITESHEET_URL = '../Spritesheet.png'; 
+const SPRITESHEET_URL = spritesheet;
 
 const BASE_SPRITE_WIDTH = 16; 
 const BASE_SPRITE_HEIGHT = 16;

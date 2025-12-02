@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { MINIGAME_QUESTIONS, Option } from './MiniData-1';
 import LoadingScreen from './LoadingScreen';
 import { useMinigameProgress } from './contexts/MinigameProgressContext';
+import background from './assets/Primer-Game/firstGame.jpg';
 
 const KAWAI_COLORS = {
     bgLight: '#FBF0DF',
@@ -30,7 +31,7 @@ const KAWAI_TEXTURES = {
     texturePaper: 'url("https://www.transparenttextures.com/patterns/white-paperboard.png")',
 };
 
-const MINIGAME_BACKGROUND = './firstGame.jpg';
+const MINIGAME_BACKGROUND = background;
 
 interface FirstMinigameProps {
     userName: string;

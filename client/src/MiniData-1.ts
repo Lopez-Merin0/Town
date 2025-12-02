@@ -1,3 +1,13 @@
+import lapiz from './assets/Primer-Game/lapiz.png';
+import llave from './assets/Primer-Game/llave.png';
+import manzana from './assets/Primer-Game/manzana.png';
+import taza from './assets/Primer-Game/taza.png';
+
+const LAPIZ = lapiz;
+const LLAVE = llave;
+const MANZANA = manzana;
+const TAZA = taza;
+
 export interface Option {
     id: number;
     imagePath: string;
@@ -32,22 +42,22 @@ export const MINIGAME_QUESTIONS: MinigameQuestion[] = [
         options: [
             {
                 id: 1,
-                imagePath: './manzana.png',
+                imagePath: MANZANA,
                 isCorrect: false,
             },
             {
                 id: 2,
-                imagePath: './taza.png',
+                imagePath: TAZA,
                 isCorrect: true,
             },
             {
                 id: 3,
-                imagePath: './lapiz.png',
+                imagePath: LAPIZ,
                 isCorrect: false,
             },
             {
                 id: 4,
-                imagePath: './llave.png',
+                imagePath: LLAVE,
                 isCorrect: false,
             },
         ],
@@ -77,22 +87,22 @@ export const MINIGAME_QUESTIONS: MinigameQuestion[] = [
         options: [
             {
                 id: 1,
-                imagePath: './taza.png',
+                imagePath: TAZA,
                 isCorrect: false,
             },
             {
                 id: 2,
-                imagePath: './manzana.png',
+                imagePath: MANZANA,
                 isCorrect: true,
             },
             {
                 id: 3,
-                imagePath: './lapiz.png',
+                imagePath: LAPIZ,
                 isCorrect: false,
             },
             {
                 id: 4,
-                imagePath: './llave.png',
+                imagePath: LLAVE,
                 isCorrect: false,
             },
         ],
