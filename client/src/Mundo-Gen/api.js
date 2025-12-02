@@ -1,76 +1,52 @@
-const API_BASE_URL = 'http://localhost:5000/api'; // Asegúrate de que sea 5000
+const API_URL = 'http://localhost:5000';
 
-async function request(url, options = {}) {
-  const defaultHeaders = {
-    'Content-Type': 'application/json',
-    'Accept': 'application/json',
-  };
+export const registerUser = async (userData) => {
+    try {
+        const response = await fetch(`${API_URL}/api/auth/register`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(userData),
+        });
 
-  const config = {
-    method: options.method || 'GET',
-    ...options,
-    headers: {
-      ...defaultHeaders,
-      ...(options.headers || {}),
-    },
-    body: options.body && !(options.body instanceof FormData)
-      ? JSON.stringify(options.body)
-      : options.body,
-  };
+        const data = await response.json();
 
-  try {
-    const response = await fetch(`${API_BASE_URL}${url}`, config);
-    const rawText = await response.text();
-    const contentType = response.headers.get('content-type') || '';
-
-    if (response.ok) {
-      if (!rawText) return {};
-      if (contentType.includes('application/json')) {
-        try {
-          return JSON.parse(rawText);
-        } catch (e) {
-          console.warn('Respuesta JSON inválida recibida del servidor:', rawText);
-          return rawText; 
+        if (!response.ok) {
+            throw new Error(data.message || 'Error en el registro');
         }
-      }
-      return rawText; 
+
+        return data;
+    } catch (error) {
+        console.error('Error en registerUser:', error);
+        throw error;
     }
-
-    let errorMessage = `Error ${response.status} ${response.statusText}`;
-    if (contentType.includes('application/json')) {
-      try {
-        const parsed = JSON.parse(rawText);
-        errorMessage = parsed.message || parsed.error || JSON.stringify(parsed);
-      } catch (e) {
-        errorMessage = `${errorMessage}. Body: ${rawText}`;
-      }
-    } else {
-      errorMessage = `${errorMessage}. Body: ${rawText}`;
-    }
-
-    if (response.status === 400) {
-      errorMessage += ' — Revisa los campos enviados y su formato.';
-    }
-
-    throw new Error(errorMessage);
-  } catch (error) {
-    console.error('Error de red o desconocido:', error);
-    throw new Error(error.message || 'No se pudo conectar con el servidor. Verifica que esté corriendo.');
-  }
-}
-
-export const signupUser = async (userData) => {
-  return request('/auth/register', {
-    method: 'POST',
-    body: userData,
-  });
 };
 
 export const loginUser = async (credentials) => {
-  return request('/auth/login', {
-    method: 'POST',
-    body: credentials,
-  });
+    try {
+        const response = await fetch(`${API_URL}/api/auth/login`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(credentials),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.message || 'Error en el inicio de sesión');
+        }
+
+        return data;
+    } catch (error) {
+        console.error('Error en loginUser:', error);
+        throw error;
+    }
 };
 
-export default { signupUser, loginUser };
+export default {
+    registerUser,
+    loginUser,
+};

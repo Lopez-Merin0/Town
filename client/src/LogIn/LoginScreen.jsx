@@ -21,6 +21,51 @@ const saveAuthData = (token, userData) => {
     }
 };
 
+// Función para cargar el progreso del usuario desde el servidor
+const loadUserProgress = async (userId, token) => {
+    try {
+        console.log('Cargando progreso del usuario:', userId);
+        
+        const response = await fetch(`http://localhost:5000/api/progress/${userId}`, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (response.ok) {
+            const result = await response.json();
+            console.log('Progreso recibido del servidor:', result);
+
+            // Limpiar progreso anterior
+            localStorage.removeItem('minigameProgress');
+            localStorage.removeItem('minigame2Progress');
+            localStorage.removeItem('minigame3Progress');
+
+            // Cargar progreso del usuario actual
+            if (result.data) {
+                if (result.data.minigame1Progress) {
+                    localStorage.setItem('minigameProgress', JSON.stringify(result.data.minigame1Progress));
+                }
+                if (result.data.minigame2Progress) {
+                    localStorage.setItem('minigame2Progress', JSON.stringify(result.data.minigame2Progress));
+                }
+                if (result.data.minigame3Progress) {
+                    localStorage.setItem('minigame3Progress', JSON.stringify(result.data.minigame3Progress));
+                }
+                console.log('✅ Progreso del usuario cargado exitosamente');
+            } else {
+                console.log('Usuario sin progreso guardado, comenzando desde cero');
+            }
+        } else {
+            console.warn('No se pudo cargar el progreso, el usuario comenzará desde cero');
+        }
+    } catch (error) {
+        console.error('Error al cargar progreso del usuario:', error);
+        console.log('El usuario comenzará sin progreso guardado');
+    }
+};
+
 const LoginScreen = () => {
     const navigate = useNavigate();
     const [email, setEmail] = useState('');
@@ -75,12 +120,10 @@ const LoginScreen = () => {
             const result = await loginUser(credentials);
             console.log('Resultado completo del login:', result);
             
-            // Manejar diferentes estructuras de respuesta
             const responseData = result.data || result;
             const tokenToSave = responseData.access_token || responseData.token || result.access_token || result.token;
             console.log('Token extraído:', tokenToSave);
             
-            // Extraer datos de usuario
             const userData = responseData.user || responseData.data || result.user || {
                 id: responseData.userId || responseData.id,
                 email: responseData.email || email,
@@ -91,15 +134,18 @@ const LoginScreen = () => {
             if (tokenToSave && userData && (userData.id || userData._id)) {
                 saveAuthData(tokenToSave, userData);
                 
-                // Verificar que se guardó correctamente
                 const savedToken = localStorage.getItem('authToken');
                 const savedUserData = localStorage.getItem('userData');
-                console.log('Token verificado en localStorage:', savedToken);
-                console.log('UserData verificado en localStorage:', savedUserData);
                 
                 if (!savedToken || !savedUserData) {
                     throw new Error('Error al guardar los datos de autenticación');
                 }
+
+                // Cargar progreso del usuario desde el servidor
+                await loadUserProgress(userData.id || userData._id, tokenToSave);
+                
+                // Limpiar la marca de progreso cargado para forzar recarga
+                sessionStorage.removeItem('progressLoaded');
                 
                 setMessage('¡Inicio de sesión exitoso! Redirigiendo...');
                 
@@ -114,8 +160,14 @@ const LoginScreen = () => {
 
         } catch (error) {
             console.error('Error completo en login:', error);
-            const errorMsg = error.message || 'Error desconocido en el inicio de sesión.';
-            setMessage(errorMsg);
+            
+            // Verificar si es un error de conexión
+            if (error.message.includes('Failed to fetch') || error.message.includes('ERR_CONNECTION_REFUSED')) {
+                setMessage('No se puede conectar al servidor. Asegúrate de que el backend esté corriendo en http://localhost:5000');
+            } else {
+                const errorMsg = error.message || 'Error desconocido en el inicio de sesión.';
+                setMessage(errorMsg);
+            }
         } finally {
             setLoading(false);
         }

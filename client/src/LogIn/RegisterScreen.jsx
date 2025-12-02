@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { signupUser } from '../Mundo-Gen/api';
+import api from '../Mundo-Gen/api';
+
+const { registerUser } = api; // Cambiado de signupUser a registerUser
 
 const RegisterScreen = () => {
   const navigate = useNavigate();
@@ -57,18 +59,28 @@ const RegisterScreen = () => {
 
     setLoading(true);
     try {
-      // Aquí: enviamos UN objeto con las propiedades esperadas por el backend.
-      const result = await signupUser({ username, email, password });
-
-      if (result && (result.success === true || result.token || result.id)) {
-        setMessage('¡Registro exitoso! Ya puedes iniciar sesión');
-        setTimeout(() => navigate('/login'), 800);
+      const userData = { email, username, password };
+      console.log('Enviando datos de registro:', userData);
+      
+      const result = await registerUser(userData); // Usando registerUser
+      console.log('Resultado del registro:', result);
+      
+      setMessage('¡Registro exitoso! Redirigiendo al inicio de sesión...');
+      
+      setTimeout(() => {
+        navigate('/login');
+      }, 1500);
+      
+    } catch (error) {
+      console.error('Error completo en registro:', error);
+      
+      // Verificar si es un error de conexión
+      if (error.message.includes('Failed to fetch') || error.message.includes('ERR_CONNECTION_REFUSED')) {
+        setMessage('No se puede conectar al servidor. Asegúrate de que el backend esté corriendo en http://localhost:5000');
       } else {
-        const msg = (result && (result.message || result.error)) || (typeof result === 'string' ? result : null);
-        setMessage(msg || 'Error en el registro. Revisa los datos e inténtalo de nuevo.');
+        const errorMsg = error.message || 'Error desconocido en el registro.';
+        setMessage(errorMsg);
       }
-    } catch (err) {
-      setMessage(err.message || 'Error inesperado al registrar');
     } finally {
       setLoading(false);
     }
