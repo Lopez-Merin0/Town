@@ -147,6 +147,8 @@ const Room: React.FC = () => {
         const isInExitZone = mapX >= 601 && mapX <= 686 && mapY >= 336 && mapY <= 356;
         
         if (isInExitZone) {
+            // La posición ya está guardada en WorldScreen, solo navegamos
+            console.log('Saliendo del cuarto, regresando al mundo');
             navigate('/world');
         }
     }, [characterState.mapX, characterState.mapY, navigate]);

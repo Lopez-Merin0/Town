@@ -8,8 +8,14 @@ import LoadingScreen from '../LogIn/LoadingScreen';
 import NPC from '../NPC/NPC';
 import NPCDialoguePopup from '../NPC/NPCDialoguePopup';
 import { NPC_LIST, NPCDialogue } from '../NPC/NPCConfig';
+import ProgressMap from '../components/ProgressMap';
+import ConfirmationPopup from '../components/Popups/ConfirmationPopup';
+import MiniGameConfirmationPopup from '../components/Popups/MiniGameConfirmationPopup';
+import LockedMinigamePopup from '../components/Popups/LockedMinigamePopup';
+import { checkCollision } from '../utils/collisionUtils';
+import { checkMinigameUnlocked } from '../utils/minigameUtils';
 import '../index.css';
-import { COLLISION_AREAS, CollisionArea } from '../Colisiones/CollisionAreas';
+import { COLLISION_AREAS } from '../Colisiones/CollisionAreas';
 import background from '../assets/mundo/fondo.jpg';
 
 const DEBUG_MODE = true;
@@ -22,13 +28,12 @@ const SCALE_FACTOR = 2;
 
 const BASE_SPRITE_SIZE = 16;
 const CHARACTER_SCALE_FACTOR = 5;
-const SCALED_SPRITE_SIZE = BASE_SPRITE_SIZE * CHARACTER_SCALE_FACTOR; // 80
+const SCALED_SPRITE_SIZE = BASE_SPRITE_SIZE * CHARACTER_SCALE_FACTOR;
 
 const MOVEMENT_SPEED = 5;
 const CUSTOM_MAX_X_POS = 1909;
 const CUSTOM_MAX_Y_POS = 1200;
 
-// Mapeo de nombres de triggers a rutas
 const MINIGAME_ROUTES: { [key: string]: string } = {
     FirstMinigame: '/primer mini juego',
     SecondMinigame: '/segundo mini juego',
@@ -59,139 +64,6 @@ const LogOutIcon = (props: React.SVGProps<SVGSVGElement>) => (
     </svg>
 );
 
-const checkCollision = (
-    nextX: number,
-    nextY: number,
-    scaledSpriteSize: number,
-    areas: CollisionArea[]
-): boolean => {
-    if (DEBUG_MODE) return false;
-
-    const HALF_SPRITE = scaledSpriteSize / 2;
-
-    const playerBox = {
-        left: nextX - HALF_SPRITE,
-        right: nextX + HALF_SPRITE,
-        top: nextY - HALF_SPRITE,
-        bottom: nextY + HALF_SPRITE,
-    };
-
-    for (const area of areas) {
-        const allX = [area.p1.x, area.p2.x, area.p3.x, area.p4.x];
-        const allY = [area.p1.y, area.p2.y, area.p3.y, area.p4.y];
-
-        const x_min = Math.min(...allX);
-        const x_max = Math.max(...allX);
-        const y_min = Math.min(...allY);
-        const y_max = Math.max(...allY);
-
-        const areaBox = {
-            left: x_min,
-            right: x_max,
-            top: y_min,
-            bottom: y_max,
-        };
-
-        const isColliding = (
-            playerBox.left < areaBox.right &&
-            playerBox.right > areaBox.left &&
-            playerBox.top < areaBox.bottom &&
-            playerBox.bottom > areaBox.top
-        );
-
-        if (isColliding) {
-            return true;
-        }
-    }
-    return false;
-};
-
-const ConfirmationPopup: React.FC<{ onConfirm: () => void; onCancel: () => void; }> = ({ onConfirm, onCancel }) => (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div className="kawaii-popup p-6 rounded-lg shadow-lg text-center"
-            style={{
-                backgroundColor: '#fefefe',
-                border: '5px solid #6495ed',
-                boxShadow: '0 8px 0 0 #add8e6',
-                maxWidth: '400px',
-            }}>
-            <p className="text-xl font-bold mb-4" style={{ color: '#333333' }}>
-                ¿Estás seguro de que quieres salir?
-            </p>
-            <div className="flex justify-center space-x-4">
-                <button
-                    onClick={onConfirm}
-                    className="kawaii-button py-2 px-4 font-bold"
-                    style={{
-                        backgroundColor: '#ff69b4',
-                        color: 'white',
-                        border: '3px solid #e04e9e',
-                    }}
-                >
-                    Confirmar
-                </button>
-                <button
-                    onClick={onCancel}
-                    className="kawaii-button py-2 px-4 font-bold"
-                    style={{
-                        backgroundColor: '#add8e6',
-                        color: '#333333',
-                        border: '3px solid #6495ed',
-                    }}
-                >
-                    Cancelar
-                </button>
-            </div>
-        </div>
-    </div>
-);
-
-interface MiniGameConfirmationPopupProps {
-    minigameName: string;
-    onConfirm: () => void;
-    onCancel: () => void;
-}
-
-const MiniGameConfirmationPopup: React.FC<MiniGameConfirmationPopupProps> = ({ minigameName, onConfirm, onCancel }) => (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div className="kawaii-popup p-6 rounded-lg shadow-lg text-center"
-            style={{
-                backgroundColor: '#fefefe',
-                border: '5px solid #6495ed',
-                boxShadow: '0 8px 0 0 #add8e6',
-                maxWidth: '400px',
-            }}>
-            <p className="text-xl font-bold mb-4" style={{ color: '#333333' }}>
-                ¿Quieres entrar al {minigameName}?
-            </p>
-            <div className="flex justify-center space-x-4">
-                <button
-                    onClick={onConfirm}
-                    className="kawaii-button py-2 px-4 font-bold"
-                    style={{
-                        backgroundColor: '#ff69b4',
-                        color: 'white',
-                        border: '3px solid #e04e9e',
-                    }}
-                >
-                    Confirmar
-                </button>
-                <button
-                    onClick={onCancel}
-                    className="kawaii-button py-2 px-4 font-bold"
-                    style={{
-                        backgroundColor: '#add8e6',
-                        color: '#333333',
-                        border: '3px solid #6495ed',
-                    }}
-                >
-                    Cancelar
-                </button>
-            </div>
-        </div>
-    </div>
-);
-
 const WorldScreen: React.FC = () => {
     const navigate = useNavigate();
 
@@ -199,7 +71,9 @@ const WorldScreen: React.FC = () => {
     const [showLogoutPopup, setShowLogoutPopup] = useState(false);
     const [miniGamePopupState, setMiniGamePopupState] = useState<{ isVisible: boolean; targetRoute: string; gameName: string; } | null>(null);
     const [npcDialogue, setNpcDialogue] = useState<{ npcName: string; dialogue: NPCDialogue } | null>(null);
-
+    const [hasShownPopupForTrigger, setHasShownPopupForTrigger] = useState<string | null>(null);
+    const [lockedMessage, setLockedMessage] = useState<string | null>(null);
+    const [showProgressMap, setShowProgressMap] = useState(false);
 
     const [viewport, setViewport] = useState({
         width: typeof window !== 'undefined' ? window.innerWidth : 1024,
@@ -215,13 +89,33 @@ const WorldScreen: React.FC = () => {
     const MAX_MAP_WIDTH = MAP_WIDTH * SCALE_FACTOR;
     const MAX_MAP_HEIGHT = MAP_HEIGHT * SCALE_FACTOR;
 
-    const [characterState, setCharacterState] = useState<CharacterState>(() => ({
-        mapX: 1070,
-        mapY: 810,
-        direction: 1,
-        frame: 0,
-        isMoving: false,
-    }));
+    const [characterState, setCharacterState] = useState<CharacterState>(() => {
+        const savedPosition = localStorage.getItem('worldCharacterPosition');
+        if (savedPosition) {
+            try {
+                const parsed = JSON.parse(savedPosition);
+                return {
+                    mapX: parsed.mapX || 1070,
+                    mapY: parsed.mapY || 810,
+                    direction: parsed.direction || 1,
+                    frame: 0,
+                    isMoving: false,
+                };
+            } catch (error) {
+                console.error('Error al parsear posición guardada:', error);
+            }
+        }
+        return { mapX: 1070, mapY: 810, direction: 1, frame: 0, isMoving: false };
+    });
+
+    useEffect(() => {
+        const positionData = {
+            mapX: characterState.mapX,
+            mapY: characterState.mapY,
+            direction: characterState.direction,
+        };
+        localStorage.setItem('worldCharacterPosition', JSON.stringify(positionData));
+    }, [characterState.mapX, characterState.mapY, characterState.direction]);
 
     const isPopupTriggered: string | null = usePopupTrigger({
         mapX: characterState.mapX,
@@ -229,15 +123,27 @@ const WorldScreen: React.FC = () => {
     });
 
     useEffect(() => {
-        if (isPopupTriggered && !miniGamePopupState && !showLogoutPopup) {
+        if (isPopupTriggered && !miniGamePopupState && !showLogoutPopup && !lockedMessage && isPopupTriggered !== hasShownPopupForTrigger) {
             const targetRoute = MINIGAME_ROUTES[isPopupTriggered];
             if (targetRoute) {
-                setCharacterState(prev => ({ ...prev, isMoving: false }));
-                const gameName = targetRoute.replace('/', '');
-                setMiniGamePopupState({ isVisible: true, targetRoute, gameName });
+                const { unlocked, message } = checkMinigameUnlocked(isPopupTriggered);
+                
+                if (!unlocked) {
+                    setLockedMessage(message);
+                    setHasShownPopupForTrigger(isPopupTriggered);
+                } else {
+                    setCharacterState(prev => ({ ...prev, isMoving: false }));
+                    const gameName = targetRoute.replace('/', '');
+                    setMiniGamePopupState({ isVisible: true, targetRoute, gameName });
+                    setHasShownPopupForTrigger(isPopupTriggered);
+                }
             }
         }
-    }, [isPopupTriggered, miniGamePopupState, showLogoutPopup]);
+        
+        if (!isPopupTriggered && hasShownPopupForTrigger) {
+            setHasShownPopupForTrigger(null);
+        }
+    }, [isPopupTriggered, miniGamePopupState, showLogoutPopup, hasShownPopupForTrigger, lockedMessage]);
 
     useEffect(() => {
         let interval: number | null = null;
@@ -257,18 +163,12 @@ const WorldScreen: React.FC = () => {
         const npc = NPC_LIST.find(n => n.id === npcId);
         if (!npc) return;
 
-        // Seleccionar un diálogo aleatorio
         const randomDialogue = npc.dialogues[Math.floor(Math.random() * npc.dialogues.length)];
-
         setNpcDialogue({
             npcName: npc.name,
             dialogue: randomDialogue
         });
     }, []);
-
-    const handleCloseNPCDialogue = () => {
-        setNpcDialogue(null);
-    };
 
     const handleKeyDown = useCallback((event: KeyboardEvent) => {
         const isAnyPopupOpen = showIntro || showLogoutPopup || !!miniGamePopupState || !!npcDialogue;
@@ -293,47 +193,29 @@ const WorldScreen: React.FC = () => {
             }
 
             const HALF_SPRITE = SCALED_SPRITE_SIZE / 2;
-            const MIN_X = HALF_SPRITE;
-            const MAX_X = CUSTOM_MAX_X_POS - HALF_SPRITE;
-            const MIN_Y = HALF_SPRITE;
-            const MAX_Y = CUSTOM_MAX_Y_POS - HALF_SPRITE;
+            const limitedX = Math.max(HALF_SPRITE, Math.min(CUSTOM_MAX_X_POS - HALF_SPRITE, newX));
+            const limitedY = Math.max(HALF_SPRITE, Math.min(CUSTOM_MAX_Y_POS - HALF_SPRITE, newY));
 
-            const limitedX = Math.max(MIN_X, Math.min(MAX_X, newX));
-            const limitedY = Math.max(MIN_Y, Math.min(MAX_Y, newY));
-
-            const hasCollision = checkCollision(
-                limitedX,
-                limitedY,
-                SCALED_SPRITE_SIZE,
-                COLLISION_AREAS
-            );
+            const hasCollision = checkCollision(limitedX, limitedY, SCALED_SPRITE_SIZE, COLLISION_AREAS, DEBUG_MODE);
 
             let finalX = limitedX;
             let finalY = limitedY;
 
             if (hasCollision) {
-                const tryX = checkCollision(limitedX, prev.mapY, SCALED_SPRITE_SIZE, COLLISION_AREAS);
-                const tryY = checkCollision(prev.mapX, limitedY, SCALED_SPRITE_SIZE, COLLISION_AREAS);
+                const tryX = checkCollision(limitedX, prev.mapY, SCALED_SPRITE_SIZE, COLLISION_AREAS, DEBUG_MODE);
+                const tryY = checkCollision(prev.mapX, limitedY, SCALED_SPRITE_SIZE, COLLISION_AREAS, DEBUG_MODE);
 
                 if (!tryX) {
-                    finalX = limitedX;
                     finalY = prev.mapY;
                 } else if (!tryY) {
                     finalX = prev.mapX;
-                    finalY = limitedY;
                 } else {
                     finalX = prev.mapX;
                     finalY = prev.mapY;
                 }
             }
 
-            return {
-                ...prev,
-                mapX: finalX,
-                mapY: finalY,
-                direction,
-                isMoving: true,
-            };
+            return { ...prev, mapX: finalX, mapY: finalY, direction, isMoving: true };
         });
     }, [showIntro, showLogoutPopup, miniGamePopupState, npcDialogue]);
 
@@ -355,7 +237,6 @@ const WorldScreen: React.FC = () => {
         };
     }, [handleKeyDown, handleKeyUp]);
 
-    // CAMARITA 
     const halfScreenW = viewport.width / 2;
     const halfScreenH = viewport.height / 2;
 
@@ -368,40 +249,25 @@ const WorldScreen: React.FC = () => {
         viewport.height - MAX_MAP_HEIGHT
     );
 
-    const handleLogoutClick = () => {
-        setShowLogoutPopup(true);
-    };
-
-    const handleConfirmLogout = () => {
-        setShowLogoutPopup(false);
-        navigate('/');
-    };
-
-    const handleCancelLogout = () => {
-        setShowLogoutPopup(false);
-    };
-
     const handleConfirmMinigame = () => {
         if (miniGamePopupState) {
+            const positionData = {
+                mapX: characterState.mapX,
+                mapY: characterState.mapY,
+                direction: characterState.direction,
+            };
+            localStorage.setItem('worldCharacterPosition', JSON.stringify(positionData));
             navigate(miniGamePopupState.targetRoute);
             setMiniGamePopupState(null);
         }
     };
-
-    const handleCancelMinigame = () => {
-        setMiniGamePopupState(null);
-    };
-
 
     if (showIntro) {
         return <LoadingScreen onAnimationEnd={() => setShowIntro(false)} />;
     }
 
     return (
-        <div
-            className="relative w-screen h-screen overflow-hidden"
-            style={{ backgroundColor: '#4c965c' }}
-        >
+        <div className="relative w-screen h-screen overflow-hidden" style={{ backgroundColor: '#4c965c' }}>
             <CollisionDebugger
                 backgroundTranslateX={backgroundTranslateX}
                 backgroundTranslateY={backgroundTranslateY}
@@ -455,60 +321,48 @@ const WorldScreen: React.FC = () => {
                 Talkie Town!
             </h1>
 
-            <button
-                onClick={handleLogoutClick}
-                className="fixed top-4 right-4 kawaii-button py-1 px-2 flex items-center space-x-1"
-                style={{
-                    zIndex: 10,
-                    backgroundColor: '#ff69b4',
-                    color: 'white',
-                    border: '3px solid #e04e9e',
-                    fontSize: '0.75rem',
-                }}
-                disabled={showLogoutPopup || !!miniGamePopupState}
-            >
-                <LogOutIcon className="w-3 h-3" />
-                <span className="font-bold">SALIR</span>
-            </button>
+            <div className="fixed top-4 right-4 flex space-x-2" style={{ zIndex: 10 }}>
+                <button
+                    onClick={() => setShowProgressMap(true)}
+                    className="kawaii-button py-1 px-2 flex items-center space-x-1"
+                    style={{
+                        backgroundColor: '#FFD700',
+                        color: '#333',
+                        border: '3px solid #FFA500',
+                        fontSize: '0.75rem',
+                    }}
+                    disabled={showLogoutPopup || !!miniGamePopupState}
+                >
+                    <span className="font-bold">📊 PROGRESO</span>
+                </button>
+
+                <button
+                    onClick={() => setShowLogoutPopup(true)}
+                    className="kawaii-button py-1 px-2 flex items-center space-x-1"
+                    style={{
+                        backgroundColor: '#ff69b4',
+                        color: 'white',
+                        border: '3px solid #e04e9e',
+                        fontSize: '0.75rem',
+                    }}
+                    disabled={showLogoutPopup || !!miniGamePopupState}
+                >
+                    <LogOutIcon className="w-3 h-3" />
+                    <span className="font-bold">SALIR</span>
+                </button>
+            </div>
 
             {DEBUG_MODE && (
-                <div
-                    className="fixed bottom-4 left-4 p-2 text-xs font-bold rounded"
-                    style={{
-                        zIndex: 10,
-                        backgroundColor: '#add8e6',
-                        color: '#333333',
-                        border: '2px solid #6495ed',
-                        boxShadow: '2px 2px 0px #6495ed',
-                    }}
-                >
+                <div className="fixed bottom-4 left-4 p-2 text-xs font-bold rounded" style={{ zIndex: 10, backgroundColor: '#add8e6', color: '#333333', border: '2px solid #6495ed', boxShadow: '2px 2px 0px #6495ed' }}>
                     Pos: ({Math.round(characterState.mapX)}, {Math.round(characterState.mapY)})
                 </div>
             )}
 
-            {showLogoutPopup && (
-                <ConfirmationPopup
-                    onConfirm={handleConfirmLogout}
-                    onCancel={handleCancelLogout}
-                />
-            )}
-
-            {miniGamePopupState?.isVisible && (
-                <MiniGameConfirmationPopup
-                    minigameName={miniGamePopupState.gameName}
-                    onConfirm={handleConfirmMinigame}
-                    onCancel={handleCancelMinigame}
-                />
-            )}
-
-            {npcDialogue && (
-                <NPCDialoguePopup
-                    npcName={npcDialogue.npcName}
-                    text={npcDialogue.dialogue.text}
-                    image={npcDialogue.dialogue.image}
-                    onClose={handleCloseNPCDialogue}
-                />
-            )}
+            {showProgressMap && <ProgressMap onClose={() => setShowProgressMap(false)} />}
+            {showLogoutPopup && <ConfirmationPopup onConfirm={() => { setShowLogoutPopup(false); navigate('/'); }} onCancel={() => setShowLogoutPopup(false)} />}
+            {miniGamePopupState?.isVisible && <MiniGameConfirmationPopup minigameName={miniGamePopupState.gameName} onConfirm={handleConfirmMinigame} onCancel={() => setMiniGamePopupState(null)} />}
+            {lockedMessage && <LockedMinigamePopup message={lockedMessage} onClose={() => setLockedMessage(null)} />}
+            {npcDialogue && <NPCDialoguePopup npcName={npcDialogue.npcName} text={npcDialogue.dialogue.text} image={npcDialogue.dialogue.image} onClose={() => setNpcDialogue(null)} />}
         </div>
     );
 };
