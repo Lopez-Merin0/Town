@@ -333,7 +333,7 @@ const WorldScreen: React.FC = () => {
                     }}
                     disabled={showLogoutPopup || !!miniGamePopupState}
                 >
-                    <span className="font-bold">📊 PROGRESO</span>
+                    <span className="font-bold">PROGRESO</span>
                 </button>
 
                 <button
