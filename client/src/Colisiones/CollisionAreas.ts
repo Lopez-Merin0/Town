@@ -29,59 +29,59 @@ const createRectangle = (area: SimpleCollisionArea): CollisionArea => {
 
 const SIMPLE_COLLISION_AREAS: SimpleCollisionArea[] = [
     
-    // Mi casa (arriba-izquierda, casa azul grande)
+    // Casa azul
     {
-        topLeft: { x: 140, y: 80 },
-        bottomRight: { x: 340, y: 260 },
+        topLeft: { x: 172, y: 73 },
+        bottomRight: { x: 291, y: 202 },
         debugColor: '#FF0000',
     },
 
-    // Casa verde (izquierda-centro, casa pequeña verde)
+    // Casa teal - Nivel #1
     {
-        topLeft: { x: 140, y: 340 },
-        bottomRight: { x: 280, y: 480 },
+        topLeft: { x: 162, y: 377 },
+        bottomRight: { x: 302, y: 496 },
         debugColor: '#FF0000',
     },
 
-    // Casa morada inferior izquierda
+    // Casa morada pequeña
     {
-        topLeft: { x: 140, y: 580 },
-        bottomRight: { x: 280, y: 720 },
+        topLeft: { x: 158, y: 671 },
+        bottomRight: { x: 305, y: 794 },
         debugColor: '#FF0000',
     },
 
-    // Casa verde superior derecha
+    // Casa verde larga - Nivel #2
     {
-        topLeft: { x: 700, y: 80 },
-        bottomRight: { x: 840, y: 220 },
+        topLeft: { x: 669, y: 24 },
+        bottomRight: { x: 876, y: 139 },
         debugColor: '#FF0000',
     },
 
-    // GYM (gimnasio rojo - centro)
+    // GYM 
     {
-        topLeft: { x: 560, y: 280 },
-        bottomRight: { x: 780, y: 460 },
+        topLeft: { x: 659, y: 290 },
+        bottomRight: { x: 869, y: 433 },
         debugColor: '#FF0000',
     },
 
-    // SHOP (tienda verde - derecha-arriba)
+    // SHOP
     {
-        topLeft: { x: 980, y: 140 },
-        bottomRight: { x: 1120, y: 280 },
+        topLeft: { x: 1068, y: 125 },
+        bottomRight: { x: 1222, y: 234 },
         debugColor: '#FF0000',
     },
 
-    // Casa morada (derecha-abajo)
+    // Casa morada larga - Nivel #3
     {
-        topLeft: { x: 1000, y: 520 },
-        bottomRight: { x: 1140, y: 660 },
+        topLeft: { x: 1033, y: 507 },
+        bottomRight: { x: 1236, y: 636 },
         debugColor: '#FF0000',
     },
 
-    // Casa pequeña centro-inferior (cerca del río)
+    // Casa verde pequeña
     {
-        topLeft: { x: 560, y: 540 },
-        bottomRight: { x: 700, y: 680 },
+        topLeft: { x: 680, y: 594 },
+        bottomRight: { x: 827, y: 755 },
         debugColor: '#FF0000',
     },
 ];

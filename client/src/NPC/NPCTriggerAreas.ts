@@ -10,30 +10,43 @@ export interface NPCTriggerArea {
     debugColor: string;
 }
 
-// NOTA: Coordenadas ajustadas para SCALE_FACTOR = 1.4
-// Mapa base: 1024x640, escalado: 1434x896
-
 export const NPC_TRIGGER_AREAS: NPCTriggerArea[] = [
-    // NPC 1 - Cerca de la casa azul (arriba-izquierda)
+    // NPC 1 - ardilla
     {
-        topLeft: { x: 200, y: 180 },
-        bottomRight: { x: 320, y: 280 },
+        topLeft: { x: 417, y: 38 },
+        bottomRight: { x: 463, y: 69 },
         npcId: 'npc1',
         debugColor: '#FFFF00',
     },
 
-    // NPC 2 - Cerca de la tienda SHOP (derecha-arriba)
+    // NPC 2 - zorro
     {
-        topLeft: { x: 1020, y: 200 },
-        bottomRight: { x: 1140, y: 300 },
+        topLeft: { x: 267, y: 496 },
+        bottomRight: { x: 319, y: 535 },
         npcId: 'npc2',
         debugColor: '#FFFF00',
     },
 
-    // NPC 3 - Cerca del GYM (centro)
+    // NPC 3 - buho
     {
-        topLeft: { x: 620, y: 300 },
-        bottomRight: { x: 740, y: 480 },
+        topLeft: { x: 816, y: 129 },
+        bottomRight: { x: 865, y: 171 },
+        npcId: 'npc3',
+        debugColor: '#FFFF00',
+    },
+
+    // NPC 4 - venadito
+    {
+        topLeft: { x: 1156, y: 241 },
+        bottomRight: { x: 1198, y: 293 },
+        npcId: 'npc2',
+        debugColor: '#FFFF00',
+    },
+
+    // NPC 5 - oso
+    {
+        topLeft: { x: 1058, y: 622 },
+        bottomRight: { x: 1117, y: 664 },
         npcId: 'npc3',
         debugColor: '#FFFF00',
     },
