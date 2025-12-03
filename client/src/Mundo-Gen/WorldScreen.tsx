@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-
 import Character from './Character';
 import CollisionDebugger from '../Colisiones/CollisionDebugger';
 import { usePopupTrigger } from '../Colisiones/MiniGameTrigger';
