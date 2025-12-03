@@ -18,7 +18,7 @@ import '../index.css';
 import { COLLISION_AREAS } from '../Colisiones/CollisionAreas';
 import background from '../assets/mundo/fondo.jpeg';
 
-const DEBUG_MODE = true;
+const DEBUG_MODE = false;
 
 const BACKGROUND_URL = background;
 
@@ -183,6 +183,10 @@ const WorldScreen: React.FC = () => {
             const npc = NPC_LIST.find(n => n.id === triggeredNPC);
             if (npc) {
                 const randomDialogue = npc.dialogues[Math.floor(Math.random() * npc.dialogues.length)];
+                
+                // Detener el movimiento del personaje
+                setCharacterState(prev => ({ ...prev, isMoving: false }));
+                
                 setNpcDialogue({
                     npcName: npc.name,
                     dialogue: randomDialogue
@@ -198,9 +202,12 @@ const WorldScreen: React.FC = () => {
     }, [characterState.mapX, characterState.mapY, lastNPCTrigger, npcDialogue, miniGamePopupState, showLogoutPopup]);
 
     const handleKeyDown = useCallback((event: KeyboardEvent) => {
-        const isAnyPopupOpen = showIntro || showLogoutPopup || !!miniGamePopupState || !!npcDialogue;
+        const isAnyPopupOpen = showIntro || showLogoutPopup || !!miniGamePopupState || !!npcDialogue || !!lockedMessage;
         if (isAnyPopupOpen) {
             event.preventDefault();
+            event.stopPropagation();
+            // Forzar detención del movimiento
+            setCharacterState(prev => ({ ...prev, isMoving: false }));
             return;
         }
         const key = event.key.toLowerCase();
@@ -244,16 +251,29 @@ const WorldScreen: React.FC = () => {
 
             return { ...prev, mapX: finalX, mapY: finalY, direction, isMoving: true };
         });
-    }, [showIntro, showLogoutPopup, miniGamePopupState, npcDialogue]);
+    }, [showIntro, showLogoutPopup, miniGamePopupState, npcDialogue, lockedMessage]);
 
     const handleKeyUp = useCallback((event: KeyboardEvent) => {
-        const isAnyPopupOpen = showIntro || showLogoutPopup || !!miniGamePopupState || !!npcDialogue;
-        if (isAnyPopupOpen) return;
+        const isAnyPopupOpen = showIntro || showLogoutPopup || !!miniGamePopupState || !!npcDialogue || !!lockedMessage;
+        if (isAnyPopupOpen) {
+            event.preventDefault();
+            event.stopPropagation();
+            // Forzar detención del movimiento
+            setCharacterState(prev => ({ ...prev, isMoving: false }));
+            return;
+        }
         const key = event.key.toLowerCase();
         if (DIRECTION_MAP[key] !== undefined) {
             setCharacterState((prev) => ({ ...prev, isMoving: false }));
         }
-    }, [showIntro, showLogoutPopup, miniGamePopupState, npcDialogue]);
+    }, [showIntro, showLogoutPopup, miniGamePopupState, npcDialogue, lockedMessage]);
+
+    // Efecto adicional para detener movimiento cuando se abre un popup
+    useEffect(() => {
+        if (npcDialogue || miniGamePopupState || showLogoutPopup || lockedMessage) {
+            setCharacterState(prev => ({ ...prev, isMoving: false, frame: 0 }));
+        }
+    }, [npcDialogue, miniGamePopupState, showLogoutPopup, lockedMessage]);
 
     useEffect(() => {
         window.addEventListener('keydown', handleKeyDown);
@@ -278,14 +298,27 @@ const WorldScreen: React.FC = () => {
 
     const handleConfirmMinigame = () => {
         if (miniGamePopupState) {
+            // Mover el personaje un poco hacia abajo
+            setCharacterState(prev => ({
+                ...prev,
+                mapY: prev.mapY + 30, // Mueve 30 píxeles hacia abajo
+                isMoving: false
+            }));
+
             const positionData = {
                 mapX: characterState.mapX,
-                mapY: characterState.mapY,
+                mapY: characterState.mapY + 30, // Guardar la nueva posición
                 direction: characterState.direction,
             };
             localStorage.setItem('worldCharacterPosition', JSON.stringify(positionData));
-            navigate(miniGamePopupState.targetRoute);
+            
+            // Cerrar el popup antes de navegar
             setMiniGamePopupState(null);
+            
+            // Pequeño delay antes de navegar para que se vea el movimiento
+            setTimeout(() => {
+                navigate(miniGamePopupState.targetRoute);
+            }, 100);
         }
     };
 

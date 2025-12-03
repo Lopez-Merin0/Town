@@ -39,7 +39,7 @@ export const NPC_TRIGGER_AREAS: NPCTriggerArea[] = [
     {
         topLeft: { x: 1156, y: 241 },
         bottomRight: { x: 1198, y: 293 },
-        npcId: 'npc2',
+        npcId: 'npc4',
         debugColor: '#FFFF00',
     },
 
@@ -47,7 +47,7 @@ export const NPC_TRIGGER_AREAS: NPCTriggerArea[] = [
     {
         topLeft: { x: 1058, y: 622 },
         bottomRight: { x: 1117, y: 664 },
-        npcId: 'npc3',
+        npcId: 'npc5',
         debugColor: '#FFFF00',
     },
 ];

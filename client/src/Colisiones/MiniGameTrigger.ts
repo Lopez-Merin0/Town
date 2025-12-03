@@ -1,22 +1,22 @@
 import { useEffect, useState } from 'react';
 const TRIGGER_AREAS = {
     FirstMinigame: {
-        xMin: 1169,
-        xMax: 1209,
-        yMin: 535,
-        yMax: 535, 
+        xMin: 211,
+        xMax: 246,
+        yMin: 517,
+        yMax: 517, 
     },
     SecondMinigame: { 
-        xMin: 965,
-        xMax: 1005, 
-        yMin: 530,
-        yMax: 530, 
+        xMin: 718,
+        xMax: 750, 
+        yMin: 155,
+        yMax: 155, 
     },
     ThirdMinigame: { 
-        xMin: 815, 
-        xMax: 860, 
-        yMin: 760,
-        yMax: 760, 
+        xMin: 1159, 
+        xMax: 1187, 
+        yMin: 652,
+        yMax: 652, 
     },
 };
 

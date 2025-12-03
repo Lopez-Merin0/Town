@@ -1,5 +1,3 @@
-// CollisionDebugger.tsx (Tu código, el cual está correcto)
-
 import React from 'react';
 import { COLLISION_AREAS } from './CollisionAreas';
 import { WALKABLE_AREAS } from './WalkableAreas';
@@ -17,7 +15,6 @@ const CollisionDebugger: React.FC<CollisionDebuggerProps> = ({ backgroundTransla
 
     return (
         <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 5 }}>
-            {/* Áreas de colisión (ocultas - sin color) */}
             {COLLISION_AREAS.map((area, index) => (
                 <div
                     key={`collision-${index}`}
@@ -34,7 +31,7 @@ const CollisionDebugger: React.FC<CollisionDebuggerProps> = ({ backgroundTransla
                 />
             ))}
 
-            {/* Áreas walkables (visibles - verde) */}
+            {/* Áreas walkables (ocultas - sin color) */}
             {WALKABLE_AREAS.map((area, index) => (
                 <div
                     key={`walkable-${index}`}
@@ -51,7 +48,6 @@ const CollisionDebugger: React.FC<CollisionDebuggerProps> = ({ backgroundTransla
                 />
             ))}
 
-            {/* Áreas de trigger de NPCs (verde con borde) */}
             {NPC_TRIGGER_AREAS.map((area, index) => (
                 <div
                     key={`npc-trigger-${index}`}
@@ -61,24 +57,11 @@ const CollisionDebugger: React.FC<CollisionDebuggerProps> = ({ backgroundTransla
                         top: `${area.topLeft.y + backgroundTranslateY}px`,
                         width: `${area.bottomRight.x - area.topLeft.x}px`,
                         height: `${area.bottomRight.y - area.topLeft.y}px`,
-                        border: `2px dashed ${area.debugColor}`,
+                        border: 'none',
                         backgroundColor: 'transparent',
                         pointerEvents: 'none',
                     }}
-                >
-                    <span style={{
-                        position: 'absolute',
-                        top: '2px',
-                        left: '2px',
-                        fontSize: '10px',
-                        color: '#000',
-                        backgroundColor: 'rgba(255,255,255,0.7)',
-                        padding: '2px 4px',
-                        borderRadius: '3px',
-                    }}>
-                        NPC: {area.npcId}
-                    </span>
-                </div>
+                />
             ))}
         </div>
     );
