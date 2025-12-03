@@ -5,7 +5,6 @@ import Character from './Character';
 import CollisionDebugger from '../Colisiones/CollisionDebugger';
 import { usePopupTrigger } from '../Colisiones/MiniGameTrigger';
 import LoadingScreen from '../LogIn/LoadingScreen';
-import NPC from '../NPC/NPC';
 import NPCDialoguePopup from '../NPC/NPCDialoguePopup';
 import { NPC_LIST, NPCDialogue } from '../NPC/NPCConfig';
 import ProgressButton from './ProgressButton';
@@ -14,9 +13,10 @@ import MiniGameConfirmationPopup from '../components/Popups/MiniGameConfirmation
 import LockedMinigamePopup from '../components/Popups/LockedMinigamePopup';
 import { checkCollision } from '../utils/collisionUtils';
 import { checkMinigameUnlocked } from '../utils/minigameUtils';
+import { checkNPCTrigger } from '../utils/npcTriggerUtils';
 import '../index.css';
 import { COLLISION_AREAS } from '../Colisiones/CollisionAreas';
-import background from '../assets/mundo/fondo.jpg';
+import background from '../assets/mundo/fondo.jpeg';
 
 const DEBUG_MODE = true;
 
@@ -24,15 +24,15 @@ const BACKGROUND_URL = background;
 
 const MAP_WIDTH = 1024;
 const MAP_HEIGHT = 640;
-const SCALE_FACTOR = 2;
+const SCALE_FACTOR = 1.4;
 
 const BASE_SPRITE_SIZE = 16;
-const CHARACTER_SCALE_FACTOR = 5;
+const CHARACTER_SCALE_FACTOR = 1;
 const SCALED_SPRITE_SIZE = BASE_SPRITE_SIZE * CHARACTER_SCALE_FACTOR;
 
-const MOVEMENT_SPEED = 5;
-const CUSTOM_MAX_X_POS = 1909;
-const CUSTOM_MAX_Y_POS = 1200;
+const MOVEMENT_SPEED = 3.5;
+const CUSTOM_MAX_X_POS = 1344;
+const CUSTOM_MAX_Y_POS = 840;
 
 const MINIGAME_ROUTES: { [key: string]: string } = {
     FirstMinigame: '/primer mini juego',
@@ -73,6 +73,8 @@ const WorldScreen: React.FC = () => {
     const [npcDialogue, setNpcDialogue] = useState<{ npcName: string; dialogue: NPCDialogue } | null>(null);
     const [hasShownPopupForTrigger, setHasShownPopupForTrigger] = useState<string | null>(null);
     const [lockedMessage, setLockedMessage] = useState<string | null>(null);
+    const [currentNPCTrigger, setCurrentNPCTrigger] = useState<string | null>(null);
+    const [lastNPCTrigger, setLastNPCTrigger] = useState<string | null>(null);
 
     const [viewport, setViewport] = useState({
         width: typeof window !== 'undefined' ? window.innerWidth : 1024,
@@ -158,16 +160,42 @@ const WorldScreen: React.FC = () => {
         };
     }, [characterState.isMoving]);
 
-    const handleNPCClick = useCallback((npcId: string) => {
-        const npc = NPC_LIST.find(n => n.id === npcId);
-        if (!npc) return;
+    // Detectar triggers de NPCs - ARREGLADO
+    useEffect(() => {
+        const triggeredNPC = checkNPCTrigger(
+            characterState.mapX,
+            characterState.mapY,
+            SCALED_SPRITE_SIZE
+        );
 
-        const randomDialogue = npc.dialogues[Math.floor(Math.random() * npc.dialogues.length)];
-        setNpcDialogue({
-            npcName: npc.name,
-            dialogue: randomDialogue
-        });
-    }, []);
+        setCurrentNPCTrigger(triggeredNPC);
+
+        // Solo mostrar diálogo si:
+        // 1. Hay un NPC triggereado
+        // 2. Es diferente al último NPC que mostramos
+        // 3. No hay ningún popup abierto
+        if (triggeredNPC && 
+            triggeredNPC !== lastNPCTrigger && 
+            !npcDialogue && 
+            !miniGamePopupState && 
+            !showLogoutPopup) {
+            
+            const npc = NPC_LIST.find(n => n.id === triggeredNPC);
+            if (npc) {
+                const randomDialogue = npc.dialogues[Math.floor(Math.random() * npc.dialogues.length)];
+                setNpcDialogue({
+                    npcName: npc.name,
+                    dialogue: randomDialogue
+                });
+                setLastNPCTrigger(triggeredNPC);
+            }
+        }
+
+        // Resetear cuando sales completamente del área
+        if (!triggeredNPC && lastNPCTrigger) {
+            setLastNPCTrigger(null);
+        }
+    }, [characterState.mapX, characterState.mapY, lastNPCTrigger, npcDialogue, miniGamePopupState, showLogoutPopup]);
 
     const handleKeyDown = useCallback((event: KeyboardEvent) => {
         const isAnyPopupOpen = showIntro || showLogoutPopup || !!miniGamePopupState || !!npcDialogue;
@@ -293,20 +321,10 @@ const WorldScreen: React.FC = () => {
                         height: '100%',
                         backgroundImage: `url(${BACKGROUND_URL})`,
                         backgroundSize: '100% 100%',
-                        imageRendering: 'pixelated',
+                        imageRendering: 'auto',
                     }}
                 />
             </div>
-
-            {NPC_LIST.map((npc) => (
-                <NPC
-                    key={npc.id}
-                    x={npc.x + backgroundTranslateX - 40}
-                    y={npc.y + backgroundTranslateY - 40}
-                    spriteUrl={npc.spriteUrl}
-                    onClick={() => handleNPCClick(npc.id)}
-                />
-            ))}
 
             <Character
                 x={characterState.mapX + backgroundTranslateX - SCALED_SPRITE_SIZE / 2}

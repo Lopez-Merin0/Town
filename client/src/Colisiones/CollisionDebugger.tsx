@@ -1,61 +1,86 @@
 // CollisionDebugger.tsx (Tu código, el cual está correcto)
 
 import React from 'react';
-import { COLLISION_AREAS, CollisionArea, Point } from './CollisionAreas';
+import { COLLISION_AREAS } from './CollisionAreas';
+import { WALKABLE_AREAS } from './WalkableAreas';
+import { NPC_TRIGGER_AREAS } from '../NPC/NPCTriggerAreas';
 
 interface CollisionDebuggerProps {
     backgroundTranslateX: number;
     backgroundTranslateY: number;
 }
 
-const getAABBFromFourPoints = (area: CollisionArea) => {
-    const allX = [area.p1.x, area.p2.x, area.p3.x, area.p4.x];
-    const allY = [area.p1.y, area.p2.y, area.p3.y, area.p4.y];
-
-    const x_min = Math.min(...allX);
-    const x_max = Math.max(...allX);
-    const y_min = Math.min(...allY);
-    const y_max = Math.max(...allY);
-
-    return {
-        x: x_min,
-        y: y_min,
-        width: x_max - x_min,
-        height: y_max - y_min,
-    };
-};
-
 const CollisionDebugger: React.FC<CollisionDebuggerProps> = ({ backgroundTranslateX, backgroundTranslateY }) => {
+    const DEBUG_MODE = true;
+
+    if (!DEBUG_MODE) return null;
+
     return (
-        <>
-            {COLLISION_AREAS.map((area, index) => {
-                const aabb = getAABBFromFourPoints(area);
-                const color = area.debugColor || '#FF0000';
+        <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 5 }}>
+            {/* Áreas de colisión (ocultas - sin color) */}
+            {COLLISION_AREAS.map((area, index) => (
+                <div
+                    key={`collision-${index}`}
+                    style={{
+                        position: 'absolute',
+                        left: `${area.p1.x + backgroundTranslateX}px`,
+                        top: `${area.p1.y + backgroundTranslateY}px`,
+                        width: `${area.p2.x - area.p1.x}px`,
+                        height: `${area.p4.y - area.p1.y}px`,
+                        border: 'none',
+                        backgroundColor: 'transparent',
+                        pointerEvents: 'none',
+                    }}
+                />
+            ))}
 
-                return (
-                    <div
-                        key={index}
-                        style={{
-                            position: 'absolute',
-                            zIndex: 99,
-                            pointerEvents: 'none',
+            {/* Áreas walkables (visibles - verde) */}
+            {WALKABLE_AREAS.map((area, index) => (
+                <div
+                    key={`walkable-${index}`}
+                    style={{
+                        position: 'absolute',
+                        left: `${area.topLeft.x + backgroundTranslateX}px`,
+                        top: `${area.topLeft.y + backgroundTranslateY}px`,
+                        width: `${area.bottomRight.x - area.topLeft.x}px`,
+                        height: `${area.bottomRight.y - area.topLeft.y}px`,
+                        border: 'none',
+                        backgroundColor: 'transparent',
+                        pointerEvents: 'none',
+                    }}
+                />
+            ))}
 
-                            // Fondo: color definido + opacidad
-                            backgroundColor: `${color}30`,
-
-                            // Borde/Recuadro: el color definido (opaco)
-                            border: `3px solid ${color}`,
-
-                            // Posición ajustada por el desplazamiento del mapa (cámara)
-                            transform: `translate(${backgroundTranslateX + aabb.x}px, ${backgroundTranslateY + aabb.y}px)`,
-
-                            width: aabb.width,
-                            height: aabb.height,
-                        }}
-                    />
-                );
-            })}
-        </>
+            {/* Áreas de trigger de NPCs (verde con borde) */}
+            {NPC_TRIGGER_AREAS.map((area, index) => (
+                <div
+                    key={`npc-trigger-${index}`}
+                    style={{
+                        position: 'absolute',
+                        left: `${area.topLeft.x + backgroundTranslateX}px`,
+                        top: `${area.topLeft.y + backgroundTranslateY}px`,
+                        width: `${area.bottomRight.x - area.topLeft.x}px`,
+                        height: `${area.bottomRight.y - area.topLeft.y}px`,
+                        border: `2px dashed ${area.debugColor}`,
+                        backgroundColor: 'transparent',
+                        pointerEvents: 'none',
+                    }}
+                >
+                    <span style={{
+                        position: 'absolute',
+                        top: '2px',
+                        left: '2px',
+                        fontSize: '10px',
+                        color: '#000',
+                        backgroundColor: 'rgba(255,255,255,0.7)',
+                        padding: '2px 4px',
+                        borderRadius: '3px',
+                    }}>
+                        NPC: {area.npcId}
+                    </span>
+                </div>
+            ))}
+        </div>
     );
 };
 
