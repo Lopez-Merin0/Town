@@ -1,5 +1,8 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import background from '../assets/mundo/fondo.jpg';
+import cafeImage from '../assets/Primer-Game/manzana.png';
+import gramaticaImage from '../assets/Primer-Game/manzana.png';
+import carameloImage from '../assets/Primer-Game/manzana.png';
 
 interface MinigameProgress {
     completedQuestions: number[];
@@ -12,6 +15,22 @@ interface ProgressMapProps {
 }
 
 const ProgressMap: React.FC<ProgressMapProps> = ({ onClose }) => {
+    // Bloquear movimiento del personaje
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            const movementKeys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'w', 'a', 's', 'd'];
+            if (movementKeys.includes(e.key)) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown, true);
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown, true);
+        };
+    }, []);
+
     // Obtener progreso de cada minijuego
     const getMinigameProgress = (key: string): MinigameProgress => {
         const data = localStorage.getItem(key);
@@ -31,148 +50,139 @@ const ProgressMap: React.FC<ProgressMapProps> = ({ onClose }) => {
     const isMinigame3Unlocked = minigame1Completed >= 2 && minigame2Completed >= 2;
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
+        <div className="fixed inset-0 flex items-center justify-center z-50" style={{ backgroundColor: 'rgba(75, 150, 92, 0.95)' }}>
             <div 
-                className="relative"
+                className="relative flex flex-col"
                 style={{
-                    width: '90vw',
-                    maxWidth: '1200px',
-                    height: '85vh',
-                    maxHeight: '800px',
+                    width: '80vw',
+                    maxWidth: '1000px',
+                    height: '70vh',
+                    maxHeight: '600px',
                     border: '8px solid #ff69b4',
-                    borderRadius: '20px',
+                    borderRadius: '30px',
                     boxShadow: '0 10px 30px rgba(0, 0, 0, 0.5)',
-                    overflow: 'hidden',
-                    backgroundColor: '#fff',
+                    backgroundColor: '#FBF0DF',
+                    padding: '30px 20px 20px',
                 }}
             >
-                {/* Fondo del mapa */}
-                <div
-                    style={{
-                        position: 'absolute',
-                        width: '100%',
-                        height: '100%',
-                        backgroundImage: `url(${background})`,
-                        backgroundSize: 'cover',
-                        backgroundPosition: 'center',
-                        opacity: 0.4,
-                    }}
-                />
-
-                {/* Título */}
-                <div className="relative z-10 p-6 text-center">
-                    <h1 className="kawaii-header text-4xl mb-2" style={{ color: '#ff69b4', textShadow: '3px 3px 0px #fff' }}>
+                <div className="text-center mb-6">
+                    <h1 className="kawaii-header text-4xl mb-2" style={{ color: '#4A3C32', textShadow: '2px 2px 0px rgba(255, 255, 255, 0.5)' }}>
                         Mapa de Progreso
                     </h1>
-                    <p className="text-lg font-bold" style={{ color: '#333' }}>
+                    <p className="text-lg font-bold" style={{ color: '#8B7360' }}>
                         ¡Completa todos los minijuegos para dominar Talkie Town!
                     </p>
                 </div>
 
-                {/* Contenedor de minijuegos */}
-                <div className="relative z-10 flex justify-around items-center px-8" style={{ height: 'calc(100% - 180px)' }}>
+                <div className="flex justify-center items-center gap-6 mb-auto">
                     
-                    {/* Primer Minijuego */}
                     <div className="flex flex-col items-center">
                         <div
-                            className="kawaii-popup p-6 text-center mb-4"
+                            className="p-5 text-center"
                             style={{
-                                backgroundColor: isMinigame1Unlocked ? '#90EE90' : '#ccc',
-                                border: `5px solid ${isMinigame1Unlocked ? '#32CD32' : '#999'}`,
+                                backgroundColor: isMinigame1Unlocked ? '#B2D8BB' : '#D3D3D3',
+                                border: `5px solid ${isMinigame1Unlocked ? '#8B7360' : '#999'}`,
+                                borderRadius: '25px',
                                 boxShadow: '0 8px 0 0 rgba(0,0,0,0.2)',
-                                width: '250px',
+                                width: '200px',
                             }}
                         >
-                            <div className="text-4xl mb-3">
-                                {isMinigame1Unlocked ? '🎮' : '🔒'}
+                            <div className="mb-2 flex justify-center">
+                                <img 
+                                    src={cafeImage} 
+                                    alt="Café" 
+                                    style={{ width: '60px', height: '60px', objectFit: 'contain' }}
+                                />
                             </div>
-                            <h3 className="text-2xl font-bold mb-2" style={{ color: '#333' }}>
-                                Primer Minijuego
+                            <h3 className="text-xl font-bold mb-2" style={{ color: '#4A3C32' }}>
+                                El Rincón del Café
                             </h3>
                             <div className="text-3xl font-bold" style={{ color: '#ff69b4' }}>
                                 {minigame1Completed}/2
                             </div>
-                            <p className="text-sm mt-2" style={{ color: '#666' }}>
+                            <p className="text-xs mt-2 font-semibold" style={{ color: '#4A3C32' }}>
                                 {minigame1Completed >= 2 ? '¡Completado! ✓' : 'En progreso...'}
                             </p>
                         </div>
-                        <div className="text-6xl">📍</div>
                     </div>
 
-                    {/* Flecha */}
-                    <div className="text-6xl" style={{ color: isMinigame2Unlocked ? '#32CD32' : '#ccc' }}>
+                    <div className="text-5xl" style={{ color: isMinigame2Unlocked ? '#8B7360' : '#ccc', fontWeight: 'bold' }}>
                         ➜
                     </div>
 
-                    {/* Segundo Minijuego */}
                     <div className="flex flex-col items-center">
                         <div
-                            className="kawaii-popup p-6 text-center mb-4"
+                            className="p-5 text-center"
                             style={{
-                                backgroundColor: isMinigame2Unlocked ? '#87CEEB' : '#ccc',
-                                border: `5px solid ${isMinigame2Unlocked ? '#4682B4' : '#999'}`,
+                                backgroundColor: isMinigame2Unlocked ? '#87CEEB' : '#D3D3D3',
+                                border: `5px solid ${isMinigame2Unlocked ? '#8B7360' : '#999'}`,
+                                borderRadius: '25px',
                                 boxShadow: '0 8px 0 0 rgba(0,0,0,0.2)',
-                                width: '250px',
+                                width: '200px',
                             }}
                         >
-                            <div className="text-4xl mb-3">
-                                {isMinigame2Unlocked ? '🎯' : '🔒'}
+                            <div className="mb-2 flex justify-center">
+                                <img 
+                                    src={gramaticaImage} 
+                                    alt="Gramática" 
+                                    style={{ width: '60px', height: '60px', objectFit: 'contain' }}
+                                />
                             </div>
-                            <h3 className="text-2xl font-bold mb-2" style={{ color: '#333' }}>
-                                Segundo Minijuego
+                            <h3 className="text-xl font-bold mb-2" style={{ color: '#4A3C32' }}>
+                                El Rincón Gramatical
                             </h3>
                             <div className="text-3xl font-bold" style={{ color: '#ff69b4' }}>
                                 {minigame2Completed}/2
                             </div>
-                            <p className="text-sm mt-2" style={{ color: '#666' }}>
+                            <p className="text-xs mt-2 font-semibold" style={{ color: '#4A3C32' }}>
                                 {!isMinigame2Unlocked ? 'Bloqueado' : minigame2Completed >= 2 ? '¡Completado! ✓' : 'En progreso...'}
                             </p>
                         </div>
-                        <div className="text-6xl">📍</div>
                     </div>
 
-                    {/* Flecha */}
-                    <div className="text-6xl" style={{ color: isMinigame3Unlocked ? '#32CD32' : '#ccc' }}>
+                    <div className="text-5xl" style={{ color: isMinigame3Unlocked ? '#8B7360' : '#ccc', fontWeight: 'bold' }}>
                         ➜
                     </div>
 
-                    {/* Tercer Minijuego */}
                     <div className="flex flex-col items-center">
                         <div
-                            className="kawaii-popup p-6 text-center mb-4"
+                            className="p-5 text-center"
                             style={{
-                                backgroundColor: isMinigame3Unlocked ? '#FFD700' : '#ccc',
-                                border: `5px solid ${isMinigame3Unlocked ? '#FFA500' : '#999'}`,
+                                backgroundColor: isMinigame3Unlocked ? '#FFD700' : '#D3D3D3',
+                                border: `5px solid ${isMinigame3Unlocked ? '#8B7360' : '#999'}`,
+                                borderRadius: '25px',
                                 boxShadow: '0 8px 0 0 rgba(0,0,0,0.2)',
-                                width: '250px',
+                                width: '200px',
                             }}
                         >
-                            <div className="text-4xl mb-3">
-                                {isMinigame3Unlocked ? '🏆' : '🔒'}
+                            <div className="mb-2 flex justify-center">
+                                <img 
+                                    src={carameloImage} 
+                                    alt="Caramelo" 
+                                    style={{ width: '60px', height: '60px', objectFit: 'contain' }}
+                                />
                             </div>
-                            <h3 className="text-2xl font-bold mb-2" style={{ color: '#333' }}>
-                                Tercer Minijuego
+                            <h3 className="text-xl font-bold mb-2" style={{ color: '#4A3C32' }}>
+                                El Rincón del Caramelo
                             </h3>
                             <div className="text-3xl font-bold" style={{ color: '#ff69b4' }}>
                                 {minigame3Completed}/2
                             </div>
-                            <p className="text-sm mt-2" style={{ color: '#666' }}>
+                            <p className="text-xs mt-2 font-semibold" style={{ color: '#4A3C32' }}>
                                 {!isMinigame3Unlocked ? 'Bloqueado' : minigame3Completed >= 2 ? '¡Completado! ✓' : 'En progreso...'}
                             </p>
                         </div>
-                        <div className="text-6xl">📍</div>
                     </div>
                 </div>
 
-                {/* Botón de cerrar */}
-                <div className="relative z-10 flex justify-center pb-6">
+                <div className="flex justify-center pb-4">
                     <button
                         onClick={onClose}
-                        className="kawaii-button py-3 px-8 font-bold text-lg"
+                        className="kawaii-button py-2 px-8 font-bold text-lg"
                         style={{
                             backgroundColor: '#ff69b4',
                             color: 'white',
-                            border: '4px solid #e04e9e',
+                            border: '5px solid #e04e9e',
                             boxShadow: '0 6px 0 0 #e04e9e',
                         }}
                     >

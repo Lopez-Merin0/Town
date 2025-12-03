@@ -8,7 +8,7 @@ import LoadingScreen from '../LogIn/LoadingScreen';
 import NPC from '../NPC/NPC';
 import NPCDialoguePopup from '../NPC/NPCDialoguePopup';
 import { NPC_LIST, NPCDialogue } from '../NPC/NPCConfig';
-import ProgressMap from '../components/ProgressMap';
+import ProgressButton from './ProgressButton';
 import ConfirmationPopup from '../components/Popups/ConfirmationPopup';
 import MiniGameConfirmationPopup from '../components/Popups/MiniGameConfirmationPopup';
 import LockedMinigamePopup from '../components/Popups/LockedMinigamePopup';
@@ -73,7 +73,6 @@ const WorldScreen: React.FC = () => {
     const [npcDialogue, setNpcDialogue] = useState<{ npcName: string; dialogue: NPCDialogue } | null>(null);
     const [hasShownPopupForTrigger, setHasShownPopupForTrigger] = useState<string | null>(null);
     const [lockedMessage, setLockedMessage] = useState<string | null>(null);
-    const [showProgressMap, setShowProgressMap] = useState(false);
 
     const [viewport, setViewport] = useState({
         width: typeof window !== 'undefined' ? window.innerWidth : 1024,
@@ -317,24 +316,10 @@ const WorldScreen: React.FC = () => {
                 frame={characterState.frame}
             />
 
-            <h1 className="fixed top-4 left-4 kawaii-header text-xl" style={{ zIndex: 10 }}>
-                Talkie Town!
-            </h1>
-
             <div className="fixed top-4 right-4 flex space-x-2" style={{ zIndex: 10 }}>
-                <button
-                    onClick={() => setShowProgressMap(true)}
-                    className="kawaii-button py-1 px-2 flex items-center space-x-1"
-                    style={{
-                        backgroundColor: '#FFD700',
-                        color: '#333',
-                        border: '3px solid #FFA500',
-                        fontSize: '0.75rem',
-                    }}
+                <ProgressButton
                     disabled={showLogoutPopup || !!miniGamePopupState}
-                >
-                    <span className="font-bold">PROGRESO</span>
-                </button>
+                />
 
                 <button
                     onClick={() => setShowLogoutPopup(true)}
@@ -358,7 +343,6 @@ const WorldScreen: React.FC = () => {
                 </div>
             )}
 
-            {showProgressMap && <ProgressMap onClose={() => setShowProgressMap(false)} />}
             {showLogoutPopup && <ConfirmationPopup onConfirm={() => { setShowLogoutPopup(false); navigate('/'); }} onCancel={() => setShowLogoutPopup(false)} />}
             {miniGamePopupState?.isVisible && <MiniGameConfirmationPopup minigameName={miniGamePopupState.gameName} onConfirm={handleConfirmMinigame} onCancel={() => setMiniGamePopupState(null)} />}
             {lockedMessage && <LockedMinigamePopup message={lockedMessage} onClose={() => setLockedMessage(null)} />}

@@ -23,7 +23,6 @@ export const GlobalProgressProvider: React.FC<{ children: ReactNode }> = ({ chil
 
             if (!authToken || !userData) {
                 console.log('No hay sesión activa, limpiando progreso local');
-                // Limpiar progreso local si no hay sesión
                 localStorage.removeItem('minigameProgress');
                 localStorage.removeItem('minigame2Progress');
                 localStorage.removeItem('minigame3Progress');
@@ -46,12 +45,10 @@ export const GlobalProgressProvider: React.FC<{ children: ReactNode }> = ({ chil
                 const data = await response.json();
                 console.log('Progreso cargado desde servidor:', data);
 
-                // Limpiar progreso anterior primero
                 localStorage.removeItem('minigameProgress');
                 localStorage.removeItem('minigame2Progress');
                 localStorage.removeItem('minigame3Progress');
 
-                // Cargar progreso del usuario actual
                 if (data.data) {
                     if (data.data.minigame1Progress) {
                         localStorage.setItem('minigameProgress', JSON.stringify(data.data.minigame1Progress));
@@ -62,7 +59,7 @@ export const GlobalProgressProvider: React.FC<{ children: ReactNode }> = ({ chil
                     if (data.data.minigame3Progress) {
                         localStorage.setItem('minigame3Progress', JSON.stringify(data.data.minigame3Progress));
                     }
-                    console.log('✅ Progreso específico del usuario cargado');
+                    console.log('Progreso específico del usuario cargado');
                 } else {
                     console.log('Usuario sin progreso, comenzando desde cero');
                 }
@@ -87,7 +84,6 @@ export const GlobalProgressProvider: React.FC<{ children: ReactNode }> = ({ chil
             const parsedUserData = JSON.parse(userData);
             const userId = parsedUserData.id;
 
-            // Leer progreso directamente desde localStorage
             const minigame1ProgressRaw = localStorage.getItem('minigameProgress');
             const minigame2ProgressRaw = localStorage.getItem('minigame2Progress');
             const minigame3ProgressRaw = localStorage.getItem('minigame3Progress');
@@ -106,7 +102,6 @@ export const GlobalProgressProvider: React.FC<{ children: ReactNode }> = ({ chil
             console.log('minigame2Progress:', minigame2Progress);
             console.log('minigame3Progress:', minigame3Progress);
 
-            // Verificar que al menos uno tenga progreso (completedQuestions no vacío)
             const hasProgress = (
                 (minigame1Progress && minigame1Progress.completedQuestions && minigame1Progress.completedQuestions.length > 0) ||
                 (minigame2Progress && minigame2Progress.completedQuestions && minigame2Progress.completedQuestions.length > 0) ||
@@ -143,19 +138,18 @@ export const GlobalProgressProvider: React.FC<{ children: ReactNode }> = ({ chil
             const data = await response.json();
 
             if (response.ok) {
-                console.log('✅ Progreso guardado exitosamente:', data);
+                console.log('Progreso guardado exitosamente:', data);
                 return true;
             } else {
-                console.error('❌ Error al guardar:', data);
+                console.error('Error al guardar:', data);
                 return false;
             }
         } catch (error) {
-            console.error('❌ Error al guardar progreso:', error);
+            console.error('Error al guardar progreso:', error);
             return false;
         }
     };
 
-    // Cargar progreso SOLO si ya hay una sesión activa y no se ha cargado
     useEffect(() => {
         const authToken = localStorage.getItem('authToken');
         const hasLoadedProgress = sessionStorage.getItem('progressLoaded');
