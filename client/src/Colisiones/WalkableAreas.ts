@@ -10,9 +10,6 @@ export interface WalkableArea {
     debugColor: string;
 }
 
-// NOTA: Coordenadas ajustadas para SCALE_FACTOR = 1.2
-// Mapa base: 1024x640, escalado: 1228x768
-
 export const WALKABLE_AREAS: WalkableArea[] = [
     // ========== ÁREAS VERDES TRANSITABLES ==========
     

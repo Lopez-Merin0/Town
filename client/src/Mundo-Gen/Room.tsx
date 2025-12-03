@@ -128,7 +128,6 @@ const Room: React.FC = () => {
         };
     }, [handleKeyDown, handleKeyUp]);
 
-    // Detectar cuando el personaje llega a la zona de guardado
     useEffect(() => {
         const { mapX, mapY } = characterState;
         const isInSaveZone = mapX >= 425 && mapX <= 530 && mapY >= 220 && mapY <= 240;
@@ -141,13 +140,11 @@ const Room: React.FC = () => {
         }
     }, [characterState.mapX, characterState.mapY, showSavePopup, hasShownSavePopup]);
 
-    // Detectar cuando el personaje llega a la zona de salida al mundo
     useEffect(() => {
         const { mapX, mapY } = characterState;
         const isInExitZone = mapX >= 601 && mapX <= 686 && mapY >= 336 && mapY <= 356;
         
         if (isInExitZone) {
-            // La posición ya está guardada en WorldScreen, solo navegamos
             console.log('Saliendo del cuarto, regresando al mundo');
             navigate('/world');
         }

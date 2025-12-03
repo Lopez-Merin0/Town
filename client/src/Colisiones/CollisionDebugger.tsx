@@ -31,7 +31,7 @@ const CollisionDebugger: React.FC<CollisionDebuggerProps> = ({ backgroundTransla
                 />
             ))}
 
-            {/* Áreas walkables (ocultas - sin color) */}
+            {/* Áreas walkables (moradas) */}
             {WALKABLE_AREAS.map((area, index) => (
                 <div
                     key={`walkable-${index}`}
@@ -41,8 +41,8 @@ const CollisionDebugger: React.FC<CollisionDebuggerProps> = ({ backgroundTransla
                         top: `${area.topLeft.y + backgroundTranslateY}px`,
                         width: `${area.bottomRight.x - area.topLeft.x}px`,
                         height: `${area.bottomRight.y - area.topLeft.y}px`,
-                        border: 'none',
-                        backgroundColor: 'transparent',
+                        border: '2px dashed #9370DB',
+                        backgroundColor: 'rgba(147, 112, 219, 0.2)',
                         pointerEvents: 'none',
                     }}
                 />

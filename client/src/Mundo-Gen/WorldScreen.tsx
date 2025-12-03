@@ -160,7 +160,6 @@ const WorldScreen: React.FC = () => {
         };
     }, [characterState.isMoving]);
 
-    // Detectar triggers de NPCs - ARREGLADO
     useEffect(() => {
         const triggeredNPC = checkNPCTrigger(
             characterState.mapX,
@@ -170,10 +169,6 @@ const WorldScreen: React.FC = () => {
 
         setCurrentNPCTrigger(triggeredNPC);
 
-        // Solo mostrar diálogo si:
-        // 1. Hay un NPC triggereado
-        // 2. Es diferente al último NPC que mostramos
-        // 3. No hay ningún popup abierto
         if (triggeredNPC && 
             triggeredNPC !== lastNPCTrigger && 
             !npcDialogue && 
@@ -183,8 +178,6 @@ const WorldScreen: React.FC = () => {
             const npc = NPC_LIST.find(n => n.id === triggeredNPC);
             if (npc) {
                 const randomDialogue = npc.dialogues[Math.floor(Math.random() * npc.dialogues.length)];
-                
-                // Detener el movimiento del personaje
                 setCharacterState(prev => ({ ...prev, isMoving: false }));
                 
                 setNpcDialogue({
@@ -195,7 +188,6 @@ const WorldScreen: React.FC = () => {
             }
         }
 
-        // Resetear cuando sales completamente del área
         if (!triggeredNPC && lastNPCTrigger) {
             setLastNPCTrigger(null);
         }
@@ -206,7 +198,6 @@ const WorldScreen: React.FC = () => {
         if (isAnyPopupOpen) {
             event.preventDefault();
             event.stopPropagation();
-            // Forzar detención del movimiento
             setCharacterState(prev => ({ ...prev, isMoving: false }));
             return;
         }
@@ -258,7 +249,6 @@ const WorldScreen: React.FC = () => {
         if (isAnyPopupOpen) {
             event.preventDefault();
             event.stopPropagation();
-            // Forzar detención del movimiento
             setCharacterState(prev => ({ ...prev, isMoving: false }));
             return;
         }
@@ -268,7 +258,6 @@ const WorldScreen: React.FC = () => {
         }
     }, [showIntro, showLogoutPopup, miniGamePopupState, npcDialogue, lockedMessage]);
 
-    // Efecto adicional para detener movimiento cuando se abre un popup
     useEffect(() => {
         if (npcDialogue || miniGamePopupState || showLogoutPopup || lockedMessage) {
             setCharacterState(prev => ({ ...prev, isMoving: false, frame: 0 }));
@@ -298,10 +287,9 @@ const WorldScreen: React.FC = () => {
 
     const handleConfirmMinigame = () => {
         if (miniGamePopupState) {
-            // Mover el personaje un poco hacia abajo
             setCharacterState(prev => ({
                 ...prev,
-                mapY: prev.mapY + 30, // Mueve 30 píxeles hacia abajo
+                mapY: prev.mapY + 30, 
                 isMoving: false
             }));
 
@@ -312,10 +300,8 @@ const WorldScreen: React.FC = () => {
             };
             localStorage.setItem('worldCharacterPosition', JSON.stringify(positionData));
             
-            // Cerrar el popup antes de navegar
             setMiniGamePopupState(null);
             
-            // Pequeño delay antes de navegar para que se vea el movimiento
             setTimeout(() => {
                 navigate(miniGamePopupState.targetRoute);
             }, 100);

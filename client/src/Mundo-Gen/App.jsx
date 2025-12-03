@@ -38,7 +38,6 @@ const App = () => {
     setIsMusicEnabled(prev => !prev);
   };
 
-  // Nuevo estado para el volumen
   const [musicVolume, setMusicVolume] = useState(
     () => {
       const savedVolume = localStorage.getItem('musicVolume');
@@ -46,10 +45,8 @@ const App = () => {
     }
   );
 
-  // Estado para mostrar/ocultar el panel de volumen
   const [showVolumePanel, setShowVolumePanel] = useState(false);
 
-  // Guardar volumen en localStorage
   useEffect(() => {
     localStorage.setItem('musicVolume', musicVolume.toString());
   }, [musicVolume]);
