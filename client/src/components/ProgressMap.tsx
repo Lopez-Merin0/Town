@@ -1,8 +1,7 @@
 import React, { useEffect } from 'react';
-import background from '../assets/mundo/fondo.jpg';
-import cafeImage from '../assets/Primer-Game/manzana.png';
-import gramaticaImage from '../assets/Primer-Game/manzana.png';
-import carameloImage from '../assets/Primer-Game/manzana.png';
+import cafeImage from '../assets/mundo/mini1.jpeg';
+import gramaticaImage from '../assets/mundo/mini2.jpeg';
+import carameloImage from '../assets/mundo/mini3.jpeg';
 
 interface MinigameProgress {
     completedQuestions: number[];
