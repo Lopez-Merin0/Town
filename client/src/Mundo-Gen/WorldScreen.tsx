@@ -9,15 +9,17 @@ import { NPC_LIST, NPCDialogue } from '../NPC/NPCConfig';
 import ProgressButton from './ProgressButton';
 import ConfirmationPopup from '../components/Popups/ConfirmationPopup';
 import MiniGameConfirmationPopup from '../components/Popups/MiniGameConfirmationPopup';
+import CompletedMinigamePopup from '../components/Popups/CompletedMinigamePopup';
+import AllMinigamesCompletedPopup from '../components/Popups/AllMinigamesCompletedPopup';
 import LockedMinigamePopup from '../components/Popups/LockedMinigamePopup';
 import { checkCollision } from '../utils/collisionUtils';
-import { checkMinigameUnlocked } from '../utils/minigameUtils';
+import { checkMinigameUnlocked, checkMinigameCompleted, checkAllMinigamesCompleted, hasSeenAllCompletedPopup, markAllCompletedPopupAsSeen } from '../utils/minigameUtils';
 import { checkNPCTrigger } from '../utils/npcTriggerUtils';
 import '../index.css';
 import { COLLISION_AREAS } from '../Colisiones/CollisionAreas';
 import background from '../assets/mundo/fondo.jpeg';
 
-const DEBUG_MODE = false;
+const DEBUG_MODE = false; // Activar temporalmente para encontrar la zona correcta
 
 const BACKGROUND_URL = background;
 
@@ -37,7 +39,7 @@ const MINIGAME_ROUTES: { [key: string]: string } = {
     FirstMinigame: '/primer mini juego',
     SecondMinigame: '/segundo mini juego',
     ThirdMinigame: '/tercer mini juego',
-    RoomMinigame: '/room',
+    RoomMinigame: '/mi cuarto',
 };
 
 const DIRECTION_MAP: { [key: string]: number } = {
@@ -69,6 +71,8 @@ const WorldScreen: React.FC = () => {
     const [showIntro, setShowIntro] = useState(true);
     const [showLogoutPopup, setShowLogoutPopup] = useState(false);
     const [miniGamePopupState, setMiniGamePopupState] = useState<{ isVisible: boolean; targetRoute: string; gameName: string; } | null>(null);
+    const [completedMinigamePopup, setCompletedMinigamePopup] = useState<{ isVisible: boolean; gameName: string; } | null>(null);
+    const [showAllCompletedPopup, setShowAllCompletedPopup] = useState(false);
     const [npcDialogue, setNpcDialogue] = useState<{ npcName: string; dialogue: NPCDialogue } | null>(null);
     const [hasShownPopupForTrigger, setHasShownPopupForTrigger] = useState<string | null>(null);
     const [lockedMessage, setLockedMessage] = useState<string | null>(null);
@@ -123,19 +127,30 @@ const WorldScreen: React.FC = () => {
     });
 
     useEffect(() => {
-        if (isPopupTriggered && !miniGamePopupState && !showLogoutPopup && !lockedMessage && isPopupTriggered !== hasShownPopupForTrigger) {
+        if (isPopupTriggered && !miniGamePopupState && !completedMinigamePopup && !showLogoutPopup && !lockedMessage && isPopupTriggered !== hasShownPopupForTrigger) {
             const targetRoute = MINIGAME_ROUTES[isPopupTriggered];
             if (targetRoute) {
-                const { unlocked, message } = checkMinigameUnlocked(isPopupTriggered);
+                // Primero verificar si está completado
+                const isCompleted = checkMinigameCompleted(isPopupTriggered);
                 
-                if (!unlocked) {
-                    setLockedMessage(message);
-                    setHasShownPopupForTrigger(isPopupTriggered);
-                } else {
+                if (isCompleted) {
                     setCharacterState(prev => ({ ...prev, isMoving: false }));
                     const gameName = targetRoute.replace('/', '');
-                    setMiniGamePopupState({ isVisible: true, targetRoute, gameName });
+                    setCompletedMinigamePopup({ isVisible: true, gameName });
                     setHasShownPopupForTrigger(isPopupTriggered);
+                } else {
+                    // Si no está completado, verificar si está desbloqueado
+                    const { unlocked, message } = checkMinigameUnlocked(isPopupTriggered);
+                    
+                    if (!unlocked) {
+                        setLockedMessage(message);
+                        setHasShownPopupForTrigger(isPopupTriggered);
+                    } else {
+                        setCharacterState(prev => ({ ...prev, isMoving: false }));
+                        const gameName = targetRoute.replace('/', '');
+                        setMiniGamePopupState({ isVisible: true, targetRoute, gameName });
+                        setHasShownPopupForTrigger(isPopupTriggered);
+                    }
                 }
             }
         }
@@ -143,7 +158,7 @@ const WorldScreen: React.FC = () => {
         if (!isPopupTriggered && hasShownPopupForTrigger) {
             setHasShownPopupForTrigger(null);
         }
-    }, [isPopupTriggered, miniGamePopupState, showLogoutPopup, hasShownPopupForTrigger, lockedMessage]);
+    }, [isPopupTriggered, miniGamePopupState, completedMinigamePopup, showLogoutPopup, hasShownPopupForTrigger, lockedMessage]);
 
     useEffect(() => {
         let interval: number | null = null;
@@ -172,6 +187,7 @@ const WorldScreen: React.FC = () => {
             triggeredNPC !== lastNPCTrigger && 
             !npcDialogue && 
             !miniGamePopupState && 
+            !completedMinigamePopup && 
             !showLogoutPopup) {
             
             const npc = NPC_LIST.find(n => n.id === triggeredNPC);
@@ -190,10 +206,23 @@ const WorldScreen: React.FC = () => {
         if (!triggeredNPC && lastNPCTrigger) {
             setLastNPCTrigger(null);
         }
-    }, [characterState.mapX, characterState.mapY, lastNPCTrigger, npcDialogue, miniGamePopupState, showLogoutPopup]);
+    }, [characterState.mapX, characterState.mapY, lastNPCTrigger, npcDialogue, miniGamePopupState, completedMinigamePopup, showLogoutPopup]);
+
+    // Verificar si completó todos los minijuegos al cargar
+    useEffect(() => {
+        if (!showIntro) {
+            const allCompleted = checkAllMinigamesCompleted();
+            const alreadySeen = hasSeenAllCompletedPopup();
+            
+            if (allCompleted && !alreadySeen) {
+                console.log('🎉 Todos los minijuegos completados!');
+                setShowAllCompletedPopup(true);
+            }
+        }
+    }, [showIntro]);
 
     const handleKeyDown = useCallback((event: KeyboardEvent) => {
-        const isAnyPopupOpen = showIntro || showLogoutPopup || !!miniGamePopupState || !!npcDialogue || !!lockedMessage;
+        const isAnyPopupOpen = showIntro || showLogoutPopup || !!miniGamePopupState || !!completedMinigamePopup || showAllCompletedPopup || !!npcDialogue || !!lockedMessage;
         if (isAnyPopupOpen) {
             event.preventDefault();
             event.stopPropagation();
@@ -241,10 +270,10 @@ const WorldScreen: React.FC = () => {
 
             return { ...prev, mapX: finalX, mapY: finalY, direction, isMoving: true };
         });
-    }, [showIntro, showLogoutPopup, miniGamePopupState, npcDialogue, lockedMessage]);
+    }, [showIntro, showLogoutPopup, miniGamePopupState, completedMinigamePopup, showAllCompletedPopup, npcDialogue, lockedMessage]);
 
     const handleKeyUp = useCallback((event: KeyboardEvent) => {
-        const isAnyPopupOpen = showIntro || showLogoutPopup || !!miniGamePopupState || !!npcDialogue || !!lockedMessage;
+        const isAnyPopupOpen = showIntro || showLogoutPopup || !!miniGamePopupState || !!completedMinigamePopup || showAllCompletedPopup || !!npcDialogue || !!lockedMessage;
         if (isAnyPopupOpen) {
             event.preventDefault();
             event.stopPropagation();
@@ -255,13 +284,13 @@ const WorldScreen: React.FC = () => {
         if (DIRECTION_MAP[key] !== undefined) {
             setCharacterState((prev) => ({ ...prev, isMoving: false }));
         }
-    }, [showIntro, showLogoutPopup, miniGamePopupState, npcDialogue, lockedMessage]);
+    }, [showIntro, showLogoutPopup, miniGamePopupState, completedMinigamePopup, showAllCompletedPopup, npcDialogue, lockedMessage]);
 
     useEffect(() => {
-        if (npcDialogue || miniGamePopupState || showLogoutPopup || lockedMessage) {
+        if (npcDialogue || miniGamePopupState || completedMinigamePopup || showAllCompletedPopup || showLogoutPopup || lockedMessage) {
             setCharacterState(prev => ({ ...prev, isMoving: false, frame: 0 }));
         }
-    }, [npcDialogue, miniGamePopupState, showLogoutPopup, lockedMessage]);
+    }, [npcDialogue, miniGamePopupState, completedMinigamePopup, showAllCompletedPopup, showLogoutPopup, lockedMessage]);
 
     useEffect(() => {
         window.addEventListener('keydown', handleKeyDown);
@@ -305,6 +334,12 @@ const WorldScreen: React.FC = () => {
                 navigate(miniGamePopupState.targetRoute);
             }, 100);
         }
+    };
+
+    const handleGoToRoom = () => {
+        markAllCompletedPopupAsSeen();
+        setShowAllCompletedPopup(false);
+        navigate('/room');
     };
 
     if (showIntro) {
@@ -354,7 +389,7 @@ const WorldScreen: React.FC = () => {
 
             <div className="fixed top-4 right-4 flex space-x-2" style={{ zIndex: 10 }}>
                 <ProgressButton
-                    disabled={showLogoutPopup || !!miniGamePopupState}
+                    disabled={showLogoutPopup || !!miniGamePopupState || !!completedMinigamePopup || showAllCompletedPopup}
                 />
 
                 <button
@@ -366,7 +401,7 @@ const WorldScreen: React.FC = () => {
                         border: '3px solid #e04e9e',
                         fontSize: '0.75rem',
                     }}
-                    disabled={showLogoutPopup || !!miniGamePopupState}
+                    disabled={showLogoutPopup || !!miniGamePopupState || !!completedMinigamePopup || showAllCompletedPopup}
                 >
                     <LogOutIcon className="w-3 h-3" />
                     <span className="font-bold">SALIR</span>
@@ -381,6 +416,8 @@ const WorldScreen: React.FC = () => {
 
             {showLogoutPopup && <ConfirmationPopup onConfirm={() => { setShowLogoutPopup(false); navigate('/'); }} onCancel={() => setShowLogoutPopup(false)} />}
             {miniGamePopupState?.isVisible && <MiniGameConfirmationPopup minigameName={miniGamePopupState.gameName} onConfirm={handleConfirmMinigame} onCancel={() => setMiniGamePopupState(null)} />}
+            {completedMinigamePopup?.isVisible && <CompletedMinigamePopup minigameName={completedMinigamePopup.gameName} onClose={() => setCompletedMinigamePopup(null)} />}
+            {showAllCompletedPopup && <AllMinigamesCompletedPopup onGoToRoom={handleGoToRoom} />}
             {lockedMessage && <LockedMinigamePopup message={lockedMessage} onClose={() => setLockedMessage(null)} />}
             {npcDialogue && <NPCDialoguePopup npcName={npcDialogue.npcName} text={npcDialogue.dialogue.text} image={npcDialogue.dialogue.image} onClose={() => setNpcDialogue(null)} />}
         </div>

@@ -1,4 +1,5 @@
 import { CollisionArea } from '../Colisiones/CollisionAreas';
+import type { RoomCollisionArea } from '../Colisiones/RoomCollisionAreas';
 
 export const checkCollision = (
     nextX: number,
@@ -45,5 +46,42 @@ export const checkCollision = (
             return true;
         }
     }
+    return false;
+};
+
+export const checkRoomCollision = (
+    characterX: number,
+    characterY: number,
+    characterSize: number,
+    collisionAreas: RoomCollisionArea[],
+    debug: boolean = false
+): boolean => {
+    const halfSize = characterSize / 2;
+    const charLeft = characterX - halfSize;
+    const charRight = characterX + halfSize;
+    const charTop = characterY - halfSize;
+    const charBottom = characterY + halfSize;
+
+    for (const area of collisionAreas) {
+        const areaLeft = area.topLeft.x;
+        const areaRight = area.bottomRight.x;
+        const areaTop = area.topLeft.y;
+        const areaBottom = area.bottomRight.y;
+
+        const isIntersecting = !(
+            charRight < areaLeft ||
+            charLeft > areaRight ||
+            charBottom < areaTop ||
+            charTop > areaBottom
+        );
+
+        if (isIntersecting) {
+            if (debug) {
+                console.log('🔴 Colisión detectada en Room:', { characterX, characterY, area });
+            }
+            return true;
+        }
+    }
+
     return false;
 };

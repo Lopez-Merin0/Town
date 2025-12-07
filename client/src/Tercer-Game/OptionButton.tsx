@@ -9,7 +9,7 @@ interface OptionButtonProps {
     isAnswered: boolean;
     isCorrectAnswer: boolean;
     showExitConfirmation: boolean;
-    onAnswer: (isCorrect: boolean, id: number) => void;
+    onAnswer: (isCorrect: boolean, selectedId: number) => void;
     onHover: (id: number | null) => void;
 }
 
@@ -21,71 +21,58 @@ const OptionButton: React.FC<OptionButtonProps> = ({
     isCorrectAnswer,
     showExitConfirmation,
     onAnswer,
-    onHover
+    onHover,
 }) => {
-    const getOptionButtonStyle = (): React.CSSProperties => {
+    const getButtonStyle = (): React.CSSProperties => {
+        let backgroundColor = KAWAI_COLORS.panelLight;
         let borderColor = KAWAI_COLORS.panelBorder;
-        let boxShadow = `3px 3px 0px ${KAWAI_COLORS.shadowLight}`;
-        let cursor: React.CSSProperties['cursor'] = (isAnswered || showExitConfirmation) ? 'default' : 'pointer';
+        let transform = 'scale(1)';
+        let boxShadow = `5px 5px 0px ${KAWAI_COLORS.panelBorder}`;
 
-        if (isAnswered && option.isCorrect && isCorrectAnswer) {
-            borderColor = KAWAI_COLORS.accentGreen;
-            boxShadow = `5px 5px 0px ${KAWAI_COLORS.accentGreen}`;
-        }
-        else if (isAnswered && isSelected && !option.isCorrect) {
-            borderColor = KAWAI_COLORS.borderRed;
-            boxShadow = `5px 5px 0px ${KAWAI_COLORS.borderRed}`;
+        if (isAnswered && isSelected) {
+            if (isCorrectAnswer) {
+                backgroundColor = KAWAI_COLORS.accentGreen;
+                borderColor = '#32CD32';
+                boxShadow = `5px 5px 0px #32CD32`;
+            } else {
+                backgroundColor = KAWAI_COLORS.accentPink;
+                borderColor = '#e04e9e';
+                boxShadow = `5px 5px 0px #e04e9e`;
+            }
+        } else if (isHovered && !isAnswered) {
+            transform = 'scale(1.05)';
+            backgroundColor = KAWAI_COLORS.accentYellow;
         }
 
-        const style: React.CSSProperties = {
-            padding: '8px',
-            backgroundColor: KAWAI_COLORS.panelLight,
-            border: `4px solid ${borderColor}`,
-            borderRadius: '10px',
-            cursor: cursor,
-            boxShadow: boxShadow,
-            width: '100px',
-            height: '100px',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
+        return {
+            padding: '12px 15px', // Reducido de 15px 20px
+            backgroundColor,
+            color: KAWAI_COLORS.textDark,
+            border: `4px solid ${borderColor}`, // Reducido de 4px 4px
+            borderRadius: '15px',
+            cursor: isAnswered || showExitConfirmation ? 'default' : 'pointer',
+            boxShadow,
+            fontWeight: 'bold',
+            fontSize: '0.85rem', // Reducido de 0.95rem
+            textAlign: 'center',
             transition: 'all 0.2s ease-in-out',
+            transform,
+            minHeight: '55px', // Reducido de 60px
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
         };
-
-        return style;
     };
-
-    const style = getOptionButtonStyle();
-
-    let hoverStyle = {};
-    if (!isAnswered && !showExitConfirmation && isHovered) {
-        hoverStyle = {
-            transform: 'scale(1.05)',
-            boxShadow: `5px 5px 0px ${KAWAI_COLORS.panelBorder}`,
-        };
-    }
 
     return (
         <button
-            onClick={() => onAnswer(option.isCorrect, option.id)}
+            onClick={() => !isAnswered && !showExitConfirmation && onAnswer(option.isCorrect, option.id)}
+            onMouseEnter={() => !isAnswered && !showExitConfirmation && onHover(option.id)}
+            onMouseLeave={() => !isAnswered && !showExitConfirmation && onHover(null)}
             disabled={isAnswered || showExitConfirmation}
-            onMouseEnter={() => onHover(option.id)}
-            onMouseLeave={() => onHover(null)}
-            style={{
-                ...style,
-                ...hoverStyle,
-            }}
+            style={getButtonStyle()}
         >
-            <img
-                src={option.imagePath}
-                alt={`Opción ${option.id}`}
-                style={{
-                    width: '80px',
-                    height: '80px',
-                    objectFit: 'contain',
-                    imageRendering: 'pixelated',
-                }}
-            />
+            {option.text}
         </button>
     );
 };

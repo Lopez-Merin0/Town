@@ -71,7 +71,7 @@ export const MINIGAME_3_QUESTIONS: MinigameQuestion[] = [
                 "¡Vamos a ver si tu oído es más dulce que nuestros caramelos!"
             ],
 
-            correctFeedback: "¡Excelente oído! La frase era \"{text}\". ¡Te ganaste un dulce imaginario pero bien merecido!",
+            correctFeedback: "¡Excelente oído! Te ganaste un dulce imaginario pero bien merecido",
             wrongAttempt1: "Mmm… casi. Vuelve a escuchar con atención, como cuando abres un dulce sin que te oigan. Te queda un intento.",
             wrongAttempt2: "No pasa nada. Equivocarse es normal.",
 
@@ -117,7 +117,7 @@ export const MINIGAME_3_QUESTIONS: MinigameQuestion[] = [
                 "¿Lista para otra ronda?"
             ],
 
-            correctFeedback: "¡Esoooo! \"{text}\" era la frase exacta. Tu oído anda fino como hilo dental. 🔥",
+            correctFeedback: "¡Esoooo!  Tu oído anda fino como hilo dental. ",
             wrongAttempt1: "Mmm… estuvo cerca, vuélvelo a escuchar con calma. Aún tienes un intento.",
             wrongAttempt2: "Todo bien. ¡Regresa e intenta de nuevo!",
 

@@ -160,7 +160,7 @@ const App = () => {
                 <Route path="/tercer mini juego" element={<ThirdMiniGame />} />
 
                 <Route
-                  path="/room"
+                  path="/mi cuarto"
                   element={
                     isAuthenticated() ? <Room /> : <Navigate to="/" />
                   }

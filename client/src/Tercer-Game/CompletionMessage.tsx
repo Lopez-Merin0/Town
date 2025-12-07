@@ -85,8 +85,8 @@ const CompletionMessage: React.FC<CompletionMessageProps> = ({
                 </h2>
                 <p style={{ color: KAWAI_COLORS.textDark, fontSize: '1rem', marginBottom: '10px' }}>
                     {allQuestionsCompleted && !showCompletionMessage
-                        ? 'Ya has completado todos los desafíos del Parque de Diversiones anteriormente.'
-                        : 'Has completado todos los desafíos del Parque de Diversiones.'}
+                        ? 'Ya has completado todos los desafíos.'
+                        : 'Has completado todos los desafíos.'}
                 </p>
                 <p style={{ color: KAWAI_COLORS.textGreen, fontSize: '0.9rem', marginBottom: '20px' }}>
                     Preguntas completadas: {totalCompleted} de {totalQuestions}

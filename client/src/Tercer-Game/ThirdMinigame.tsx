@@ -93,8 +93,8 @@ const ThirdMinigame: React.FC<ThirdMinigameProps> = ({ userName }) => {
         transform: 'translateX(-50%)',
         width: '90%',
         maxWidth: '550px',
-        minHeight: showStory ? '180px' : '120px',
-        padding: '15px 25px',
+        minHeight: showStory ? '180px' : '100px',  // Reducido de 120px a 100px
+        padding: '12px 20px',  // Reducido padding de 15px a 12px
         backgroundColor: 'rgba(247, 240, 230, 0.8)',
         backgroundImage: KAWAI_TEXTURES.texturePaper,
         borderRadius: '20px',
@@ -144,12 +144,12 @@ const ThirdMinigame: React.FC<ThirdMinigameProps> = ({ userName }) => {
 
     const optionsContainerStyle: React.CSSProperties = {
         position: 'absolute',
-        top: '120px',
+        top: '100px',  // Reducido de 120px a 100px
         left: '50%',
         transform: 'translateX(-50%)',
         display: 'grid',
         gridTemplateColumns: '1fr 1fr',
-        gap: '15px',
+        gap: '12px',  // Reducido de 15px a 12px
         width: '90%',
         maxWidth: '450px',
         zIndex: 12,
@@ -157,13 +157,13 @@ const ThirdMinigame: React.FC<ThirdMinigameProps> = ({ userName }) => {
     };
 
     const audioPromptStyle: React.CSSProperties = {
-        fontSize: '1.2rem',
+        fontSize: '1rem',  // Reducido de 1.2rem
         color: KAWAI_COLORS.textDark,
-        padding: '10px 0',
+        padding: '5px 0',  // Reducido de 10px a 5px
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        marginBottom: '10px',
+        marginBottom: '5px',  // Reducido de 10px a 5px
     };
 
     const buttonText = getButtonText();
@@ -189,10 +189,19 @@ const ThirdMinigame: React.FC<ThirdMinigameProps> = ({ userName }) => {
 
     const questionText = (
         <>
-            <p style={KAWAI_STYLES.instruction}>
+            <p style={{
+                ...KAWAI_STYLES.instruction,
+                fontSize: '0.85rem',  // Reducir tamaño de fuente
+                margin: '0 0 5px 0',  // Reducir margen
+            }}>
                 {dialogue.instruction}
             </p>
-            <h3 style={{ margin: 0, color: KAWAI_COLORS.textDark, textAlign: 'center' }}>
+            <h3 style={{ 
+                margin: '0 0 5px 0',  // Reducir margen
+                color: KAWAI_COLORS.textDark, 
+                textAlign: 'center',
+                fontSize: '1rem',  // Reducir tamaño
+            }}>
                 {dialogue.questionHeader}
             </h3>
 
@@ -205,12 +214,12 @@ const ThirdMinigame: React.FC<ThirdMinigameProps> = ({ userName }) => {
                         color: KAWAI_COLORS.textDark,
                         border: `4px solid ${KAWAI_COLORS.panelBorder}`,
                         borderRadius: '50%',
-                        width: '60px',
-                        height: '60px',
+                        width: '50px',  // Reducido de 60px
+                        height: '50px',  // Reducido de 60px
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        fontSize: '1.5rem',
+                        fontSize: '1.2rem',  // Reducido de 1.5rem
                         fontWeight: 'bold',
                         cursor: (isPlaying || isAnswered) ? 'default' : 'pointer',
                         boxShadow: isPlaying ? `2px 2px 0px ${KAWAI_COLORS.bgDark}` : `5px 5px 0px ${KAWAI_COLORS.panelBorder}`,
@@ -222,7 +231,12 @@ const ThirdMinigame: React.FC<ThirdMinigameProps> = ({ userName }) => {
                 </button>
             </div>
 
-            <p style={{ marginTop: '5px', fontSize: '0.75rem', color: KAWAI_COLORS.textDark }}>
+            <p style={{ 
+                marginTop: '3px',  // Reducido de 5px
+                fontSize: '0.7rem',  // Reducido de 0.75rem
+                color: KAWAI_COLORS.textDark,
+                margin: 0,
+            }}>
                 ¡Este es tu intento {attempts + 1} de 2!
             </p>
         </>
