@@ -160,7 +160,7 @@ const App = () => {
                 <Route path="/tercer mini juego" element={<ThirdMiniGame />} />
 
                 <Route
-                  path="/mi cuarto"
+                  path="/room"
                   element={
                     isAuthenticated() ? <Room /> : <Navigate to="/" />
                   }
@@ -173,7 +173,7 @@ const App = () => {
                   }
                 />
 
-                <Route path="*" element={isAuthenticated() ? <Navigate to="/world" /> : <Navigate to="/" />} />
+                <Route path="*" element={isAuthenticated() ? <Navigate to="/room" /> : <Navigate to="/" />} />
               </Routes>
             </Router>
           </Minigame3ProgressProvider>

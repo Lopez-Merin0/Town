@@ -137,10 +137,10 @@ const LoginScreen = () => {
 
                 await loadUserProgress(userData.id || userData._id, tokenToSave);
                 sessionStorage.removeItem('progressLoaded');
-                setMessage('¡Inicio de sesión exitoso! Es hora de explorar el Pueblo...');
+                setMessage('¡Inicio de sesión exitoso! Bienvenido a tu hogar...');
                 
                 setTimeout(() => {
-                    navigate('/world');
+                    navigate('/room');
                 }, 500);
                 
             } else {

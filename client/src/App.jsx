@@ -104,7 +104,7 @@ const App = () => {
                   </ProtectedRoute>
                 } />
 
-                <Route path="*" element={<Navigate to="/" />} />
+                <Route path="*" element={isAuthenticated() ? <Navigate to="/room" /> : <Navigate to="/" />} />
               </Routes>
             </Router>
           </Minigame3ProgressProvider>
